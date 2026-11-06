@@ -1,0 +1,19 @@
+{
+  "name": "@gamejam-switch/tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sprites": "node src/build-sprites.ts",
+    "serve:web": "node src/serve-web.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

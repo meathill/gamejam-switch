@@ -1,0 +1,7 @@
+packages:
+  - tools
+
+onlyBuiltDependencies:
+  - sharp
+  - "@biomejs/biome"
+  - esbuild

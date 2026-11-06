@@ -1,0 +1,44 @@
+; Engine configuration file.
+; 输入映射在 res://scripts/input_bindings.gd 中以代码注册，不在这里配置。
+
+config_version=5
+
+[application]
+
+config/name="Weather Shift"
+config/description="被神明托付最后神力的流浪猫，切换天气，改变水的状态，救出被困的人。"
+run/main_scene="res://scenes/story/title.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://assets/icons/cat.svg"
+
+[autoload]
+
+GameState="*res://autoload/game_state.gd"
+SceneRouter="*res://autoload/scene_router.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[layer_names]
+
+2d_physics/layer_1="world"
+2d_physics/layer_2="player"
+2d_physics/layer_3="ice"
+2d_physics/layer_4="raft"
+2d_physics/layer_6="interact"
+
+[physics]
+
+2d/default_gravity=2400.0
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.10, 0.12, 0.16, 1)

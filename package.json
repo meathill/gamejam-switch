@@ -1,0 +1,23 @@
+{
+  "name": "gamejam-switch",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sprites": "pnpm --filter @gamejam-switch/tools run sprites",
+    "godot:import": "godot --headless --path game --import",
+    "dev": "godot --path game",
+    "editor": "godot --editor --path game",
+    "test": "pnpm run test:tools && pnpm run test:game",
+    "test:tools": "pnpm --filter @gamejam-switch/tools run test",
+    "test:game": "godot --headless --path game -s addons/gut/gut_cmdln.gd -gexit",
+    "export:web": "mkdir -p build/web && godot --headless --path game --export-release Web ../build/web/index.html",
+    "serve:web": "pnpm --filter @gamejam-switch/tools run serve:web",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "typecheck": "pnpm --filter @gamejam-switch/tools run typecheck"
+  },
+  "packageManager": "pnpm@11.0.9",
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.5"
+  }
+}

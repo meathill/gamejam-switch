@@ -1,0 +1,13 @@
+.DS_Store
+node_modules/
+*.rar
+*.zip
+
+# Godot
+game/.godot/
+build/
+*.translation
+
+# Tools
+tools/dist/
+coverage/

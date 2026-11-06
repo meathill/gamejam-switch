@@ -14,21 +14,21 @@ How you interpret the theme is entirely up to you.
 
 > **shift /ʃɪft/**
 >
-> *Noun*
+> _Noun_
 >
 > - A change in position, direction, perspective, or reality.
 > - A period of scheduled work, usually when something breaks.
 > - A keyboard key used to capitalize letters, sprint in games, and accidentally enable sticky keys.
 > - In computing, an operation that moves bits left or right, because apparently bits need exercise too.
 >
-> *Verb*
+> _Verb_
 >
 > - To change gears, direction, or the laws of physics.
 > - To move between worlds, dimensions, timelines, or questionable life choices.
 > - To transform into something (or someone) entirely different.
 > - To pass responsibility to somebody else, especially when the production build breaks.
 >
-> *Acronyms (that we definitely just made up)*
+> _Acronyms (that we definitely just made up)_
 >
 > - Space Hamsters Initiating Faster Travel
 > - Shapeshifters Hiding In Forgotten Temples
@@ -75,14 +75,14 @@ Voting will end on January 1, 2027, at 13:37 PST.
 
 ## 中文要点
 
-| 项目 | 内容 |
-| --- | --- |
-| 主办 | GitHub（Lee Reilly），itch.io 承办 |
-| 主题 | **SHIFT**，解读自由 |
-| 提交窗口 | 2026-11-01 21:37 UTC ～ 2026-12-01 21:37 UTC（即 12-01 13:37 PST，北京时间 12-02 05:37） |
-| 硬性要求 | 源码放在 **公开 GitHub 仓库**，截止前 push；在 itch.io 创建游戏页并提交到 jam |
-| 引擎/语言 | 不限 |
-| AI | 规则未禁止；提交表单会询问是否使用 AI，需如实填写 |
-| 评分维度 | Overall、Gameplay、Graphics、Audio、Innovation、Theme Interpretation |
-| 投票截止 | 2027-01-01 13:37 PST |
-| 官方建议 | 先做好一个机制 + 一个可玩关卡，再扩展 |
+| 项目      | 内容                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------- |
+| 主办      | GitHub（Lee Reilly），itch.io 承办                                                       |
+| 主题      | **SHIFT**，解读自由                                                                      |
+| 提交窗口  | 2026-11-01 21:37 UTC ～ 2026-12-01 21:37 UTC（即 12-01 13:37 PST，北京时间 12-02 05:37） |
+| 硬性要求  | 源码放在 **公开 GitHub 仓库**，截止前 push；在 itch.io 创建游戏页并提交到 jam            |
+| 引擎/语言 | 不限                                                                                     |
+| AI        | 规则未禁止；提交表单会询问是否使用 AI，需如实填写                                        |
+| 评分维度  | Overall、Gameplay、Graphics、Audio、Innovation、Theme Interpretation                     |
+| 投票截止  | 2027-01-01 13:37 PST                                                                     |
+| 官方建议  | 先做好一个机制 + 一个可玩关卡，再扩展                                                    |

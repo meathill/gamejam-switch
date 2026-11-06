@@ -4,16 +4,16 @@
 
 ## 1. 技术选型
 
-| 项目 | 选择 | 理由 |
-| --- | --- | --- |
-| 引擎 | Godot **4.7.x stable**（当前 4.7.2） | 开源、2D 能力完整、一键导出 Web/Win/Mac/Linux |
-| 脚本 | **GDScript**（全静态类型） | Godot 4 的 C# 项目**仍无法导出 Web**（官方文档 + issue #70796），而 Web 是 jam 评审主渠道 |
-| 渲染器 | **Compatibility**（OpenGL / WebGL 2） | Web 只支持该渲染器；统一渲染器避免桌面和 Web 表现不一致 |
-| Web 导出 | 单线程（Thread Support 关闭） | 4.3 起的默认方式，不需要 COOP/COEP 头，itch.io 兼容最好 |
-| 游戏内单元测试 | **GUT**（Godot Unit Test） | 纯 GDScript、支持命令行 headless 运行 |
-| 工具脚本 | TypeScript + Node 24（直接运行 `.ts`）、pnpm、vitest、biome | 遵循 AGENTS.md 环境约定 |
-| 图片处理 | `sharp` | 批量裁切、缩放原画 |
-| 发布 | itch.io + `butler`；后续可加 GitHub Actions 自动导出 | |
+| 项目           | 选择                                                        | 理由                                                                                      |
+| -------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 引擎           | Godot **4.7.x stable**（当前 4.7.2）                        | 开源、2D 能力完整、一键导出 Web/Win/Mac/Linux                                             |
+| 脚本           | **GDScript**（全静态类型）                                  | Godot 4 的 C# 项目**仍无法导出 Web**（官方文档 + issue #70796），而 Web 是 jam 评审主渠道 |
+| 渲染器         | **Compatibility**（OpenGL / WebGL 2）                       | Web 只支持该渲染器；统一渲染器避免桌面和 Web 表现不一致                                   |
+| Web 导出       | 单线程（Thread Support 关闭）                               | 4.3 起的默认方式，不需要 COOP/COEP 头，itch.io 兼容最好                                   |
+| 游戏内单元测试 | **GUT**（Godot Unit Test）                                  | 纯 GDScript、支持命令行 headless 运行                                                     |
+| 工具脚本       | TypeScript + Node 24（直接运行 `.ts`）、pnpm、vitest、biome | 遵循 AGENTS.md 环境约定                                                                   |
+| 图片处理       | `sharp`                                                     | 批量裁切、缩放原画                                                                        |
+| 发布           | itch.io + `butler`；后续可加 GitHub Actions 自动导出        |                                                                                           |
 
 ## 2. Monorepo 结构
 
@@ -57,14 +57,14 @@ gamejam-switch/
 
 Game Off 要求源码在**公开 GitHub 仓库**。
 
-| 内容 | 策略 |
-| --- | --- |
-| `game/assets/**` 处理后的资源 | 普通 git（单张控制在几百 KB 内） |
-| `art/**` 原画（PNG/PSD，单张 4～6MB） | **Git LFS**：免费额度为 10 GiB 存储 + 10 GiB/月 下载流量，对一个 jam 足够 |
-| `cat.rar` 等压缩包 | 不入库（`.gitignore`），已解压的内容进 `art/` |
-| `*.docx` 原始文档 | 已转为 `docs/materials/*.md`；docx 本身可入 LFS 存档或不入库，**【待确认】** |
-| `.godot/`、导出产物 `build/` | `.gitignore` |
-| `*.import`、`*.uid` | **入库**（Godot 4 要求，保证导入设置和 UID 引用一致） |
+| 内容                                  | 策略                                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------------- |
+| `game/assets/**` 处理后的资源         | 普通 git（单张控制在几百 KB 内）                                             |
+| `art/**` 原画（PNG/PSD，单张 4～6MB） | **Git LFS**：免费额度为 10 GiB 存储 + 10 GiB/月 下载流量，对一个 jam 足够    |
+| `cat.rar` 等压缩包                    | 不入库（`.gitignore`），已解压的内容进 `art/`                                |
+| `*.docx` 原始文档                     | 已转为 `docs/materials/*.md`；docx 本身可入 LFS 存档或不入库，**【待确认】** |
+| `.godot/`、导出产物 `build/`          | `.gitignore`                                                                 |
+| `*.import`、`*.uid`                   | **入库**（Godot 4 要求，保证导入设置和 UID 引用一致）                        |
 
 `.gitattributes`（草案）：
 
@@ -77,24 +77,24 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 ## 4. Godot 工程配置
 
-| 设置 | 值 |
-| --- | --- |
-| 基准分辨率 | 1920×1080 |
-| Stretch | mode = `canvas_items`，aspect = `expand` |
-| 纹理过滤 | Linear（水彩风格，不是像素风） |
-| 物理 | Godot Physics 2D，60 tick |
-| 默认重力 | 2400 px/s²（平台跳跃手感从这里调） |
+| 设置       | 值                                       |
+| ---------- | ---------------------------------------- |
+| 基准分辨率 | 1920×1080                                |
+| Stretch    | mode = `canvas_items`，aspect = `expand` |
+| 纹理过滤   | Linear（水彩风格，不是像素风）           |
+| 物理       | Godot Physics 2D，60 tick                |
+| 默认重力   | 2400 px/s²（平台跳跃手感从这里调）       |
 
 ### 4.1 物理层
 
-| 层 | 名称 | 说明 |
-| --- | --- | --- |
-| 1 | `world` | 地面、墙、建筑 |
-| 2 | `player` | 小猫 |
-| 3 | `ice` | 冰面碰撞体（结冰时启用） |
-| 4 | `raft` | 浮箱 |
-| 5 | `water_area` | 水体 Area2D（检测浅水/深水） |
-| 6 | `interact` | 居民、机关等可交互区域 |
+| 层  | 名称         | 说明                         |
+| --- | ------------ | ---------------------------- |
+| 1   | `world`      | 地面、墙、建筑               |
+| 2   | `player`     | 小猫                         |
+| 3   | `ice`        | 冰面碰撞体（结冰时启用）     |
+| 4   | `raft`       | 浮箱                         |
+| 5   | `water_area` | 水体 Area2D（检测浅水/深水） |
+| 6   | `interact`   | 居民、机关等可交互区域       |
 
 ### 4.2 输入映射
 
@@ -104,11 +104,11 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 ### 5.1 Autoload
 
-| 单例 | 职责 |
-| --- | --- |
-| `GameState` | 当前天气、救援进度、检查点、关卡完成标记；发出 `weather_changed`、`resident_rescued`、`level_completed` 信号 |
-| `SceneRouter` | 场景切换 + 淡入淡出转场；保证“第一关开场保留序章最后画面” |
-| `AudioDirector` | BGM、环境音（雨声随天气淡入淡出）、一次性音效 |
+| 单例            | 职责                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------------ |
+| `GameState`     | 当前天气、救援进度、检查点、关卡完成标记；发出 `weather_changed`、`resident_rescued`、`level_completed` 信号 |
+| `SceneRouter`   | 场景切换 + 淡入淡出转场；保证“第一关开场保留序章最后画面”                                                    |
+| `AudioDirector` | BGM、环境音（雨声随天气淡入淡出）、一次性音效                                                                |
 
 只做这三个，其他逻辑都在场景里，避免全局状态膨胀。
 
@@ -151,13 +151,13 @@ DrainageStation (Node2D)   监听排水槽 WaterZone，水位达到 2 时启动�
 
 状态 = `(level: 0|1|2, frozen: bool, polluted: bool)`。
 
-| 当前 | 雨 | 雪 | 日照 | 风 |
-| --- | --- | --- | --- | --- |
-| 液态 L0 | → L1 | ✗ 没有水 | ✗ 已经干了 | ✗ 水太浅 |
-| 液态 L1 | → L2 | → 冰面 L1 | → L0 | ✗ 水太浅 |
-| 液态 L2 | ✗ 水位已满 | → 冰面 L2 | → L1 | 推浮箱一格 |
-| 冰面 L1/L2 | ✗ 冰面无法涨水 | ✗ 已经结冰 | → 液态同水位 | ✗ 浮箱被冻住 |
-| 污染（液态） | 同液态 | 同液态 | ✗ 污染水无法蒸发 | 同液态 |
+| 当前         | 雨             | 雪         | 日照             | 风           |
+| ------------ | -------------- | ---------- | ---------------- | ------------ |
+| 液态 L0      | → L1           | ✗ 没有水   | ✗ 已经干了       | ✗ 水太浅     |
+| 液态 L1      | → L2           | → 冰面 L1  | → L0             | ✗ 水太浅     |
+| 液态 L2      | ✗ 水位已满     | → 冰面 L2  | → L1             | 推浮箱一格   |
+| 冰面 L1/L2   | ✗ 冰面无法涨水 | ✗ 已经结冰 | → 液态同水位     | ✗ 浮箱被冻住 |
+| 污染（液态） | 同液态         | 同液态     | ✗ 污染水无法蒸发 | 同液态       |
 
 风的额外失败原因：区域内无浮箱、面朝方向没有下一个停靠点。
 
@@ -182,7 +182,11 @@ DrainageStation (Node2D)   监听排水槽 WaterZone，水位达到 2 时启动�
   "lines": [
     { "type": "narration", "text": "浑浊的洪水淹过街道……" },
     { "type": "line", "speaker": "ilda", "text": "你还要留在这里？" },
-    { "type": "choice", "text": "是否接受伊尔妲的力量？", "options": [{ "label": "接受", "next": "accept" }, { "label": "拒绝", "next": "refuse" }] },
+    {
+      "type": "choice",
+      "text": "是否接受伊尔妲的力量？",
+      "options": [{ "label": "接受", "next": "accept" }, { "label": "拒绝", "next": "refuse" }]
+    },
     { "type": "event", "name": "weather_demo_rain" }
   ]
 }
@@ -205,12 +209,12 @@ DrainageStation (Node2D)   监听排水槽 WaterZone，水位达到 2 时启动�
 
 ## 8. 测试
 
-| 范围 | 工具 | 命令 |
-| --- | --- | --- |
-| `WaterRules` 全状态 × 全天气 | GUT | `pnpm run test:game`（= `godot --headless --path game -s addons/gut/gut_cmdln.gd`） |
-| 浮箱停靠逻辑、居民救援计数 | GUT | 同上 |
-| tools 脚本 | vitest | `pnpm run test:tools` |
-| 关卡可通关性 | 人工试玩清单 | 见 PRD 7.3 |
+| 范围                         | 工具         | 命令                                                                                |
+| ---------------------------- | ------------ | ----------------------------------------------------------------------------------- |
+| `WaterRules` 全状态 × 全天气 | GUT          | `pnpm run test:game`（= `godot --headless --path game -s addons/gut/gut_cmdln.gd`） |
+| 浮箱停靠逻辑、居民救援计数   | GUT          | 同上                                                                                |
+| tools 脚本                   | vitest       | `pnpm run test:tools`                                                               |
+| 关卡可通关性                 | 人工试玩清单 | 见 PRD 7.3                                                                          |
 
 修 bug 时先写能复现的 GUT 用例（遵循 AGENTS.md）。
 
@@ -225,16 +229,16 @@ GDScript 遵循 [官方风格指南](https://docs.godotengine.org/en/stable/tuto
 
 ## 10. 构建与发布
 
-| 目标 | 预设名 | 输出 |
-| --- | --- | --- |
-| Web | `Web` | `build/web/index.html` |
-| Windows | `Windows Desktop` | `build/windows/` |
-| macOS | `macOS` | `build/macos/`（未签名，jam 可接受） |
-| Linux | `Linux` | `build/linux/` |
+| 目标    | 预设名            | 输出                                 |
+| ------- | ----------------- | ------------------------------------ |
+| Web     | `Web`             | `build/web/index.html`               |
+| Windows | `Windows Desktop` | `build/windows/`                     |
+| macOS   | `macOS`           | `build/macos/`（未签名，jam 可接受） |
+| Linux   | `Linux`           | `build/linux/`                       |
 
 - 命令：`godot --headless --path game --export-release "Web" ../build/web/index.html`，封装为 `pnpm run export:web`。
 - 上传：`butler push build/web <user>/<game>:html5`。
-- 首次需在编辑器 *Manage Export Templates* 下载 4.7.2 导出模板（约 1.2GB）。
+- 首次需在编辑器 _Manage Export Templates_ 下载 4.7.2 导出模板（约 1.2GB）。
 
 ## 11. 环境准备
 
@@ -249,9 +253,9 @@ brew install git-lfs && git lfs install
 
 ## 12. 风险
 
-| 风险 | 应对 |
-| --- | --- |
-| Web 包体积过大（水彩大图） | 资源管线强制缩放；纹理导入用 Lossy/WebP；控制总包 < 50MB |
-| 移动端浏览器性能 | 不作为目标；粒子数量设上限 |
-| 规则与表现不同步导致卡关 | 规则纯函数 + 测试；Tween 期间锁定施放；R 键随时重开 |
-| 关卡设计未定稿 | 灰盒 + 可配置的 `WaterZone`/`DockLane`，关卡用场景拼装，改设计只改场景不改代码 |
+| 风险                       | 应对                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Web 包体积过大（水彩大图） | 资源管线强制缩放；纹理导入用 Lossy/WebP；控制总包 < 50MB                       |
+| 移动端浏览器性能           | 不作为目标；粒子数量设上限                                                     |
+| 规则与表现不同步导致卡关   | 规则纯函数 + 测试；Tween 期间锁定施放；R 键随时重开                            |
+| 关卡设计未定稿             | 灰盒 + 可配置的 `WaterZone`/`DockLane`，关卡用场景拼装，改设计只改场景不改代码 |

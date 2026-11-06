@@ -1,0 +1,60 @@
+{
+  "id": "prologue",
+  "lines": [
+    {
+      "type": "narration",
+      "text": "浑浊的洪水淹过街道，路灯在水面上摇晃。汽车、木箱和广告牌被水流推着撞向居民楼。远处的高架桥已经断裂，楼房之间只剩下一片看不到尽头的黑水。雨还在一直下，没有要停的意思。"
+    },
+    { "type": "narration", "text": "一只湿透的小猫站在居民楼屋顶。" },
+    { "type": "event", "name": "flashlight" },
+    { "type": "narration", "text": "屋顶对面楼房的楼层有一晃而过的人影，手电筒的光透过窗户一闪一闪。" },
+    { "type": "event", "name": "ilda_appear", "on_skip": true },
+    { "type": "narration", "text": "白光闪过，雨幕中浮现一道残缺的圆环，光芒时明时暗。" },
+    { "type": "line", "speaker": "ilda", "text": "你还要留在这里？" },
+    { "type": "line", "speaker": "ilda", "text": "水马上就会淹过屋顶。" },
+    { "type": "line", "speaker": "cat", "text": "我知道。" },
+    { "type": "line", "speaker": "ilda", "text": "那你为什么不走？" },
+    { "type": "line", "speaker": "cat", "text": "她给过我吃的。" },
+    { "type": "line", "speaker": "ilda", "text": "只是因为几顿食物？" },
+    { "type": "line", "speaker": "cat", "text": "不止。" },
+    { "type": "line", "speaker": "ilda", "text": "……" },
+    {
+      "type": "line",
+      "speaker": "ilda",
+      "text": "人类把河封进地下，在它身上盖满了楼房和马路。他们填平湿地，砍光森林，以为水会永远听话。但是河回来了，它会带走这里的一切。"
+    },
+    { "type": "line", "speaker": "ilda", "text": "这是他们自己选择的。" },
+    { "type": "line", "speaker": "cat", "text": "……没有别的办法吗？" },
+    { "type": "line", "speaker": "ilda", "text": "我的身体被破坏，神力被污染，我救不了她们。" },
+    { "type": "line", "speaker": "ilda", "text": "但我可以把一点力量分给你。用它做什么，由你决定。" },
+    { "type": "line", "speaker": "cat", "text": "什么样的力量？" },
+    { "type": "line", "speaker": "ilda", "text": "让天气听话的力量。" },
+    { "type": "event", "name": "weather_rain" },
+    { "type": "line", "speaker": "ilda", "text": "雨会让水涨起来。" },
+    { "type": "event", "name": "weather_wind" },
+    { "type": "line", "speaker": "ilda", "text": "风会推着东西走。" },
+    { "type": "event", "name": "weather_snow" },
+    { "type": "line", "speaker": "ilda", "text": "雪会让水结冰。" },
+    { "type": "event", "name": "weather_sun" },
+    { "type": "line", "speaker": "ilda", "text": "日照会融化冰，也会让水退去。" },
+    { "type": "line", "speaker": "cat", "text": "好。" },
+    {
+      "id": "offer",
+      "type": "choice",
+      "text": "是否接受伊尔妲的力量？",
+      "options": [
+        { "label": "接受", "next": "accepted" },
+        { "label": "拒绝", "next": "refused" }
+      ]
+    },
+    { "id": "refused", "type": "line", "speaker": "ilda", "text": "……再想想吧。她等不了太久。" },
+    { "type": "goto", "target": "offer" },
+    { "id": "accepted", "type": "event", "name": "accept_power", "on_skip": true },
+    { "type": "narration", "text": "猫的额头浮现出金色的嫩芽印记。身后那道残缺的圆环中，有一段亮了起来。" },
+    { "type": "line", "speaker": "system", "text": "获得能力：雨 / 风 / 雪 / 日照" },
+    { "type": "line", "speaker": "ilda", "text": "这是我仅剩的力量了。" },
+    { "type": "event", "name": "seed_drop" },
+    { "type": "narration", "text": "残缺的圆环中，一颗发着微光的种子缓缓落下，停在猫的脚边。" },
+    { "type": "line", "speaker": "ilda", "text": "如果你在路上看见还能活下去的土地，替我种下一颗种子。" }
+  ]
+}

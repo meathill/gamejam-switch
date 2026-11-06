@@ -1,0 +1,10 @@
+{
+  "id": "level_01_intro",
+  "lines": [
+    { "type": "narration", "text": "一座老居民楼立在水中。高处楼层的手电光还亮着。你和那栋楼之间，隔着整片被淹没的低地。" },
+    { "type": "line", "speaker": "cat", "text": "她还在那里。" },
+    { "type": "line", "speaker": "ilda", "text": "踩着漂浮的木箱过去。" },
+    { "type": "line", "speaker": "cat", "text": "我会救下她。" },
+    { "type": "line", "speaker": "system", "text": "第一关任务：救助被困的居民，然后前往高地避难所。" }
+  ]
+}

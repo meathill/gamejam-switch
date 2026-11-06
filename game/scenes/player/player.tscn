@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scenes/player/weather_caster.gd" id="2_caster"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(80, 170)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 12.0
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -85)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -110)
+
+[node name="WeatherCaster" type="Node2D" parent="."]
+position = Vector2(0, -60)
+script = ExtResource("2_caster")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(0, -200)
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0

@@ -5,6 +5,8 @@ signal weather_changed(weather: Weather.Type)
 signal message_posted(text: String, color: Color)
 signal rescue_progress_changed(rescued: int, total: int)
 signal level_completed
+signal target_changed(zone: WaterZone)
+signal weather_cast(zone: WaterZone, weather: Weather.Type)
 
 const MESSAGE_COLOR := Color(0.95, 0.95, 0.9)
 const WARNING_COLOR := Color(1.0, 0.72, 0.55)

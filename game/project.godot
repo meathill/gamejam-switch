@@ -25,6 +25,10 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[gui]
+
+theme/custom_font="res://assets/fonts/ui_font.ttf"
+
 [layer_names]
 
 2d_physics/layer_1="world"

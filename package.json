@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "sprites": "pnpm --filter @gamejam-switch/tools run sprites",
+    "fonts": "pnpm --filter @gamejam-switch/tools run fonts",
     "godot:import": "godot --headless --path game --import",
     "dev": "godot --path game",
     "editor": "godot --editor --path game",

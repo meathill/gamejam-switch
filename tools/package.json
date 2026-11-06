@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "sprites": "node src/build-sprites.ts",
+    "fonts": "node src/build-font.ts",
     "serve:web": "node src/serve-web.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "subset-font": "^2.9.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

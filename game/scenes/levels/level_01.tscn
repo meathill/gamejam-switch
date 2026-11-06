@@ -1,0 +1,248 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scenes/props/solid_block.gd" id="3_block"]
+[ext_resource type="Script" path="res://scenes/water/water_zone.gd" id="4_zone"]
+[ext_resource type="Script" path="res://scenes/props/raft.gd" id="5_raft"]
+[ext_resource type="Script" path="res://scenes/props/resident.gd" id="6_resident"]
+[ext_resource type="Script" path="res://scenes/props/drainage_station.gd" id="7_station"]
+[ext_resource type="Script" path="res://scenes/props/hint_sign.gd" id="8_sign"]
+[ext_resource type="Script" path="res://scenes/props/checkpoint.gd" id="9_checkpoint"]
+[ext_resource type="Script" path="res://scenes/props/goal_area.gd" id="10_goal"]
+[ext_resource type="Script" path="res://scenes/effects/city_backdrop.gd" id="11_backdrop"]
+
+[sub_resource type="Gradient" id="Gradient_sky"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(0.06, 0.07, 0.11, 1, 0.22, 0.25, 0.32, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sky"]
+gradient = SubResource("Gradient_sky")
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[node name="Level01" type="Node2D"]
+script = ExtResource("1_level")
+intro_dialogue = "res://data/dialogue/level_01_intro.json"
+camera_limits = Rect2i(-400, -1300, 11000, 2000)
+
+[node name="Sky" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Gradient" type="TextureRect" parent="Sky"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_sky")
+
+[node name="FarCity" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.25, 0.5)
+
+[node name="Backdrop" type="Node2D" parent="FarCity"]
+position = Vector2(0, 60)
+script = ExtResource("11_backdrop")
+width = 5000.0
+seed_value = 3
+base_color = Color(0.13, 0.15, 0.2, 1)
+max_height = 760.0
+has_lit_window = true
+
+[node name="NearCity" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.55, 0.8)
+
+[node name="Backdrop" type="Node2D" parent="NearCity"]
+position = Vector2(0, 40)
+script = ExtResource("11_backdrop")
+width = 8000.0
+seed_value = 11
+base_color = Color(0.18, 0.2, 0.25, 1)
+max_height = 520.0
+
+[node name="Terrain" type="Node2D" parent="."]
+
+[node name="LeftWall" type="StaticBody2D" parent="Terrain"]
+position = Vector2(-600, -1400)
+script = ExtResource("3_block")
+size = Vector2(200, 2300)
+
+[node name="GroundA" type="StaticBody2D" parent="Terrain"]
+position = Vector2(-400, 0)
+script = ExtResource("3_block")
+size = Vector2(1800, 900)
+
+[node name="Crate" type="StaticBody2D" parent="Terrain"]
+position = Vector2(600, -110)
+script = ExtResource("3_block")
+size = Vector2(160, 110)
+color = Color(0.5, 0.36, 0.22, 1)
+
+[node name="GroundC1" type="StaticBody2D" parent="Terrain"]
+position = Vector2(2300, 0)
+script = ExtResource("3_block")
+size = Vector2(500, 900)
+
+[node name="GroundC2" type="StaticBody2D" parent="Terrain"]
+position = Vector2(3100, 0)
+script = ExtResource("3_block")
+size = Vector2(500, 900)
+
+[node name="BusStopRoof" type="StaticBody2D" parent="Terrain"]
+position = Vector2(4250, -40)
+script = ExtResource("3_block")
+size = Vector2(200, 30)
+color = Color(0.55, 0.6, 0.55, 1)
+
+[node name="BusStopPole" type="StaticBody2D" parent="Terrain"]
+position = Vector2(4330, -10)
+script = ExtResource("3_block")
+size = Vector2(40, 230)
+color = Color(0.45, 0.48, 0.45, 1)
+
+[node name="GroundE" type="StaticBody2D" parent="Terrain"]
+position = Vector2(5100, 0)
+script = ExtResource("3_block")
+size = Vector2(300, 900)
+
+[node name="Building" type="StaticBody2D" parent="Terrain"]
+position = Vector2(7400, -460)
+script = ExtResource("3_block")
+size = Vector2(500, 1360)
+color = Color(0.36, 0.33, 0.33, 1)
+is_building = true
+
+[node name="WindowLedge" type="StaticBody2D" parent="Terrain"]
+position = Vector2(7280, -200)
+script = ExtResource("3_block")
+size = Vector2(120, 30)
+color = Color(0.5, 0.46, 0.42, 1)
+
+[node name="GroundF" type="StaticBody2D" parent="Terrain"]
+position = Vector2(7900, 0)
+script = ExtResource("3_block")
+size = Vector2(400, 900)
+
+[node name="GroundG" type="StaticBody2D" parent="Terrain"]
+position = Vector2(9200, 0)
+script = ExtResource("3_block")
+size = Vector2(1400, 900)
+color = Color(0.3, 0.36, 0.3, 1)
+
+[node name="RightWall" type="StaticBody2D" parent="Terrain"]
+position = Vector2(10600, -1400)
+script = ExtResource("3_block")
+size = Vector2(200, 2300)
+
+[node name="Water" type="Node2D" parent="."]
+
+[node name="Street" type="Node2D" parent="Water"]
+position = Vector2(1400, 0)
+script = ExtResource("4_zone")
+zone_name = "积水街道"
+size = Vector2(900, 220)
+
+[node name="Channel" type="Node2D" parent="Water"]
+position = Vector2(2800, 0)
+script = ExtResource("4_zone")
+zone_name = "排水槽"
+size = Vector2(300, 160)
+level = 0
+
+[node name="Plaza" type="Node2D" parent="Water"]
+position = Vector2(3600, 0)
+script = ExtResource("4_zone")
+zone_name = "被淹广场"
+size = Vector2(1500, 220)
+is_polluted = true
+
+[node name="Canal" type="Node2D" parent="Water"]
+position = Vector2(5400, 0)
+script = ExtResource("4_zone")
+zone_name = "浮箱水道"
+size = Vector2(2000, 260)
+level = 1
+is_polluted = true
+dock_positions = PackedFloat32Array(130, 960, 1760)
+
+[node name="Raft" type="AnimatableBody2D" parent="Water/Canal"]
+script = ExtResource("5_raft")
+
+[node name="Lowland" type="Node2D" parent="Water"]
+position = Vector2(8300, 0)
+script = ExtResource("4_zone")
+zone_name = "低洼积水"
+size = Vector2(900, 420)
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="DrainageStation" type="Node2D" parent="Props" node_paths=PackedStringArray("channel", "drained_zone")]
+position = Vector2(3350, 0)
+script = ExtResource("7_station")
+channel = NodePath("../../Water/Channel")
+drained_zone = NodePath("../../Water/Plaza")
+
+[node name="Resident2" type="Area2D" parent="Props"]
+position = Vector2(4350, -40)
+script = ExtResource("6_resident")
+resident_name = "公交站的大叔"
+thanks_text = "得救了！我先去高地避难所。"
+
+[node name="Resident1" type="Area2D" parent="Props"]
+position = Vector2(7345, -200)
+script = ExtResource("6_resident")
+resident_name = "楼里的奶奶"
+thanks_text = "是你啊，小家伙……谢谢你回来找我。"
+
+[node name="GoalArea" type="Area2D" parent="Props"]
+position = Vector2(9900, 0)
+script = ExtResource("10_goal")
+
+[node name="Signs" type="Node2D" parent="."]
+
+[node name="SignMove" type="Node2D" parent="Signs"]
+position = Vector2(250, 0)
+script = ExtResource("8_sign")
+text = "← → 移动
+Space 跳跃"
+
+[node name="SignWeather" type="Node2D" parent="Signs"]
+position = Vector2(1100, 0)
+script = ExtResource("8_sign")
+text = "Shift 切换天气　F 施放
+雪冻住水面，日照让水退去"
+
+[node name="SignChannel" type="Node2D" parent="Signs"]
+position = Vector2(2550, 0)
+script = ExtResource("8_sign")
+text = "排水槽干透了……
+下场雨，排水站会转起来吗？"
+
+[node name="SignCanal" type="Node2D" parent="Signs"]
+position = Vector2(5230, 0)
+script = ExtResource("8_sign")
+text = "浮箱要在深水里才漂得起来
+风顺着你面朝的方向吹"
+
+[node name="SignLowland" type="Node2D" parent="Signs"]
+position = Vector2(8120, 0)
+script = ExtResource("8_sign")
+text = "这片积水又深又宽，
+掉下去就爬不上来了"
+
+[node name="Checkpoints" type="Node2D" parent="."]
+
+[node name="CheckpointC" type="Node2D" parent="Checkpoints"]
+position = Vector2(2400, 0)
+script = ExtResource("9_checkpoint")
+
+[node name="CheckpointE" type="Node2D" parent="Checkpoints"]
+position = Vector2(5180, 0)
+script = ExtResource("9_checkpoint")
+
+[node name="CheckpointF" type="Node2D" parent="Checkpoints"]
+position = Vector2(8000, 0)
+script = ExtResource("9_checkpoint")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(150, 0)

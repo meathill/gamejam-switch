@@ -72,3 +72,7 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+        # Pages 拥堵时会长时间停在 syncing_files，默认 10 分钟超时不够
+        with:
+          timeout: 1800000
+          error_count: 20

@@ -24,4 +24,5 @@
 ## 环境
 
 - 导出模板 1.2GB，从 GitHub 下载经常卡住：用 `curl -C -` 断点续传 + `--speed-limit` 自动重试。
-- `git lfs install` 会改全局 git config，需要开发者自己执行一次。
+- `git lfs install` 会改全局 git config，需要开发者自己执行一次。未安装时可临时用 `git -c filter.lfs.clean="git-lfs clean -- %f" -c filter.lfs.process="git-lfs filter-process" -c filter.lfs.required=true add art`，push 前先 `git lfs push --all origin`（没有 pre-push hook，GitHub 会拒绝缺 LFS 对象的 push）。
+- GitHub Pages 需要在仓库设置里把 Source 设为 GitHub Actions（或 `gh api -X POST repos/<owner>/<repo>/pages -f build_type=workflow`）。

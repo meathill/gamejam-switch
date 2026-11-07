@@ -2,6 +2,7 @@
 
 GitHub Game Off 2026（主题 **SHIFT**）参赛作品。被神明托付最后神力的流浪猫，在洪水淹没的城市里切换雨、风、雪、日照四种天气，改变水的状态，救出被困的人。
 
+- 在线试玩：<https://meathill.github.io/gamejam-switch/>（push 到 master 后由 GitHub Actions 自动部署）
 - 需求：[docs/PRD.md](docs/PRD.md)
 - 技术方案：[docs/TECH_SPEC.md](docs/TECH_SPEC.md)
 - 原始策划材料：[docs/materials/](docs/materials/)

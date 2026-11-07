@@ -2,7 +2,7 @@
 
 ## 待处理
 
-- [ ] 开发者执行 `git lfs install` 后提交 `art/`（原画 + 字体源文件，约 75MB）
+- [ ] 开发者在本机执行一次 `git lfs install`（否则修改 `art/` 后提交不会走 LFS）
 - [ ] 确认游戏名（暂定 Weather Shift）
 - [ ] itch.io 建页、`butler` 上传 Web 版
 
@@ -26,5 +26,4 @@
 
 ## 工程
 
-- [ ] GitHub Actions：push 时跑测试并导出 Web
 - [ ] Linux 导出预设

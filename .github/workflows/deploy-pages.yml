@@ -1,0 +1,74 @@
+name: Deploy Web to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+  GODOT_RELEASE: https://github.com/godotengine/godot/releases/download/4.7.2-stable
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot
+        run: |
+          curl -fsSL --retry 5 -o godot.zip "$GODOT_RELEASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          godot --version
+
+      - name: Cache export templates
+        id: templates
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
+          key: godot-web-templates-${{ env.GODOT_VERSION }}
+
+      - name: Install web export templates
+        if: steps.templates.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL --retry 5 -o templates.tpz "$GODOT_RELEASE/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          DEST="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$DEST"
+          unzip -j templates.tpz templates/version.txt templates/web_nothreads_release.zip templates/web_nothreads_debug.zip -d "$DEST"
+          rm templates.tpz
+
+      - name: Import project
+        run: godot --headless --path game --import
+
+      - name: Run GUT tests
+        run: godot --headless --path game -s addons/gut/gut_cmdln.gd -gexit
+
+      - name: Export Web
+        run: |
+          mkdir -p build/web
+          godot --headless --path game --export-release Web ../build/web/index.html
+          test -f build/web/index.pck
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

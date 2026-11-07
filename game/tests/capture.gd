@@ -168,5 +168,12 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				steps.append({ "frame": frame + 1, "do": "release", "action": "advance" })
 				if index in [1, 6, 12, 22, 26, 33]:
 					steps.append({ "frame": frame + 25, "do": "shot", "name": "prologue_%02d" % index })
+			# 选项出现后按 Enter 选“接受”，再推进到种子落下
+			steps.append({ "frame": 1100, "do": "press", "action": "ui_accept" })
+			steps.append({ "frame": 1102, "do": "release", "action": "ui_accept" })
+			for index in 4:
+				steps.append({ "frame": 1160 + index * 40, "do": "press", "action": "advance" })
+				steps.append({ "frame": 1161 + index * 40, "do": "release", "action": "advance" })
+			steps.append({ "frame": 1420, "do": "shot", "name": "prologue_seed" })
 			return steps
 	return [{ "frame": 90, "do": "shot", "name": "idle" }, { "frame": 200, "do": "shot", "name": "idle_later" }]

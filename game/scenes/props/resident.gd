@@ -3,13 +3,18 @@ class_name Resident
 extends Area2D
 ## 等待救援的居民。原点在脚底。小猫靠近后按 E 救援。
 
-const BODY_COLOR := Color(0.62, 0.58, 0.52)
-const HEAD_COLOR := Color(0.85, 0.78, 0.68)
 const LIGHT_COLOR := Color(1.0, 0.95, 0.7)
 const DETECT_SIZE := Vector2(260, 260)
+const DISPLAY_HEIGHT := 240.0
 
 @export var resident_name: String = "居民"
 @export_multiline var thanks_text: String = "谢谢你，小猫！"
+@export var texture: Texture2D:
+	set(value):
+		texture = value
+		queue_redraw()
+## 手里拿着手电筒（序章里对面楼闪烁的那束光）
+@export var has_flashlight: bool = false
 
 var _is_player_near: bool = false
 var _is_rescued: bool = false
@@ -35,15 +40,16 @@ func _ready() -> void:
 	_prompt.add_theme_font_size_override("font_size", 28)
 	_prompt.add_theme_constant_override("outline_size", 8)
 	_prompt.add_theme_color_override("font_outline_color", Color.BLACK)
-	_prompt.position = Vector2(-50, -230)
+	_prompt.position = Vector2(-50, -DISPLAY_HEIGHT - 50.0)
 	_prompt.visible = false
 	add_child(_prompt)
 	GameState.register_resident()
 
 
 func _process(delta: float) -> void:
-	_time += delta
-	queue_redraw()
+	if has_flashlight:
+		_time += delta
+		queue_redraw()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -81,8 +87,11 @@ func _on_body_exited(body: Node2D) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(-26, -110, 52, 110), BODY_COLOR)
-	draw_circle(Vector2(0, -135), 26.0, HEAD_COLOR)
-	var blink := 0.55 + 0.45 * sin(_time * 5.0)
-	draw_circle(Vector2(36, -80), 10.0, Color(LIGHT_COLOR, blink))
-	draw_circle(Vector2(36, -80), 32.0, Color(LIGHT_COLOR, blink * 0.25))
+	if texture:
+		var display_size := texture.get_size() * DISPLAY_HEIGHT / texture.get_height()
+		draw_texture_rect(texture, Rect2(Vector2(-display_size.x / 2.0, -display_size.y), display_size), false)
+	if has_flashlight:
+		var blink := 0.55 + 0.45 * sin(_time * 5.0)
+		var light_position := Vector2(DISPLAY_HEIGHT * 0.2, -DISPLAY_HEIGHT * 0.4)
+		draw_circle(light_position, 40.0, Color(LIGHT_COLOR, blink * 0.25))
+		draw_circle(light_position, 10.0, Color(LIGHT_COLOR, blink))

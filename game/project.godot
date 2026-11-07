@@ -9,7 +9,7 @@ config/name="Weather Shift"
 config/description="被神明托付最后神力的流浪猫，切换天气，改变水的状态，救出被困的人。"
 run/main_scene="res://scenes/story/title.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://assets/icons/cat.svg"
+config/icon="res://assets/ui/sprout_mark.png"
 
 [autoload]
 

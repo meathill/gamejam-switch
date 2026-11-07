@@ -6,6 +6,11 @@ const LEVEL_SCENE := "res://scenes/levels/level_01.tscn"
 const CAT_PORTRAIT := preload("res://assets/portraits/cat.png")
 const CAT_POSITION := Vector2(480, 520)
 const RING_POSITION := Vector2(1080, 300)
+const SPROUT_MARK := preload("res://assets/ui/sprout_mark.png")
+const SEED := preload("res://assets/ui/seed.png")
+const MARK_HEIGHT := 46.0
+const MARK_OFFSET := Vector2(0, -72)
+const SEED_HEIGHT := 56.0
 
 var _backdrop: StoryBackdrop
 var _ring: IldaRing
@@ -80,27 +85,30 @@ func _flash(color: Color, seconds: float) -> void:
 
 
 func _show_mark() -> void:
-	_mark = Node2D.new()
-	_mark.position = CAT_POSITION + Vector2(0, -170)
-	_mark.draw.connect(func() -> void:
-		_mark.draw_circle(Vector2.ZERO, 30.0, Color(1.0, 0.82, 0.35, 0.3))
-		_mark.draw_colored_polygon(PackedVector2Array([Vector2(0, -16), Vector2(10, 4), Vector2(0, 14), Vector2(-10, 4)]), Color(1.0, 0.82, 0.35))
-	)
+	_mark = _make_glowing_sprite(SPROUT_MARK, MARK_HEIGHT, Color(1.0, 0.82, 0.35, 0.3))
+	_mark.position = CAT_POSITION + MARK_OFFSET
 	add_child(_mark)
 	_mark.modulate.a = 0.0
 	create_tween().tween_property(_mark, "modulate:a", 1.0, 1.0)
 
 
 func _drop_seed() -> void:
-	var seed_node := Node2D.new()
+	var seed_node := _make_glowing_sprite(SEED, SEED_HEIGHT, Color(0.75, 1.0, 0.6, 0.3))
 	seed_node.position = RING_POSITION
-	seed_node.draw.connect(func() -> void:
-		seed_node.draw_circle(Vector2.ZERO, 26.0, Color(0.75, 1.0, 0.6, 0.25))
-		seed_node.draw_circle(Vector2.ZERO, 9.0, Color(0.85, 1.0, 0.7))
-	)
 	add_child(seed_node)
 	var landing := Vector2(CAT_POSITION.x + 150, StoryBackdrop.ROOF_RECT.position.y - 30)
 	create_tween().tween_property(seed_node, "position", landing, 2.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+## 带一圈柔光的贴图节点，按高度缩放
+func _make_glowing_sprite(texture: Texture2D, height: float, glow: Color) -> Node2D:
+	var node := Node2D.new()
+	var sprite := Sprite2D.new()
+	sprite.texture = texture
+	sprite.scale = Vector2.ONE * height / texture.get_height()
+	node.draw.connect(func() -> void: node.draw_circle(Vector2.ZERO, height * 0.75, glow))
+	node.add_child(sprite)
+	return node
 
 
 func _show_title_card() -> void:

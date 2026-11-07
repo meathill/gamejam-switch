@@ -41,5 +41,7 @@ func _set_pressed(pressed: bool) -> void:
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, radius, PRESSED_COLOR if _is_pressed else BACKGROUND_COLOR)
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, RING_COLOR, 4.0, true)
-	var icon_size := radius * 1.0
-	draw_texture_rect(icon, Rect2(Vector2.ONE * -icon_size / 2.0, Vector2.ONE * icon_size), false, tint)
+	# 按最长边适配，保持图标原比例（美术图标不是正方形）
+	var icon_scale := radius * 1.1 / maxf(icon.get_width(), icon.get_height())
+	var icon_size := icon.get_size() * icon_scale
+	draw_texture_rect(icon, Rect2(-icon_size / 2.0, icon_size), false, tint)

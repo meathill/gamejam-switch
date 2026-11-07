@@ -36,6 +36,19 @@
 | `tail.png`                | 954×427   | 尾巴                     |
 | `cat_dead_head.png`       | 2180×1948 | 死亡状态的头             |
 
+## 其他美术素材（2026-11-07 补充）
+
+| 源文件                               | 入库后                               | 用途                                       |
+| ------------------------------------ | ------------------------------------ | ------------------------------------------ |
+| `art/npc/大叔.png`                   | `game/assets/sprites/npc/uncle.png`  | 居民 2（公交站）                           |
+| `art/npc/老奶奶.png`                 | `game/assets/sprites/npc/granny.png` | 居民 1（居民楼窗台，手持手电）             |
+| `art/ui/ui/轮盘.png`                 | `game/assets/ui/weather_wheel.png`   | HUD 天气轮盘；象限顺时针为雨、风、雪、日照 |
+| `art/ui/ui/{rain,wind,snow,sun}.png` | `game/assets/ui/weather_*.png`       | 轮盘中心、触屏天气按钮                     |
+| `art/ui/ui/seed.png`                 | `game/assets/ui/seed.png`            | 序章落下的种子                             |
+| `art/ui/ui/嫩芽印记.png`             | `game/assets/ui/sprout_mark.png`     | 序章猫额头印记、项目图标（Web favicon）    |
+
+映射关系写在 `tools/src/build-sprites.ts` 的 `SINGLE_IMAGES`，换图后跑 `pnpm run sprites`。
+
 ## 入库前处理
 
 - 原图分辨率远超游戏需要（角色在 1080p 画面中约 200～300px 高），需裁掉透明边并缩放，否则 Web 包体积和显存都会爆。

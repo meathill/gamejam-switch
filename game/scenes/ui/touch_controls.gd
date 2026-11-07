@@ -40,7 +40,6 @@ func _add(action: StringName, icon_name: String, center: Vector2, radius: float,
 
 func _refresh_weather(weather: Weather.Type) -> void:
 	_weather_button.icon = load(Weather.get_icon_path(weather))
-	_weather_button.tint = Weather.get_color(weather)
 
 
 func _refresh_visibility() -> void:

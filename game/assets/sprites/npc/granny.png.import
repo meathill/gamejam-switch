@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://brp8cs3w248vf"
-path="res://.godot/imported/snowflake.svg-f9209167c098e01e9e26e84c41eaaab8.ctex"
+uid="uid://cs7oyk2x8buap"
+path="res://.godot/imported/granny.png-2ae68e385e96bea0c4c35a776e7b56e7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/snowflake.svg"
-dest_files=["res://.godot/imported/snowflake.svg-f9209167c098e01e9e26e84c41eaaab8.ctex"]
+source_file="res://assets/sprites/npc/granny.png"
+dest_files=["res://.godot/imported/granny.png-2ae68e385e96bea0c4c35a776e7b56e7.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://scenes/props/checkpoint.gd" id="9_checkpoint"]
 [ext_resource type="Script" path="res://scenes/props/goal_area.gd" id="10_goal"]
 [ext_resource type="Script" path="res://scenes/effects/city_backdrop.gd" id="11_backdrop"]
+[ext_resource type="Texture2D" path="res://assets/sprites/npc/uncle.png" id="12_uncle"]
+[ext_resource type="Texture2D" path="res://assets/sprites/npc/granny.png" id="13_granny"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 offsets = PackedFloat32Array(0, 1)
@@ -187,12 +189,15 @@ position = Vector2(4350, -40)
 script = ExtResource("6_resident")
 resident_name = "公交站的大叔"
 thanks_text = "得救了！我先去高地避难所。"
+texture = ExtResource("12_uncle")
 
 [node name="Resident1" type="Area2D" parent="Props"]
 position = Vector2(7345, -200)
 script = ExtResource("6_resident")
 resident_name = "楼里的奶奶"
 thanks_text = "是你啊，小家伙……谢谢你回来找我。"
+texture = ExtResource("13_granny")
+has_flashlight = true
 
 [node name="GoalArea" type="Area2D" parent="Props"]
 position = Vector2(9900, 0)

@@ -19,10 +19,10 @@ const _COLORS: Dictionary[Type, Color] = {
 }
 
 const _ICONS: Dictionary[Type, String] = {
-	Type.RAIN: "res://assets/icons/cloud_rain.svg",
-	Type.WIND: "res://assets/icons/wind.svg",
-	Type.SNOW: "res://assets/icons/snowflake.svg",
-	Type.SUN: "res://assets/icons/sun.svg",
+	Type.RAIN: "res://assets/ui/weather_rain.png",
+	Type.WIND: "res://assets/ui/weather_wind.png",
+	Type.SNOW: "res://assets/ui/weather_snow.png",
+	Type.SUN: "res://assets/ui/weather_sun.png",
 }
 
 

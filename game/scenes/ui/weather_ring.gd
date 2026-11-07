@@ -1,12 +1,13 @@
 class_name WeatherRing
 extends Control
-## 伊尔妲的圆环：四段对应四种天气，切换时整体旋转，当前天气转到正上方
+## 天气轮盘（美术素材，四个象限顺时针为 雨 → 风 → 雪 → 日照）。
+## 切换天气时轮盘旋转，当前天气的象限转到正上方的指针下，中心显示当前天气图标。
 
-const RADIUS := 78.0
-const RING_WIDTH := 16.0
-const ICON_SIZE := 46.0
-const GAP_RADIANS := 0.12
-const ROTATE_SECONDS := 0.28
+const WHEEL := preload("res://assets/ui/weather_wheel.png")
+const WHEEL_SIZE := 210.0
+const ICON_SIZE := 72.0
+const POINTER_COLOR := Color(1.0, 0.85, 0.4)
+const ROTATE_SECONDS := 0.32
 
 var _rotation_angle: float = 0.0:
 	set(value):
@@ -17,7 +18,7 @@ var _current: Weather.Type = Weather.Type.RAIN
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(RADIUS * 2.0 + ICON_SIZE, RADIUS * 2.0 + ICON_SIZE)
+	custom_minimum_size = Vector2.ONE * (WHEEL_SIZE + 24.0)
 	for weather: int in Weather.Type.values():
 		_icons[weather] = load(Weather.get_icon_path(weather))
 	_current = GameState.current_weather
@@ -33,24 +34,22 @@ func _on_weather_changed(weather: Weather.Type) -> void:
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-## 第 i 段的中心角在 -PI/2 + i * TAU/4；圆环反向旋转使当前段回到正上方
+## 素材里第 i 个象限的中心角是 -135° + i·90°，旋转 45° - i·90° 后正好转到正上方
 func _angle_for(weather: Weather.Type) -> float:
-	return -float(weather) * TAU / Weather.Type.size()
+	return PI / 4.0 - float(weather) * TAU / Weather.Type.size()
 
 
 func _draw() -> void:
 	var center := size / 2.0
-	var segment := TAU / Weather.Type.size()
-	draw_circle(center, RADIUS + RING_WIDTH, Color(0, 0, 0, 0.35))
-	for weather: int in Weather.Type.values():
-		var mid := -PI / 2.0 + weather * segment + _rotation_angle
-		var is_current := weather == _current
-		var color := Weather.get_color(weather)
-		if not is_current:
-			color = Color(color, 0.35)
-		draw_arc(center, RADIUS, mid - segment / 2.0 + GAP_RADIANS, mid + segment / 2.0 - GAP_RADIANS, 24, color, RING_WIDTH, true)
-		var icon_size := ICON_SIZE * (1.0 if is_current else 0.72)
-		var icon_center := center + Vector2.from_angle(mid) * (RADIUS - RING_WIDTH * 2.6)
-		var icon_rect := Rect2(icon_center - Vector2.ONE * icon_size / 2.0, Vector2.ONE * icon_size)
-		draw_texture_rect(_icons[weather], icon_rect, false, color)
-	draw_circle(center, 10.0, Color(1.0, 0.85, 0.4, 0.9))
+	var wheel_scale := WHEEL_SIZE / maxf(WHEEL.get_width(), WHEEL.get_height())
+	draw_circle(center, WHEEL_SIZE * 0.36, Color(0.05, 0.06, 0.09, 0.55))
+	draw_set_transform(center, _rotation_angle, Vector2.ONE * wheel_scale)
+	draw_texture(WHEEL, -WHEEL.get_size() / 2.0)
+	draw_set_transform(Vector2.ZERO)
+	var top := center.y - WHEEL_SIZE / 2.0
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(center.x - 14, top - 10), Vector2(center.x + 14, top - 10), Vector2(center.x, top + 14),
+	]), POINTER_COLOR)
+	var icon := _icons[_current]
+	var icon_scale := ICON_SIZE / maxf(icon.get_width(), icon.get_height())
+	draw_texture_rect(icon, Rect2(center - icon.get_size() * icon_scale / 2.0, icon.get_size() * icon_scale), false)

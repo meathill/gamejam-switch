@@ -1,6 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import sharp from 'sharp';
+import sharp, { type ResizeOptions } from 'sharp';
 import { type Bounds, findOpaqueBounds, padBounds, unionBounds } from './bounds.ts';
 
 interface FrameGroup {
@@ -10,10 +10,11 @@ interface FrameGroup {
   frames: Record<string, string>;
 }
 
-interface Portrait {
+interface SingleImage {
   source: string;
   output: string;
-  targetHeight: number;
+  /** 裁掉透明边后，按最长边缩放到这个尺寸（不放大） */
+  maxSize: number;
 }
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
@@ -37,8 +38,17 @@ const FRAME_GROUPS: FrameGroup[] = [
   },
 ];
 
-const PORTRAITS: Portrait[] = [
-  { source: 'art/cat/cat.png', output: 'game/assets/portraits/cat.png', targetHeight: 900 },
+const SINGLE_IMAGES: SingleImage[] = [
+  { source: 'art/cat/cat.png', output: 'game/assets/portraits/cat.png', maxSize: 900 },
+  { source: 'art/npc/大叔.png', output: 'game/assets/sprites/npc/uncle.png', maxSize: 360 },
+  { source: 'art/npc/老奶奶.png', output: 'game/assets/sprites/npc/granny.png', maxSize: 360 },
+  { source: 'art/ui/ui/轮盘.png', output: 'game/assets/ui/weather_wheel.png', maxSize: 512 },
+  { source: 'art/ui/ui/rain.png', output: 'game/assets/ui/weather_rain.png', maxSize: 160 },
+  { source: 'art/ui/ui/wind.png', output: 'game/assets/ui/weather_wind.png', maxSize: 160 },
+  { source: 'art/ui/ui/snow.png', output: 'game/assets/ui/weather_snow.png', maxSize: 160 },
+  { source: 'art/ui/ui/sun.png', output: 'game/assets/ui/weather_sun.png', maxSize: 160 },
+  { source: 'art/ui/ui/seed.png', output: 'game/assets/ui/seed.png', maxSize: 160 },
+  { source: 'art/ui/ui/嫩芽印记.png', output: 'game/assets/ui/sprout_mark.png', maxSize: 256 },
 ];
 
 async function readBounds(file: string): Promise<{ bounds: Bounds; width: number; height: number }> {
@@ -48,7 +58,7 @@ async function readBounds(file: string): Promise<{ bounds: Bounds; width: number
   return { bounds, width: info.width, height: info.height };
 }
 
-async function cropAndResize(file: string, bounds: Bounds, targetHeight: number, output: string): Promise<void> {
+async function cropAndResize(file: string, bounds: Bounds, resize: ResizeOptions, output: string): Promise<void> {
   await sharp(file)
     .extract({
       left: bounds.left,
@@ -56,7 +66,7 @@ async function cropAndResize(file: string, bounds: Bounds, targetHeight: number,
       width: bounds.right - bounds.left,
       height: bounds.bottom - bounds.top,
     })
-    .resize({ height: targetHeight })
+    .resize(resize)
     .png({ compressionLevel: 9 })
     .toFile(output);
   console.log(`  ${path.relative(ROOT, output)}`);
@@ -78,18 +88,24 @@ async function buildFrameGroup(group: FrameGroup): Promise<void> {
   console.log(`${group.sourceDir} → crop ${JSON.stringify(bounds)}`);
   await Promise.all(
     entries.map((entry) =>
-      cropAndResize(entry.file, bounds, group.targetHeight, path.join(outputDir, `${entry.name}.png`)),
+      cropAndResize(entry.file, bounds, { height: group.targetHeight }, path.join(outputDir, `${entry.name}.png`)),
     ),
   );
 }
 
-async function buildPortrait(portrait: Portrait): Promise<void> {
-  const file = path.join(ROOT, portrait.source);
+async function buildSingleImage(image: SingleImage): Promise<void> {
+  const file = path.join(ROOT, image.source);
   const { bounds, width, height } = await readBounds(file);
-  const output = path.join(ROOT, portrait.output);
+  const output = path.join(ROOT, image.output);
   await mkdir(path.dirname(output), { recursive: true });
-  await cropAndResize(file, padBounds(bounds, CROP_PADDING, width, height), portrait.targetHeight, output);
+  const padding = Math.min(CROP_PADDING, Math.round(Math.max(width, height) * 0.02));
+  await cropAndResize(
+    file,
+    padBounds(bounds, padding, width, height),
+    { width: image.maxSize, height: image.maxSize, fit: 'inside', withoutEnlargement: true },
+    output,
+  );
 }
 
 for (const group of FRAME_GROUPS) await buildFrameGroup(group);
-for (const portrait of PORTRAITS) await buildPortrait(portrait);
+for (const image of SINGLE_IMAGES) await buildSingleImage(image);

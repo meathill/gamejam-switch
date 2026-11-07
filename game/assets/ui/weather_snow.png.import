@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ogge46ijk8id"
-path="res://.godot/imported/cloud_rain.svg-58511407c7f497b3caf5788e78ff1d4d.ctex"
+uid="uid://di72pso5etpxg"
+path="res://.godot/imported/weather_snow.png-5aeccd88781d2b9b4a1b3b8b1ea0d6db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/cloud_rain.svg"
-dest_files=["res://.godot/imported/cloud_rain.svg-58511407c7f497b3caf5788e78ff1d4d.ctex"]
+source_file="res://assets/ui/weather_snow.png"
+dest_files=["res://.godot/imported/weather_snow.png-5aeccd88781d2b9b4a1b3b8b1ea0d6db.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

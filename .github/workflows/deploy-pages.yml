@@ -59,6 +59,15 @@ jobs:
           godot --headless --path game --export-release Web ../build/web/index.html
           test -f build/web/index.pck
 
+      # Pages 对静态文件统一 max-age=600，刷新页面时浏览器仍可能用旧的 index.pck。
+      # 把游戏包改成带版本号的文件名，并通过 GODOT_CONFIG.mainPack 指过去。
+      - name: Version main pack
+        run: |
+          PACK="index-${GITHUB_SHA::8}.pck"
+          mv build/web/index.pck "build/web/$PACK"
+          sed -i -e "s/\"index.pck\"/\"$PACK\"/" -e "s/\"executable\":\"index\"/\"executable\":\"index\",\"mainPack\":\"$PACK\"/" build/web/index.html
+          grep -q "\"mainPack\":\"$PACK\"" build/web/index.html
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: build/web

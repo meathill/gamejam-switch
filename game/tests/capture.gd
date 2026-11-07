@@ -36,9 +36,9 @@ func _run(step: Dictionary) -> void:
 			var image := root.get_texture().get_image()
 			image.save_png("%s/%s.png" % [_output_dir, step["name"]])
 			if player:
-				print("[capture] %s player=%s velocity=%s on_floor=%s state=%s" % [
+				print("[capture] %s player=%s velocity=%s on_floor=%s state=%s animation=%s" % [
 					step["name"], player.get("global_position"), player.get("velocity"),
-					player.call("is_on_floor"), player.get("_state"),
+					player.call("is_on_floor"), player.get("_state"), player.get_node("Sprite").get("animation"),
 				])
 		"teleport":
 			player.call("respawn", step["to"])
@@ -129,6 +129,13 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 470, "do": "press", "action": "move_right" },
 				{ "frame": 560, "do": "release", "action": "move_right" },
 				{ "frame": 680, "do": "shot", "name": "14_complete" },
+			]
+		"standing":
+			return [
+				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
+				{ "frame": 90, "do": "shot", "name": "stand" },
+				{ "frame": 91, "do": "log", "name": "stand" },
+				{ "frame": 520, "do": "shot", "name": "rest" },
 			]
 		"touch":
 			return [

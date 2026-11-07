@@ -29,4 +29,6 @@
 
 - 导出模板 1.2GB，从 GitHub 下载经常卡住：用 `curl -C -` 断点续传 + `--speed-limit` 自动重试。
 - `git lfs install` 会改全局 git config，需要开发者自己执行一次。未安装时可临时用 `git -c filter.lfs.clean="git-lfs clean -- %f" -c filter.lfs.process="git-lfs filter-process" -c filter.lfs.required=true add art`，push 前先 `git lfs push --all origin`（没有 pre-push hook，GitHub 会拒绝缺 LFS 对象的 push）。
+- GitHub Pages 对所有静态文件返回 `Cache-Control: max-age=600`，F5 只会重新验证 HTML，`index.pck` 仍可能走缓存，看到旧版本。CI 里把它改名为 `index-<sha>.pck` 并在 `GODOT_CONFIG` 写入 `mainPack`（Godot 引擎加载器原生支持这个配置）。
+- `actions/deploy-pages` 偶尔长时间停在 `syncing_files`（Pages 拥堵，与站点大小无关），超时已放宽到 30 分钟。
 - GitHub Pages 需要在仓库设置里把 Source 设为 GitHub Actions（或 `gh api -X POST repos/<owner>/<repo>/pages -f build_type=workflow`）。

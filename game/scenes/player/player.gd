@@ -19,6 +19,8 @@ const CAST_SECONDS := 0.35
 const DROWN_SECONDS := 0.9
 const MAX_FALL_SPEED := 1800.0
 const SPRITE_SCALE := 0.7
+## 站着不动超过这个时间换成“稍息”姿势
+const IDLE_REST_SECONDS := 6.0
 const FRAME_DIR := "res://assets/sprites/cat/"
 
 enum State { NORMAL, CASTING, DROWNING }
@@ -34,6 +36,7 @@ var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _walk_time: float = 0.0
+var _idle_time: float = 0.0
 
 
 func _ready() -> void:
@@ -181,6 +184,9 @@ func _update_animation(delta: float) -> void:
 		animation = "jump" if velocity.y < 0.0 else "fall"
 	elif absf(velocity.x) > 20.0:
 		animation = "walk"
+	_idle_time = _idle_time + delta if animation == "idle" and not is_input_locked else 0.0
+	if _idle_time > IDLE_REST_SECONDS:
+		animation = "rest"
 	if _sprite.animation != animation:
 		_sprite.play(animation)
 	_walk_time = _walk_time + delta if animation == "walk" else 0.0
@@ -192,6 +198,7 @@ func _build_frames() -> SpriteFrames:
 	frames.remove_animation("default")
 	var definitions: Dictionary[String, Array] = {
 		"idle": ["stand"],
+		"rest": ["walk_01"],
 		"walk": ["walk_01", "walk_02"],
 		"jump": ["jump_01"],
 		"fall": ["jump_02"],

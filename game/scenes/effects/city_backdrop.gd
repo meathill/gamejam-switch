@@ -9,6 +9,11 @@ extends Node2D
 @export var max_height: float = 700.0
 @export var has_lit_window: bool = false
 
+const WINDOW_MARGIN := Vector2(24, 40)
+const WINDOW_STEP := Vector2(56, 70)
+const WINDOW_SIZE := Vector2(22, 30)
+const LIT_BUILDING_INDEX := 6
+
 var _buildings: Array[Rect2] = []
 var _time: float = 0.0
 
@@ -34,16 +39,19 @@ func _draw() -> void:
 	var window_color := base_color.lightened(0.12)
 	for building in _buildings:
 		draw_rect(building, base_color)
-		var y := building.position.y + 40.0
+		var y := building.position.y + WINDOW_MARGIN.y
 		while y < -60.0:
-			var x := building.position.x + 24.0
+			var x := building.position.x + WINDOW_MARGIN.x
 			while x < building.end.x - 40.0:
-				draw_rect(Rect2(x, y, 22, 30), window_color)
-				x += 56.0
-			y += 70.0
-	if has_lit_window and _buildings.size() > 6:
-		var target := _buildings[6]
+				draw_rect(Rect2(Vector2(x, y), WINDOW_SIZE), window_color)
+				x += WINDOW_STEP.x
+			y += WINDOW_STEP.y
+	if has_lit_window and _buildings.size() > LIT_BUILDING_INDEX:
+		# 对齐到窗格：中间一列、第二行
+		var target := _buildings[LIT_BUILDING_INDEX]
+		var columns := int((target.size.x - WINDOW_MARGIN.x - 40.0) / WINDOW_STEP.x) + 1
+		var origin := target.position + WINDOW_MARGIN + Vector2(floori(columns / 2.0), 1) * WINDOW_STEP
+		var lit := Rect2(origin, WINDOW_SIZE)
 		var blink := 0.5 + 0.5 * sin(_time * 3.0)
-		var spot := target.position + Vector2(target.size.x / 2.0, 90.0)
-		draw_rect(Rect2(spot - Vector2(14, 16), Vector2(28, 32)), Color(1.0, 0.93, 0.6, 0.4 + 0.6 * blink))
-		draw_circle(spot, 70.0, Color(1.0, 0.93, 0.6, 0.12 * blink))
+		draw_circle(lit.get_center(), 70.0, Color(1.0, 0.93, 0.6, 0.12 * blink))
+		draw_rect(lit, Color(1.0, 0.93, 0.6, 0.4 + 0.6 * blink))

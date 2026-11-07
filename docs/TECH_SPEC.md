@@ -87,58 +87,59 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 ### 4.1 物理层
 
-| 层  | 名称         | 说明                         |
-| --- | ------------ | ---------------------------- |
-| 1   | `world`      | 地面、墙、建筑               |
-| 2   | `player`     | 小猫                         |
-| 3   | `ice`        | 冰面碰撞体（结冰时启用）     |
-| 4   | `raft`       | 浮箱                         |
-| 5   | `water_area` | 水体 Area2D（检测浅水/深水） |
-| 6   | `interact`   | 居民、机关等可交互区域       |
+实际只用到两层，保持简单：
+
+| 层  | 名称     | 成员                                                  |
+| --- | -------- | ----------------------------------------------------- |
+| 1   | `world`  | 地面块、池底、冰面（group `ice`，用于判断滑行）、浮箱 |
+| 2   | `player` | 小猫；居民和避难所的 Area2D 只检测这一层              |
+
+水体不用 Area2D：小猫每帧按 x 范围查询所在 `WaterZone`，比较脚底与水面高度判断浅水/落水。
 
 ### 4.2 输入映射
 
-动作名：`move_left`、`move_right`、`jump`、`weather_next`（Shift / RB）、`weather_prev`（LB）、`weather_rain`、`weather_snow`、`weather_wind`、`weather_sun`（1～4）、`cast`（F / X）、`interact`（E / Y）、`restart`（R）、`pause`（Esc / Start）。
+在 `game/scripts/input_bindings.gd` 里用代码注册（便于 review/diff，不写进 project.godot）。动作名：`move_left`、`move_right`、`jump`、`weather_next`（Shift / RB）、`weather_prev`（LB）、`weather_rain`/`weather_wind`/`weather_snow`/`weather_sun`（1～4，与圆环顺序一致）、`cast`（F / J / X）、`interact`（E / K / Y）、`advance`（对话推进）、`restart`（R）、`pause`（Esc / Start）。
 
 ## 5. 架构
 
 ### 5.1 Autoload
 
-| 单例            | 职责                                                                                                         |
-| --------------- | ------------------------------------------------------------------------------------------------------------ |
-| `GameState`     | 当前天气、救援进度、检查点、关卡完成标记；发出 `weather_changed`、`resident_rescued`、`level_completed` 信号 |
-| `SceneRouter`   | 场景切换 + 淡入淡出转场；保证“第一关开场保留序章最后画面”                                                    |
-| `AudioDirector` | BGM、环境音（雨声随天气淡入淡出）、一次性音效                                                                |
+| 单例          | 职责                                                                                                                                                           |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GameState`   | 当前天气、救援进度、检查点、关卡完成；信号 `weather_changed`、`target_changed`、`weather_cast`、`message_posted`、`rescue_progress_changed`、`level_completed` |
+| `SceneRouter` | 场景切换 + 淡入淡出                                                                                                                                            |
 
-只做这三个，其他逻辑都在场景里，避免全局状态膨胀。
+音频接入时再加 `AudioDirector`（见 TODO）。HUD、对话框、暂停菜单、雨幕都由场景脚本 `new()` 出来，不做成 autoload。
 
 ### 5.2 核心模块
 
 ```text
-WaterRules (scripts/water_rules.gd, RefCounted, 纯函数)
-    apply(weather, state) -> WeatherResult { changed, next_state, reason }
+scripts/                      纯逻辑，无节点依赖
+  Weather                     天气枚举（顺序 = 圆环四段）、名称/颜色/图标
+  WaterState                  (level, is_frozen, is_polluted)
+  WaterRules                  apply(weather, state) -> Result{is_success, state, reason}；find_next_dock()
+  InputBindings               输入映射注册
 
-WaterZone (scenes/water/water_zone.tscn, Node2D)
-    导出属性：zone_name, level(0..2), is_frozen, is_polluted, level_heights[3]
-    子节点：WaterBody(视觉) / DeepWaterArea(Area2D) / IceBody(StaticBody2D) / TargetArea(Area2D)
-    apply_weather(weather) -> WeatherResult   # 调 WaterRules，再驱动表现
-    signal state_changed(zone)
+scenes/water/WaterZone        @tool Node2D，原点 = 洼地左上角（地面高度）
+  导出：zone_name, size, level, is_frozen, is_polluted, dock_positions(PackedFloat32Array)
+  运行时生成池底和冰面 StaticBody2D；_draw 画水/冰/污染/高亮
+  apply_weather(weather, direction) / transition_to(state)，动画期间返回 BUSY
+  子节点中的 Raft 由它摆放：x = 停靠点，y = 随水面（L0/L1 搁浅在池底）
 
-Raft (scenes/props/raft.tscn, AnimatableBody2D)
-    属于一个 DockLane；Y 跟随所在 WaterZone 的水面；冻结时锁定
+scenes/props/
+  Raft                        AnimatableBody2D，可承载小猫；结冰时显示冰霜
+  SolidBlock                  @tool 灰盒地形块（可画成楼房）
+  Resident / GoalArea         Area2D：E 救援 / 救齐后通关
+  DrainageStation             排水槽变成液态深水 → 关联水域 -1 级并净化
+  HintSign / Checkpoint       提示牌 / 检查点（越过 x 坐标后生效）
 
-DockLane (Node2D)
-    有序的 Marker2D 停靠点；move(raft, direction) -> bool
+scenes/player/
+  Player                      CharacterBody2D，原点在脚底；NORMAL/CASTING/DROWNING
+  WeatherCaster               选中目标水域（影响范围内离小猫最近的），cast 时调用 apply_weather
 
-WeatherCaster (挂在 Player 下)
-    跟踪 TargetArea 内最近的 WaterZone 作为 target；cast() 时调用 target.apply_weather()
-
-Player (CharacterBody2D)
-    状态机：idle / run / jump / fall / cast / drown
-    读取所在 WaterZone 状态：浅水减速、冰面低摩擦、深水 → drown → 回检查点
-
-Resident (Area2D)          按 interact 触发救援
-DrainageStation (Node2D)   监听排水槽 WaterZone，水位达到 2 时启动，修改关联广场 WaterZone
+scenes/ui/  Hud, WeatherRing, DialogueBox, PauseMenu
+scenes/story/  title, prologue, StoryBackdrop, IldaRing
+scenes/levels/  Level（根脚本）+ level_01.tscn（关卡拼装）
 ```
 
 原则：
@@ -151,49 +152,41 @@ DrainageStation (Node2D)   监听排水槽 WaterZone，水位达到 2 时启动�
 
 状态 = `(level: 0|1|2, frozen: bool, polluted: bool)`。
 
-| 当前         | 雨             | 雪         | 日照             | 风           |
-| ------------ | -------------- | ---------- | ---------------- | ------------ |
-| 液态 L0      | → L1           | ✗ 没有水   | ✗ 已经干了       | ✗ 水太浅     |
-| 液态 L1      | → L2           | → 冰面 L1  | → L0             | ✗ 水太浅     |
-| 液态 L2      | ✗ 水位已满     | → 冰面 L2  | → L1             | 推浮箱一格   |
-| 冰面 L1/L2   | ✗ 冰面无法涨水 | ✗ 已经结冰 | → 液态同水位     | ✗ 浮箱被冻住 |
-| 污染（液态） | 同液态         | 同液态     | ✗ 污染水无法蒸发 | 同液态       |
+| 当前         | 雨             | 雪               | 日照             | 风           |
+| ------------ | -------------- | ---------------- | ---------------- | ------------ |
+| 液态 L0      | → L1           | ✗ 没有水         | ✗ 已经干了       | ✗ 水太浅     |
+| 液态 L1      | → L2           | → 冰面 L1        | → L0             | ✗ 水太浅     |
+| 液态 L2      | ✗ 水位已满     | → 冰面 L2        | → L1             | 推浮箱一格   |
+| 冰面 L1/L2   | ✗ 冰面无法涨水 | ✗ 已经结冰       | → 液态同水位     | ✗ 浮箱被冻住 |
+| 污染（液态） | 同液态         | ✗ 污染水结不了冰 | ✗ 污染水无法蒸发 | 同液态       |
 
 风的额外失败原因：区域内无浮箱、面朝方向没有下一个停靠点。
 
 ### 5.4 表现同步
 
-一次状态变化同时更新（PRD 要求 0.5 秒内完成）：
+一次状态变化同时更新（0.45 秒 Tween）：
 
-1. 水面高度 Tween（`level_heights[level]`）
-2. 冰面 `StaticBody2D` 的碰撞启用/禁用 + 冰面贴图/着色
-3. `DeepWaterArea` 仅在“液态 L2”时启用
-4. 浮箱 Y 坐标跟随水面；冻结标记
-5. HUD 区域面板刷新
-6. 天气施法音效 + 粒子
+1. 水面高度（L0 = 池底，L1 = 池底上 60px，L2 = 与地面齐平，结冰后可直接走上去）
+2. 冰面碰撞启用/禁用；结冰瞬间把泡在水里的小猫抬到冰面上，避免卡进碰撞体
+3. 浮箱 y 跟随水面、冰霜标记；风推浮箱时 x 移动到下一个停靠点
+4. 动画结束后发出 `state_changed`，HUD 和排水站据此刷新
+5. 施放成功时在水域上方生成一次性粒子（`WeatherEffect`）
 
 ## 6. 对白数据
 
-`game/data/dialogue/prologue.json`：
+`game/data/dialogue/*.json`，由 `DialogueBox` 播放：
 
-```json
-{
-  "id": "prologue",
-  "lines": [
-    { "type": "narration", "text": "浑浊的洪水淹过街道……" },
-    { "type": "line", "speaker": "ilda", "text": "你还要留在这里？" },
-    {
-      "type": "choice",
-      "text": "是否接受伊尔妲的力量？",
-      "options": [{ "label": "接受", "next": "accept" }, { "label": "拒绝", "next": "refuse" }]
-    },
-    { "type": "event", "name": "weather_demo_rain" }
-  ]
-}
-```
+| type        | 字段                                       | 说明                                                 |
+| ----------- | ------------------------------------------ | ---------------------------------------------------- |
+| `narration` | `text`                                     | 旁白，无说话人                                       |
+| `line`      | `speaker`（`ilda`/`cat`/`system`）, `text` | 对白                                                 |
+| `choice`    | `text`, `options[{label, next}]`           | 选项，`next` 跳到对应 `id`                           |
+| `goto`      | `target`                                   | 跳转                                                 |
+| `event`     | `name`, `wait?`, `on_skip?`                | 发出 `event_triggered`；`on_skip` 为真时跳过也会触发 |
 
-- `event` 用于驱动演出（背景切换、天气演示、圆环亮起），由序章场景监听。
-- 可选：写一个 `tools` 脚本，把 `docs/materials/dialogue.md` 的 `【说话人】台词` 格式转成 JSON，让文案直接改 Markdown。先手写 JSON，量大了再做。
+任意行可带 `id`。导出预设的 `include_filter` 已加入 `data/*.json`（非资源文件默认不会打包）。
+
+新增中文文案后要跑 `pnpm run fonts` 重新生成字体子集，否则 Web 版会缺字。
 
 ## 7. 资源管线
 
@@ -203,20 +196,33 @@ DrainageStation (Node2D)   监听排水槽 WaterZone，水位达到 2 时启动�
 2. 对同一套动画帧（walk/jump/cast/dead）计算**所有帧非透明区域的并集**，统一裁切，保证帧间对齐不抖动
 3. 缩放到目标高度（小猫游戏内约 220px 高，按 1.5 倍存 ≈ 330px，兼顾清晰与体积）
 4. 输出 PNG 到 `game/assets/sprites/cat/`，命名规范化（如 `cat_jump_01.png.png` → `jump_01.png`）
-5. 立绘（序章用）单独缩放到 1080px 高
+5. 立绘（序章用）单独缩放到 900px 高
 
 缩放参数集中在一个配置对象里，美术换图后重跑即可。
 
+`pnpm run fonts` → `tools/src/build-font.ts`：扫描 `game/` 下 `.gd`/`.tscn`/`.json` 用到的字符，从 `art/fonts/LXGWWenKai-Medium.ttf`（霞鹜文楷，OFL）生成子集 `game/assets/fonts/ui_font.ttf`（约 250KB），并设为项目默认字体。Godot 默认字体没有 CJK，Web 上也没有系统字体可回退。
+
+图标用 Phosphor（fill 风格）SVG，`currentColor` 替换为白色后由代码着色。
+
 ## 8. 测试
 
-| 范围                         | 工具         | 命令                                                                                |
-| ---------------------------- | ------------ | ----------------------------------------------------------------------------------- |
-| `WaterRules` 全状态 × 全天气 | GUT          | `pnpm run test:game`（= `godot --headless --path game -s addons/gut/gut_cmdln.gd`） |
-| 浮箱停靠逻辑、居民救援计数   | GUT          | 同上                                                                                |
-| tools 脚本                   | vitest       | `pnpm run test:tools`                                                               |
-| 关卡可通关性                 | 人工试玩清单 | 见 PRD 7.3                                                                          |
+| 范围                                      | 工具         | 命令                                                                                |
+| ----------------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
+| `WaterRules` 全状态 × 全天气              | GUT          | `pnpm run test:game`（= `godot --headless --path game -s addons/gut/gut_cmdln.gd`） |
+| WaterZone 浮箱/风/结冰/施放锁、排水站联动 | GUT          | 同上                                                                                |
+| tools 脚本                                | vitest       | `pnpm run test:tools`                                                               |
+| 画面与流程                                | 截图脚本     | 见下                                                                                |
+| 关卡可通关性                              | 人工试玩清单 | 见 PRD 7.3                                                                          |
 
 修 bug 时先写能复现的 GUT 用例（遵循 AGENTS.md）。
+
+截图脚本 `game/tests/capture.gd` 按物理帧执行脚本化操作（传送、切天气、施放、按键）并截图，用于不开编辑器检查画面：
+
+```bash
+godot --path game --resolution 1280x720 -s res://tests/capture.gd -- res://scenes/levels/level_01.tscn /tmp/cap level
+```
+
+场景：`level`（主流程机制）、`finale`（救援与通关）、`prologue`（序章）。
 
 ## 9. 代码规范补充（GDScript）
 
@@ -234,22 +240,22 @@ GDScript 遵循 [官方风格指南](https://docs.godotengine.org/en/stable/tuto
 | Web     | `Web`             | `build/web/index.html`               |
 | Windows | `Windows Desktop` | `build/windows/`                     |
 | macOS   | `macOS`           | `build/macos/`（未签名，jam 可接受） |
-| Linux   | `Linux`           | `build/linux/`                       |
 
-- 命令：`godot --headless --path game --export-release "Web" ../build/web/index.html`，封装为 `pnpm run export:web`。
+- `pnpm run export:web` 导出 Web；`pnpm run serve:web` 在 <http://localhost:8060> 本地试玩（单线程导出，不需要 COOP/COEP 头）。
+- 当前体积：`index.pck` ≈ 1.1MB，`index.wasm` ≈ 39MB（引擎本体，itch.io 会 gzip）。
 - 上传：`butler push build/web <user>/<game>:html5`。
-- 首次需在编辑器 _Manage Export Templates_ 下载 4.7.2 导出模板（约 1.2GB）。
+- Linux 预设尚未添加，需要时在编辑器里加。
 
 ## 11. 环境准备
 
 ```bash
 brew install --cask godot   # 4.7.2，提供 godot CLI
 brew install git-lfs && git lfs install
+pnpm install
 ```
 
-`butler` 需从 itch.io 官方下载（Homebrew 里的 `butler` 是另一个同名 macOS 软件，不要装错）。
-
-当前机器上都未安装。
+- 导出模板：编辑器 _Manage Export Templates_ 下载，或手动把 `Godot_v4.7.2-stable_export_templates.tpz` 解压到 `~/Library/Application Support/Godot/export_templates/4.7.2.stable/`（约 1.2GB）。
+- `butler` 需从 itch.io 官方下载（Homebrew 里的 `butler` 是另一个同名 macOS 软件，不要装错）。
 
 ## 12. 风险
 

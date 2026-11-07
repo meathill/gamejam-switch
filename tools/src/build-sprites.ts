@@ -26,6 +26,7 @@ const FRAME_GROUPS: FrameGroup[] = [
     outputDir: 'game/assets/sprites/cat',
     targetHeight: 330,
     frames: {
+      stand: 'cat_stand.png',
       walk_01: 'cat_walk_01.png',
       walk_02: 'cat_walk_02.png',
       jump_01: 'cat_jump_01.png.png',

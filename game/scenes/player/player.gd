@@ -191,7 +191,7 @@ func _build_frames() -> SpriteFrames:
 	var frames := SpriteFrames.new()
 	frames.remove_animation("default")
 	var definitions: Dictionary[String, Array] = {
-		"idle": ["walk_01"],
+		"idle": ["stand"],
 		"walk": ["walk_01", "walk_02"],
 		"jump": ["jump_01"],
 		"fall": ["jump_02"],

@@ -31,7 +31,7 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	_prompt = Label.new()
-	_prompt.text = "E 救援"
+	_prompt.text = GameState.pick_hint("E 救援", "救援")
 	_prompt.add_theme_font_size_override("font_size", 28)
 	_prompt.add_theme_constant_override("outline_size", 8)
 	_prompt.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -55,6 +55,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _rescue() -> void:
 	_is_rescued = true
 	_prompt.visible = false
+	GameState.set_interact_available(false)
 	GameState.rescue_resident()
 	GameState.post_message("%s：%s" % [resident_name, thanks_text])
 	var tween := create_tween().set_parallel()
@@ -65,15 +66,18 @@ func _rescue() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player"):
+	if body.is_in_group("player") and not _is_rescued:
 		_is_player_near = true
-		_prompt.visible = not _is_rescued
+		_prompt.text = GameState.pick_hint("E 救援", "救援")
+		_prompt.visible = true
+		GameState.set_interact_available(true)
 
 
 func _on_body_exited(body: Node2D) -> void:
-	if body.is_in_group("player"):
+	if body.is_in_group("player") and _is_player_near:
 		_is_player_near = false
 		_prompt.visible = false
+		GameState.set_interact_available(false)
 
 
 func _draw() -> void:

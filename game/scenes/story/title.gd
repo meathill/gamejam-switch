@@ -45,6 +45,13 @@ func _build_menu() -> void:
 		SceneRouter.go_to(LEVEL_SCENE)
 	)
 	column.add_child(skip)
+	# 手机浏览器的地址栏会占掉不少高度，Web 版提供全屏入口（浏览器要求由用户点击触发）
+	if OS.has_feature("web"):
+		var fullscreen := _make_button("全屏")
+		fullscreen.pressed.connect(func() -> void:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		)
+		column.add_child(fullscreen)
 	start.grab_focus.call_deferred()
 
 	var footer := _make_label("GitHub Game Off 2026 · SHIFT", 22)

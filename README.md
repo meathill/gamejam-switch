@@ -19,6 +19,8 @@ GitHub Game Off 2026（主题 **SHIFT**）参赛作品。被神明托付最后�
 | 重开     | R                    | Select  |
 | 暂停     | Esc                  | Start   |
 
+手机（横屏）：左下角左右按钮移动，右下角跳跃 / 施放（魔杖）/ 切换天气（显示当前天气），靠近居民时出现救援按钮，右上角暂停。对话点屏幕推进，右下角“跳过”。
+
 ## 开发
 
 需要 Node.js ≥ 24、pnpm、Godot 4.7（`brew install --cask godot`）、git-lfs。

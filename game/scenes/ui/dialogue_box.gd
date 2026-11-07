@@ -179,12 +179,28 @@ func _build() -> void:
 	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_text_label.add_theme_font_size_override("font_size", 34)
 	column.add_child(_text_label)
+	var footer_row := HBoxContainer.new()
+	footer_row.add_theme_constant_override("separation", 24)
+	column.add_child(footer_row)
 	var footer := Label.new()
-	footer.text = "Space / 点击 继续　　Esc 跳过"
+	footer.text = "点击 / Space 继续"
+	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	footer.add_theme_font_size_override("font_size", 20)
+	footer.add_theme_font_size_override("font_size", 22)
 	footer.modulate = Color(1, 1, 1, 0.5)
-	column.add_child(footer)
+	footer_row.add_child(footer)
+	var skip_button := Button.new()
+	skip_button.text = "跳过 ▶▶"
+	skip_button.flat = true
+	# 不抢焦点，否则 Space 会触发它
+	skip_button.focus_mode = Control.FOCUS_NONE
+	skip_button.custom_minimum_size = Vector2(140, 52)
+	skip_button.add_theme_font_size_override("font_size", 24)
+	skip_button.pressed.connect(func() -> void:
+		if not _is_waiting_choice:
+			_skip()
+	)
+	footer_row.add_child(skip_button)
 
 	_choice_box = VBoxContainer.new()
 	_choice_box.set_anchors_and_offsets_preset(Control.PRESET_CENTER)

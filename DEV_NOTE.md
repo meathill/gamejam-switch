@@ -7,6 +7,7 @@
 - **污染水不能结冰**：否则广场和浮箱水道都能被雪直接绕过，排水站和风失去意义。规则表见 TECH_SPEC 5.3。
 - **深水水面与地面齐平**：低 20px 时冰面边缘会形成角色跨不过去的台阶。
 - **固定 16:9 横屏**：`aspect=expand` 在竖屏下会把视口拉高，字挤在下方变得很小。改为 `keep` 加黑边；Web 竖屏用 CSS（`body::after` + `@media (orientation: portrait)`）盖一层提示，比在 Godot 里画更清晰，也不用等引擎加载。headless Chrome 截图有约 500px 的最小窗口宽度，390px 宽的截图会被裁切，看起来像没居中。
+- **触屏用左右按钮而不是虚拟摇杆**：动作性不强，按钮更准；`TouchScreenButton` 原生支持多点触控和 `action`，会同时调用 `Input.action_press` 并推送 `InputEventAction`，轮询和 `_unhandled_input` 两种写法都能收到。
 - **输入映射写在代码里**（`scripts/input_bindings.gd`），不写进 project.godot，便于 review。
 - **HUD/对话框/暂停菜单用代码构建**，不手写 Control 布局的 .tscn。关卡几何用 `@tool` 脚本（`SolidBlock`、`WaterZone`）在编辑器里可见可调。
 
@@ -20,6 +21,8 @@
 - `@tool` 脚本在编辑器里 `add_child` 的节点没有 owner，不会被保存进场景，可以放心生成碰撞体/Label 用于预览；只在运行时需要的逻辑用 `Engine.is_editor_hint()` 挡住。
 - 非资源文件（`.json`）默认不进导出包，要在导出预设 `include_filter` 里加。
 - Godot 默认字体没有 CJK，桌面靠系统字体回退，Web 上会全是方块。必须打包中文字体。
+- 隐藏的 `TouchScreenButton`（自身或祖先 `visible = false`）不处理触摸，可以直接用可见性控制按键是否可用。
+- 暂停时 `TouchScreenButton` 也停止处理，所以暂停菜单里必须有“继续”按钮，不能只靠暂停键恢复。
 - 改 `project.godot` 的自定义字体后，第一次 `--import` 会报找不到字体（还没导入），再跑一次即可。
 
 ## 环境

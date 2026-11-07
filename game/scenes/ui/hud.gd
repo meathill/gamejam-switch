@@ -19,6 +19,7 @@ func _ready() -> void:
 	GameState.target_changed.connect(_on_target_changed)
 	GameState.rescue_progress_changed.connect(_on_rescue_progress_changed)
 	GameState.message_posted.connect(show_toast)
+	GameState.touch_mode_changed.connect(func(_enabled: bool) -> void: _refresh_weather())
 	_refresh_weather()
 	_on_target_changed(null)
 	_on_rescue_progress_changed(GameState.rescued_count, GameState.total_residents)
@@ -53,7 +54,7 @@ func _on_rescue_progress_changed(rescued: int, total: int) -> void:
 
 func _refresh_weather() -> void:
 	var weather := GameState.current_weather
-	_weather_label.text = "%s\nShift 切换 · F 施放" % Weather.get_display_name(weather)
+	_weather_label.text = Weather.get_display_name(weather) + GameState.pick_hint("\nShift 切换 · F 施放", "")
 	_weather_label.modulate = Weather.get_color(weather).lightened(0.3)
 
 

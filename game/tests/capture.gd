@@ -56,6 +56,19 @@ func _run(step: Dictionary) -> void:
 			event.physical_keycode = step["key"]
 			event.pressed = true
 			Input.parse_input_event(event)
+		"touch":
+			var touch := InputEventScreenTouch.new()
+			touch.index = step.get("index", 0)
+			# 步骤里写的是 1920×1080 视口坐标，转换成窗口坐标
+			touch.position = root.get_final_transform() * Vector2(step["at"])
+			touch.pressed = step.get("pressed", true)
+			Input.parse_input_event(touch)
+		"log":
+			var state: Node = root.get_node("GameState")
+			print("[capture] %s x=%.0f weather=%s rescued=%d touch=%s paused=%s" % [
+				step["name"], player.get("global_position").x, state.get("current_weather"),
+				state.get("rescued_count"), state.get("is_touch_mode"), paused,
+			])
 
 
 func _press(action: String, pressed: bool) -> void:
@@ -116,6 +129,29 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 470, "do": "press", "action": "move_right" },
 				{ "frame": 560, "do": "release", "action": "move_right" },
 				{ "frame": 680, "do": "shot", "name": "14_complete" },
+			]
+		"touch":
+			return [
+				{ "frame": 20, "do": "touch", "at": Vector2(960, 300) },
+				{ "frame": 22, "do": "touch", "at": Vector2(960, 300), "pressed": false },
+				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
+				{ "frame": 70, "do": "shot", "name": "touch_01_controls" },
+				{ "frame": 71, "do": "log", "name": "before_move" },
+				{ "frame": 72, "do": "touch", "at": Vector2(420, 900) },
+				{ "frame": 132, "do": "touch", "at": Vector2(420, 900), "pressed": false },
+				{ "frame": 133, "do": "log", "name": "after_move_right" },
+				{ "frame": 140, "do": "touch", "at": Vector2(1530, 735), "index": 1 },
+				{ "frame": 142, "do": "touch", "at": Vector2(1530, 735), "index": 1, "pressed": false },
+				{ "frame": 143, "do": "log", "name": "after_weather" },
+				{ "frame": 150, "do": "teleport", "to": Vector2(4350, -40) },
+				{ "frame": 180, "do": "shot", "name": "touch_02_interact" },
+				{ "frame": 181, "do": "touch", "at": Vector2(1745, 640) },
+				{ "frame": 183, "do": "touch", "at": Vector2(1745, 640), "pressed": false },
+				{ "frame": 200, "do": "log", "name": "after_interact" },
+				{ "frame": 210, "do": "touch", "at": Vector2(1855, 150) },
+				{ "frame": 212, "do": "touch", "at": Vector2(1855, 150), "pressed": false },
+				{ "frame": 240, "do": "shot", "name": "touch_03_paused" },
+				{ "frame": 241, "do": "log", "name": "after_pause" },
 			]
 		"prologue":
 			var steps: Array[Dictionary] = []

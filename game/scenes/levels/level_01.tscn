@@ -205,11 +205,15 @@ position = Vector2(250, 0)
 script = ExtResource("8_sign")
 text = "← → 移动
 Space 跳跃"
+touch_text = "左下角按钮移动
+右下角按钮跳跃"
 
 [node name="SignWeather" type="Node2D" parent="Signs"]
 position = Vector2(1100, 0)
 script = ExtResource("8_sign")
 text = "Shift 切换天气　F 施放
+雪冻住水面，日照让水退去"
+touch_text = "天气按钮切换，魔杖按钮施放
 雪冻住水面，日照让水退去"
 
 [node name="SignChannel" type="Node2D" parent="Signs"]

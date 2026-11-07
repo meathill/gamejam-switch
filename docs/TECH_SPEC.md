@@ -96,7 +96,15 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 水体不用 Area2D：小猫每帧按 x 范围查询所在 `WaterZone`，比较脚底与水面高度判断浅水/落水。
 
-### 4.2 输入映射
+### 4.2 触屏
+
+- `GameState.is_touch_mode`：启动时 `DisplayServer.is_touchscreen_available()`，或收到第一次 `InputEventScreenTouch` 时开启（发 `touch_mode_changed`）。
+- `TouchControls`（CanvasLayer）只在触屏模式且玩法未锁定时显示；每个 `TouchButton` 内部是一个 `TouchScreenButton`，直接触发输入动作（`move_left`/`move_right` 开启 `passby_press`，手指滑动可换向）。所以玩法代码不区分键盘和触屏。
+- 救援按钮只在 `GameState.is_interact_available` 时出现（居民的检测区发出）。
+- 暂停、通关、对话跳过都是 Button（`MenuOverlay`），键盘靠焦点、触屏靠点击。触摸默认模拟鼠标，所以对话“点击推进”天然支持。
+- 提示文案用 `GameState.pick_hint(键盘版, 触屏版)`；`HintSign` 有 `touch_text`。
+
+### 4.3 输入映射
 
 在 `game/scripts/input_bindings.gd` 里用代码注册（便于 review/diff，不写进 project.godot）。动作名：`move_left`、`move_right`、`jump`、`weather_next`（Shift / RB）、`weather_prev`（LB）、`weather_rain`/`weather_wind`/`weather_snow`/`weather_sun`（1～4，与圆环顺序一致）、`cast`（F / J / X）、`interact`（E / K / Y）、`advance`（对话推进）、`restart`（R）、`pause`（Esc / Start）。
 

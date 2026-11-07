@@ -30,6 +30,13 @@ window/handheld/orientation=4
 
 theme/custom_font="res://assets/fonts/ui_font.ttf"
 
+[importer_defaults]
+
+texture={
+"compress/lossy_quality": 0.8,
+"compress/mode": 1
+}
+
 [layer_names]
 
 2d_physics/layer_1="world"

@@ -24,7 +24,7 @@ func _ready() -> void:
 	add_child(_backdrop)
 	_cat = Sprite2D.new()
 	_cat.texture = CAT_PORTRAIT
-	_cat.scale = Vector2.ONE * 0.42
+	_cat.scale = Vector2.ONE * StoryBackdrop.CAT_HEIGHT / CAT_PORTRAIT.get_height()
 	_cat.position = CAT_POSITION
 	add_child(_cat)
 	_ring = IldaRing.new()

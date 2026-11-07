@@ -8,6 +8,7 @@
 - **深水水面与地面齐平**：低 20px 时冰面边缘会形成角色跨不过去的台阶。
 - **固定 16:9 横屏**：`aspect=expand` 在竖屏下会把视口拉高，字挤在下方变得很小。改为 `keep` 加黑边；Web 竖屏用 CSS（`body::after` + `@media (orientation: portrait)`）盖一层提示，比在 Godot 里画更清晰，也不用等引擎加载。headless Chrome 截图有约 500px 的最小窗口宽度，390px 宽的截图会被裁切，看起来像没居中。
 - **触屏用左右按钮而不是虚拟摇杆**：动作性不强，按钮更准；`TouchScreenButton` 原生支持多点触控和 `action`，会同时调用 `Input.action_press` 并推送 `InputEventAction`，轮询和 `_unhandled_input` 两种写法都能收到。
+- **贴图用 Lossy 导入 + 按显示尺寸 1.5 倍出图**：贴图导入体积从 1.75MB 降到 240KB，游戏包 gzip 后从 1.8MB 降到 0.58MB。加载大头是引擎 wasm（gzip 后约 10MB），要再降只能自编译裁剪模块的导出模板，jam 阶段不做。
 - **输入映射写在代码里**（`scripts/input_bindings.gd`），不写进 project.godot，便于 review。
 - **HUD/对话框/暂停菜单用代码构建**，不手写 Control 布局的 .tscn。关卡几何用 `@tool` 脚本（`SolidBlock`、`WaterZone`）在编辑器里可见可调。
 

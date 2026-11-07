@@ -204,9 +204,11 @@ scenes/levels/  Level（根脚本）+ level_01.tscn（关卡拼装）
 2. 对同一套动画帧（walk/jump/cast/dead）计算**所有帧非透明区域的并集**，统一裁切，保证帧间对齐不抖动
 3. 缩放到目标高度（小猫游戏内约 220px 高，按 1.5 倍存 ≈ 330px，兼顾清晰与体积）
 4. 输出 PNG 到 `game/assets/sprites/cat/`，命名规范化（如 `cat_jump_01.png.png` → `jump_01.png`）
-5. 立绘（序章用）单独缩放到 900px 高
+5. 单张图（立绘、NPC、UI）裁掉透明边后按最长边缩放，尺寸约为游戏内最大显示尺寸的 1.5 倍（见 `SINGLE_IMAGES` 注释）
 
 缩放参数集中在一个配置对象里，美术换图后重跑即可。
+
+纹理导入默认用 **Lossy（WebP，质量 0.8）**（`project.godot` 的 `importer_defaults`），水彩画风看不出差别，体积约为无损的 1/7。代码里按“显示尺寸 / 贴图尺寸”计算缩放，不写死缩放系数，换分辨率不影响画面。
 
 `pnpm run fonts` → `tools/src/build-font.ts`：扫描 `game/` 下 `.gd`/`.tscn`/`.json` 用到的字符，从 `art/fonts/LXGWWenKai-Medium.ttf`（霞鹜文楷，OFL）生成子集 `game/assets/fonts/ui_font.ttf`（约 250KB），并设为项目默认字体。Godot 默认字体没有 CJK，Web 上也没有系统字体可回退。
 
@@ -250,7 +252,7 @@ GDScript 遵循 [官方风格指南](https://docs.godotengine.org/en/stable/tuto
 | macOS   | `macOS`           | `build/macos/`（未签名，jam 可接受） |
 
 - `pnpm run export:web` 导出 Web；`pnpm run serve:web` 在 <http://localhost:8060> 本地试玩（单线程导出，不需要 COOP/COEP 头）。
-- 当前体积：`index.pck` ≈ 1.1MB，`index.wasm` ≈ 39MB（引擎本体，itch.io 会 gzip）。
+- 当前体积（gzip 后实际传输）：`index.pck` ≈ 0.58MB（其中字体约 200KB、全部贴图约 240KB），`index.wasm` ≈ 10MB（原始 39MB，引擎本体）。Pages 和 itch.io 都会 gzip。
 - GitHub Pages：`.github/workflows/deploy-pages.yml`，push 到 master 时安装 Godot → 跑 GUT → 导出 Web → 部署到 <https://meathill.github.io/gamejam-switch/>。导出模板只解压 Web 两个文件并用 actions/cache 缓存；`index.pck` 改名为 `index-<sha>.pck` 防缓存；checkout 不拉 LFS（CI 不需要原画）。
 - itch.io：`butler push build/web <user>/<game>:html5`。
 - Linux 预设尚未添加，需要时在编辑器里加。

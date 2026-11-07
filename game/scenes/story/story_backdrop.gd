@@ -5,6 +5,8 @@ extends Node2D
 const SCREEN := Vector2(1920, 1080)
 const WATER_TOP := 860.0
 const ROOF_RECT := Rect2(120, 700, 720, 400)
+## 屋顶上小猫立绘的显示高度（与贴图分辨率无关）
+const CAT_HEIGHT := 378.0
 const BUILDING_RECT := Rect2(1250, 300, 520, WATER_TOP - 300)
 const WINDOW_ORIGIN := Vector2(1290, 350)
 const WINDOW_STEP := 120.0

@@ -38,17 +38,24 @@ const FRAME_GROUPS: FrameGroup[] = [
   },
 ];
 
+// 尺寸约为游戏里最大显示尺寸（1920×1080 视口）的 1.5 倍，兼顾高分屏清晰度和包体
 const SINGLE_IMAGES: SingleImage[] = [
-  { source: 'art/cat/cat.png', output: 'game/assets/portraits/cat.png', maxSize: 900 },
+  // 序章/标题显示约 380px 高
+  { source: 'art/cat/cat.png', output: 'game/assets/portraits/cat.png', maxSize: 560 },
+  // 关卡里显示 240px 高
   { source: 'art/npc/大叔.png', output: 'game/assets/sprites/npc/uncle.png', maxSize: 360 },
   { source: 'art/npc/老奶奶.png', output: 'game/assets/sprites/npc/granny.png', maxSize: 360 },
-  { source: 'art/ui/ui/轮盘.png', output: 'game/assets/ui/weather_wheel.png', maxSize: 512 },
-  { source: 'art/ui/ui/rain.png', output: 'game/assets/ui/weather_rain.png', maxSize: 160 },
-  { source: 'art/ui/ui/wind.png', output: 'game/assets/ui/weather_wind.png', maxSize: 160 },
-  { source: 'art/ui/ui/snow.png', output: 'game/assets/ui/weather_snow.png', maxSize: 160 },
-  { source: 'art/ui/ui/sun.png', output: 'game/assets/ui/weather_sun.png', maxSize: 160 },
-  { source: 'art/ui/ui/seed.png', output: 'game/assets/ui/seed.png', maxSize: 160 },
-  { source: 'art/ui/ui/嫩芽印记.png', output: 'game/assets/ui/sprout_mark.png', maxSize: 256 },
+  // HUD 显示 210px
+  { source: 'art/ui/ui/轮盘.png', output: 'game/assets/ui/weather_wheel.png', maxSize: 320 },
+  // 轮盘中心 72px、触屏按钮约 95px
+  { source: 'art/ui/ui/rain.png', output: 'game/assets/ui/weather_rain.png', maxSize: 144 },
+  { source: 'art/ui/ui/wind.png', output: 'game/assets/ui/weather_wind.png', maxSize: 144 },
+  { source: 'art/ui/ui/snow.png', output: 'game/assets/ui/weather_snow.png', maxSize: 144 },
+  { source: 'art/ui/ui/sun.png', output: 'game/assets/ui/weather_sun.png', maxSize: 144 },
+  // 序章显示约 56px
+  { source: 'art/ui/ui/seed.png', output: 'game/assets/ui/seed.png', maxSize: 96 },
+  // 序章显示约 46px；同时是项目图标，Web 导出会生成 180px 的 apple-touch-icon
+  { source: 'art/ui/ui/嫩芽印记.png', output: 'game/assets/ui/sprout_mark.png', maxSize: 192 },
 ];
 
 async function readBounds(file: string): Promise<{ bounds: Bounds; width: number; height: number }> {

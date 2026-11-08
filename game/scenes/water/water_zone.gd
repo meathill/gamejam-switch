@@ -19,7 +19,7 @@ const RAFT_FLOAT_OFFSET := 20.0
 const CLEAN_COLOR := Color(0.24, 0.45, 0.7, 0.72)
 const POLLUTED_COLOR := Color(0.42, 0.33, 0.48, 0.86)
 const ICE_COLOR := Color(0.78, 0.9, 1.0, 0.95)
-const BASIN_COLOR := Color(0.2, 0.2, 0.24)
+const BASIN_COLOR := Color(0.15, 0.14, 0.24)
 
 @export var zone_name: String = "水域"
 @export var size: Vector2 = Vector2(900, 220):

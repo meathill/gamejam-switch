@@ -1,6 +1,13 @@
 class_name WeatherEffect
 extends RefCounted
-## 施放天气时生成一次性粒子。area 是受影响区域（顶边视为水面）。
+## 施放天气时生成一次性粒子（风、雪额外叠加美术素材）。area 是受影响区域（顶边视为水面）。
+
+const SNOW_TEXTURE := preload("res://assets/effects/snow_overlay.png")
+const WIND_SWIRLS: Array[Texture2D] = [
+	preload("res://assets/effects/wind_swirl_1.png"),
+	preload("res://assets/effects/wind_swirl_2.png"),
+	preload("res://assets/effects/wind_swirl_3.png"),
+]
 
 
 static func spawn_on_zone(parent: Node, weather: Weather.Type, zone: WaterZone, direction: int) -> void:
@@ -43,6 +50,45 @@ static func spawn(parent: Node, weather: Weather.Type, area: Rect2, direction: i
 	parent.add_child(particles)
 	particles.finished.connect(particles.queue_free)
 	particles.emitting = true
+	if weather == Weather.Type.WIND:
+		_spawn_wind_swirls(parent, area, 1 if direction >= 0 else -1)
+	elif weather == Weather.Type.SNOW:
+		_spawn_snow_veil(parent, area)
+
+
+## 美术的风笔触：错开出现，顺风飘出一段后淡出
+static func _spawn_wind_swirls(parent: Node, area: Rect2, direction: int) -> void:
+	for index in WIND_SWIRLS.size():
+		var swirl := Sprite2D.new()
+		swirl.texture = WIND_SWIRLS[index]
+		swirl.flip_h = direction < 0
+		swirl.z_index = 5
+		swirl.modulate.a = 0.0
+		var spread := (float(index) / maxf(WIND_SWIRLS.size() - 1, 1) - 0.5) * area.size.x * 0.6
+		swirl.global_position = Vector2(area.get_center().x + spread, area.position.y - 120.0 - index * 60.0)
+		parent.add_child(swirl)
+		var tween := swirl.create_tween()
+		tween.tween_interval(index * 0.12)
+		tween.tween_property(swirl, "modulate:a", 0.9, 0.2)
+		tween.parallel().tween_property(swirl, "position:x", swirl.position.x + direction * 320.0, 0.9)
+		tween.tween_property(swirl, "modulate:a", 0.0, 0.3)
+		tween.tween_callback(swirl.queue_free)
+
+
+## 美术的雪片纹理：在水域上方缓缓落下并淡出
+static func _spawn_snow_veil(parent: Node, area: Rect2) -> void:
+	var veil := Sprite2D.new()
+	veil.texture = SNOW_TEXTURE
+	veil.z_index = 5
+	veil.scale = Vector2.ONE * maxf(area.size.x, 600.0) / SNOW_TEXTURE.get_width()
+	veil.global_position = Vector2(area.get_center().x, area.position.y - veil.texture.get_height() * veil.scale.y / 2.0)
+	veil.modulate.a = 0.0
+	parent.add_child(veil)
+	var tween := veil.create_tween()
+	tween.tween_property(veil, "modulate:a", 1.0, 0.3)
+	tween.parallel().tween_property(veil, "position:y", veil.position.y + 160.0, 1.6)
+	tween.tween_property(veil, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(veil.queue_free)
 
 
 static func _configure(

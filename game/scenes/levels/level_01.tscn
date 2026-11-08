@@ -14,53 +14,13 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/npc/uncle.png" id="12_uncle"]
 [ext_resource type="Texture2D" path="res://assets/sprites/npc/granny.png" id="13_granny"]
 
-[sub_resource type="Gradient" id="Gradient_sky"]
-offsets = PackedFloat32Array(0, 1)
-colors = PackedColorArray(0.06, 0.07, 0.11, 1, 0.22, 0.25, 0.32, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_sky"]
-gradient = SubResource("Gradient_sky")
-fill_from = Vector2(0.5, 0)
-fill_to = Vector2(0.5, 1)
-
 [node name="Level01" type="Node2D"]
 script = ExtResource("1_level")
 intro_dialogue = "res://data/dialogue/level_01_intro.json"
 camera_limits = Rect2i(-400, -1300, 11000, 2000)
 
-[node name="Sky" type="CanvasLayer" parent="."]
-layer = -10
-
-[node name="Gradient" type="TextureRect" parent="Sky"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = SubResource("GradientTexture2D_sky")
-
-[node name="FarCity" type="Parallax2D" parent="."]
-scroll_scale = Vector2(0.25, 0.5)
-
-[node name="Backdrop" type="Node2D" parent="FarCity"]
-position = Vector2(0, 60)
+[node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11_backdrop")
-width = 5000.0
-seed_value = 3
-base_color = Color(0.13, 0.15, 0.2, 1)
-max_height = 760.0
-has_lit_window = true
-
-[node name="NearCity" type="Parallax2D" parent="."]
-scroll_scale = Vector2(0.55, 0.8)
-
-[node name="Backdrop" type="Node2D" parent="NearCity"]
-position = Vector2(0, 40)
-script = ExtResource("11_backdrop")
-width = 8000.0
-seed_value = 11
-base_color = Color(0.18, 0.2, 0.25, 1)
-max_height = 520.0
 
 [node name="Terrain" type="Node2D" parent="."]
 
@@ -111,7 +71,7 @@ size = Vector2(300, 900)
 position = Vector2(7400, -460)
 script = ExtResource("3_block")
 size = Vector2(500, 1360)
-color = Color(0.36, 0.33, 0.33, 1)
+color = Color(0.3, 0.26, 0.42, 1)
 is_building = true
 
 [node name="WindowLedge" type="StaticBody2D" parent="Terrain"]

@@ -7,7 +7,8 @@
     "fonts": "node src/build-font.ts",
     "serve:web": "node src/serve-web.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "backgrounds": "node src/build-backgrounds.ts"
   },
   "dependencies": {
     "sharp": "^0.35.5",

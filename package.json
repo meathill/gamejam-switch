@@ -15,7 +15,8 @@
     "serve:web": "pnpm --filter @gamejam-switch/tools run serve:web",
     "format": "biome format --write .",
     "lint": "biome check .",
-    "typecheck": "pnpm --filter @gamejam-switch/tools run typecheck"
+    "typecheck": "pnpm --filter @gamejam-switch/tools run typecheck",
+    "backgrounds": "pnpm --filter @gamejam-switch/tools run backgrounds"
   },
   "packageManager": "pnpm@11.0.9",
   "devDependencies": {

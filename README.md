@@ -31,6 +31,7 @@ pnpm run dev          # 运行游戏（从标题开始）
 pnpm run editor       # 打开 Godot 编辑器
 pnpm test             # tools(vitest) + 游戏逻辑(GUT)
 pnpm run sprites      # art/ 原画 → game/assets/sprites（裁切缩放）
+pnpm run backgrounds  # art/backgrounds 分层原画 → 背景贴图 + data/backdrops/*.json
 pnpm run fonts        # 重新生成中文字体子集（新增文案后必须跑）
 pnpm run export:web   # 导出 Web 到 build/web
 pnpm run serve:web    # 本地试玩 Web 版 http://localhost:8060

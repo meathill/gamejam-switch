@@ -105,6 +105,7 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 640, "do": "shot", "name": "07_canal_deep" },
 				{ "frame": 641, "do": "weather", "weather": Weather.Type.WIND },
 				{ "frame": 680, "do": "cast" },
+				{ "frame": 700, "do": "shot", "name": "07b_wind" },
 				{ "frame": 760, "do": "cast" },
 				{ "frame": 840, "do": "shot", "name": "08_raft_at_building" },
 			]

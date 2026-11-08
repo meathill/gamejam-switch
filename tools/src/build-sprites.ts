@@ -59,6 +59,12 @@ const SINGLE_IMAGES: SingleImage[] = [
   // 对话框九宫格：边角按贴图像素 1:1 绘制，所以按显示尺寸出图，不留 1.5 倍
   { source: 'art/ui/dialogue/name_box.png', output: 'game/assets/ui/name_box.png', maxSize: 400 },
   { source: 'art/ui/dialogue/text_box.png', output: 'game/assets/ui/text_box.png', maxSize: 1200 },
+  // 雪片纹理：施放雪时叠在水域上方（美术的雨丝纹理是给 4K 画的，1080p 下几乎看不见，没有使用）
+  { source: 'art/effects/snow_overlay.png', output: 'game/assets/effects/snow_overlay.png', maxSize: 1920 },
+  // 风的笔触，施放风时显示约 180px
+  { source: 'art/effects/wind_swirl_1.png', output: 'game/assets/effects/wind_swirl_1.png', maxSize: 256 },
+  { source: 'art/effects/wind_swirl_2.png', output: 'game/assets/effects/wind_swirl_2.png', maxSize: 256 },
+  { source: 'art/effects/wind_swirl_3.png', output: 'game/assets/effects/wind_swirl_3.png', maxSize: 256 },
 ];
 
 async function readBounds(file: string): Promise<{ bounds: Bounds; width: number; height: number }> {

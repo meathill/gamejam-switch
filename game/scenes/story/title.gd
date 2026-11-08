@@ -7,7 +7,9 @@ const CAT_PORTRAIT := preload("res://assets/portraits/cat.png")
 
 
 func _ready() -> void:
-	add_child(StoryBackdrop.new())
+	var backdrop := StoryBackdrop.new()
+	backdrop.has_opposite_building = false
+	add_child(backdrop)
 	var cat := Sprite2D.new()
 	cat.texture = CAT_PORTRAIT
 	cat.scale = Vector2.ONE * StoryBackdrop.CAT_HEIGHT / CAT_PORTRAIT.get_height()

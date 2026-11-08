@@ -56,6 +56,9 @@ const SINGLE_IMAGES: SingleImage[] = [
   { source: 'art/ui/ui/seed.png', output: 'game/assets/ui/seed.png', maxSize: 96 },
   // 序章显示约 46px；同时是项目图标，Web 导出会生成 180px 的 apple-touch-icon
   { source: 'art/ui/ui/嫩芽印记.png', output: 'game/assets/ui/sprout_mark.png', maxSize: 192 },
+  // 对话框九宫格：边角按贴图像素 1:1 绘制，所以按显示尺寸出图，不留 1.5 倍
+  { source: 'art/ui/dialogue/name_box.png', output: 'game/assets/ui/name_box.png', maxSize: 400 },
+  { source: 'art/ui/dialogue/text_box.png', output: 'game/assets/ui/text_box.png', maxSize: 1200 },
 ];
 
 async function readBounds(file: string): Promise<{ bounds: Bounds; width: number; height: number }> {

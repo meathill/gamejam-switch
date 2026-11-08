@@ -47,6 +47,9 @@
 | `art/ui/ui/seed.png`                 | `game/assets/ui/seed.png`            | 序章落下的种子                             |
 | `art/ui/ui/嫩芽印记.png`             | `game/assets/ui/sprout_mark.png`     | 序章猫额头印记、项目图标（Web favicon）    |
 
+| `art/ui/dialogue/text_box.png` | `game/assets/ui/text_box.png` | 对话文字框（九宫格拉伸） |
+| `art/ui/dialogue/name_box.png` | `game/assets/ui/name_box.png` | 对话姓名框、对话选项按钮 |
+
 映射关系写在 `tools/src/build-sprites.ts` 的 `SINGLE_IMAGES`，换图后跑 `pnpm run sprites`。
 
 ## 入库前处理

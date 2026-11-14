@@ -6,7 +6,9 @@ extends Interactable
 
 const PLATFORM_SIZE := Vector2(260, 30)
 const RIDE_SPEED := 520.0
-const SHAFT_COLOR := Color(0.16, 0.15, 0.18)
+const SHAFT_TEXTURE := preload("res://assets/sprites/farm/shaft.png")
+const PLATFORM_TEXTURE := preload("res://assets/sprites/farm/elevator_platform.png")
+const PLATFORM_DRAW_HEIGHT := 44.0
 
 @export var travel: float = 1200.0:
 	set(value):
@@ -102,16 +104,14 @@ func _on_gear_changed(gear: int) -> void:
 
 func _draw() -> void:
 	var half := PLATFORM_SIZE.x / 2.0 + 20.0
-	draw_rect(Rect2(-half, 0, half * 2.0, travel + PLATFORM_SIZE.y), SHAFT_COLOR)
+	draw_texture_rect(SHAFT_TEXTURE, Rect2(-half, -20.0, half * 2.0, travel + PLATFORM_SIZE.y + 20.0), false)
 	var cable_y := travel * _progress
-	draw_line(Vector2(-half + 10, -40), Vector2(-half + 10, cable_y), Color(0.15, 0.15, 0.15), 4.0)
-	draw_line(Vector2(half - 10, -40), Vector2(half - 10, cable_y), Color(0.15, 0.15, 0.15), 4.0)
-	draw_rect(Rect2(-half - 20, -60, half * 2.0 + 40, 20), Color(0.35, 0.33, 0.3))
+	draw_line(Vector2(-half + 24, -40), Vector2(-half + 24, cable_y), Color(0.15, 0.15, 0.2), 4.0)
+	draw_line(Vector2(half - 24, -40), Vector2(half - 24, cable_y), Color(0.15, 0.15, 0.2), 4.0)
+	draw_rect(Rect2(-half - 20, -60, half * 2.0 + 40, 20), Color(0.45, 0.42, 0.55))
 	var is_lit := not Engine.is_editor_hint() and wheel and is_powered()
 	draw_circle(Vector2(0, -80), 16.0, Color(1.0, 0.8, 0.3) if is_lit else Color(0.35, 0.3, 0.25))
-	var platform := Rect2(-PLATFORM_SIZE.x / 2.0, cable_y, PLATFORM_SIZE.x, PLATFORM_SIZE.y)
-	draw_rect(platform, Color(0.55, 0.5, 0.42))
-	draw_rect(platform, Color(0.3, 0.27, 0.22), false, 4.0)
+	draw_texture_rect(PLATFORM_TEXTURE, Rect2(-PLATFORM_SIZE.x / 2.0, cable_y - 6.0, PLATFORM_SIZE.x, PLATFORM_DRAW_HEIGHT), false)
 	if _is_cover_closed:
 		draw_rect(Rect2(-half - 20, -8, 30, 16), Color(0.75, 0.6, 0.3))
 		draw_rect(Rect2(half - 10, -8, 30, 16), Color(0.75, 0.6, 0.3))

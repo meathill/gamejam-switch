@@ -21,7 +21,10 @@ func _initialize() -> void:
 
 func _start(level_id: String) -> void:
 	if level_id:
-		root.get_node("GameState").set("current_level_id", level_id)
+		# 指定关卡时跳过开场标题卡和对白，场景步骤里不需要再按 Esc
+		var state: Node = root.get_node("GameState")
+		state.set("current_level_id", level_id)
+		(state.get("seen_intros") as Dictionary)[level_id] = true
 	change_scene_to_file(_scene_path)
 
 
@@ -168,7 +171,7 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 211, "do": "shot", "name": "garden_exit" },
 			]
 		"farm":
-			var steps: Array[Dictionary] = [{ "frame": 40, "do": "key", "key": KEY_ESCAPE }]
+			var steps: Array[Dictionary] = []
 			var stops: Array[Vector2] = [
 				Vector2(150, 0), Vector2(1100, -260), Vector2(2300, 0), Vector2(2900, 0), Vector2(3550, 0),
 				Vector2(4300, 0), Vector2(3300, 1300), Vector2(2800, 1300), Vector2(2200, 1300), Vector2(5000, 0),
@@ -180,7 +183,6 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 		"farm_moves":
 			# B 助跑跳过低洼田到 D；从 D 跳回低洼田左侧台阶再上 B；地下从隐藏平台跳上泵房平台
 			return [
-				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
 				{ "frame": 50, "do": "teleport", "to": Vector2(1250, -260) },
 				{ "frame": 60, "do": "press", "action": "move_right" },
 				{ "frame": 85, "do": "press", "action": "jump" },

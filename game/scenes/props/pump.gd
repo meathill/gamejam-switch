@@ -6,7 +6,8 @@ extends Node2D
 
 signal triggered
 
-const BODY_SIZE := Vector2(220, 150)
+const BODY_SIZE := Vector2(230, 110)
+const TEXTURE := preload("res://assets/sprites/farm/pump.png")
 const START_DELAY := 0.6
 
 @export var wheel: Waterwheel
@@ -56,9 +57,7 @@ func _try_start() -> void:
 
 func _draw() -> void:
 	var rect := Rect2(-BODY_SIZE.x / 2.0, -BODY_SIZE.y, BODY_SIZE.x, BODY_SIZE.y)
-	draw_rect(rect, Color(0.4, 0.42, 0.46))
-	draw_rect(rect, Color(0.2, 0.2, 0.24), false, 4.0)
-	draw_circle(rect.get_center() + Vector2(-40, 0), 40.0, Color(0.3, 0.32, 0.36))
+	draw_texture_rect(TEXTURE, rect, false)
 	var is_connected := Engine.is_editor_hint() or is_connected_to_wheel()
 	var light := Color(0.45, 0.85, 0.45) if _is_running else (Color(1.0, 0.8, 0.3) if is_connected else Color(0.4, 0.25, 0.25))
-	draw_circle(rect.position + Vector2(170, 40), 18.0, light)
+	draw_circle(rect.position + Vector2(rect.size.x - 40.0, -18.0), 16.0, light)

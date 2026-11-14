@@ -5,6 +5,8 @@ extends Interactable
 
 const CLIMB_SPEED := 420.0
 const RAIL_COLOR := Color(0.55, 0.45, 0.3)
+const TEXTURE := preload("res://assets/sprites/farm/ladder.png")
+const DRAW_WIDTH := 110.0
 
 @export var height: float = 900.0:
 	set(value):
@@ -61,9 +63,4 @@ func _draw() -> void:
 		if Engine.is_editor_hint():
 			draw_rect(Rect2(-50, -height, 100, height), Color(RAIL_COLOR, 0.25), false, 3.0)
 		return
-	draw_line(Vector2(-40, 0), Vector2(-40, -height), RAIL_COLOR, 8.0)
-	draw_line(Vector2(40, 0), Vector2(40, -height), RAIL_COLOR, 8.0)
-	var rung := 40.0
-	while rung < height:
-		draw_line(Vector2(-40, -rung), Vector2(40, -rung), RAIL_COLOR.darkened(0.15), 6.0)
-		rung += 60.0
+	draw_texture_rect(TEXTURE, Rect2(-DRAW_WIDTH / 2.0, -height - 20.0, DRAW_WIDTH, height + 20.0), false)

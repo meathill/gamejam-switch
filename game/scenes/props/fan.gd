@@ -5,7 +5,8 @@ extends WeatherTarget
 
 signal triggered
 
-const RADIUS := 70.0
+const RADIUS := 80.0
+const TEXTURE := preload("res://assets/sprites/farm/fan.png")
 const HEIGHT := 200.0
 
 var _is_running: bool = false
@@ -54,11 +55,9 @@ func _cast(weather: Weather.Type, _direction: int) -> CastResult:
 
 func _draw() -> void:
 	var center := Vector2(0, -HEIGHT + RADIUS)
-	draw_rect(Rect2(-12, center.y, 24, -center.y), Color(0.3, 0.3, 0.33))
-	draw_arc(center, RADIUS + 10.0, 0.0, TAU, 32, Color(0.45, 0.47, 0.5), 10.0)
-	for index in 4:
-		var direction := Vector2.from_angle(_angle + index * TAU / 4.0)
-		draw_line(center, center + direction * RADIUS, Color(0.65, 0.68, 0.72), 18.0)
-	draw_circle(center, 14.0, Color(0.25, 0.25, 0.28))
+	draw_rect(Rect2(-12, center.y, 24, -center.y), Color(0.45, 0.42, 0.58))
+	draw_set_transform(center, _angle)
+	draw_texture_rect(TEXTURE, Rect2(-Vector2.ONE * RADIUS, Vector2.ONE * RADIUS * 2.0), false)
+	draw_set_transform(Vector2.ZERO)
 	if _highlight_color.a > 0.0:
-		draw_arc(center, RADIUS + 26.0, 0.0, TAU, 32, _highlight_color, 4.0)
+		draw_arc(center, RADIUS + 16.0, 0.0, TAU, 32, _highlight_color, 4.0)

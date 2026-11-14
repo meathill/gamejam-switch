@@ -3,16 +3,15 @@ class_name SeedCart
 extends Interactable
 ## 种子车：完成所有通关目标后按 E 启动，沿地面驶向终点，到达后由终点结算。原点在地面中点。
 
-const SIZE := Vector2(220, 120)
+const SIZE := Vector2(260, 170)
+const TEXTURE := preload("res://assets/sprites/farm/cart.png")
+const SACK_TEXTURE := preload("res://assets/sprites/farm/seed_sack.png")
+const SACK_WIDTH := 70.0
 const SPEED := 260.0
 
 @export var goal: GoalArea
 
 var _is_moving: bool = false
-var _wheel_angle: float = 0.0:
-	set(value):
-		_wheel_angle = value
-		queue_redraw()
 
 
 func _init() -> void:
@@ -35,21 +34,17 @@ func _interact() -> void:
 	_is_moving = true
 	GameState.post_message("种子车出发了，跟着它去粮仓")
 	var distance := absf(goal.global_position.x - global_position.x)
-	var tween := create_tween().set_parallel()
+	var tween := create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.tween_property(self, "global_position:x", goal.global_position.x, distance / SPEED)
-	tween.tween_property(self, "_wheel_angle", distance / 40.0, distance / SPEED)
 	await tween.finished
 	goal.arrive_by_cart()
 
 
 func _draw() -> void:
-	var body := Rect2(-SIZE.x / 2.0, -SIZE.y, SIZE.x, SIZE.y - 30.0)
-	draw_rect(body, Color(0.75, 0.45, 0.2))
-	draw_rect(body, Color(0.45, 0.25, 0.1), false, 4.0)
-	for index in 4:
-		draw_circle(Vector2(-60 + index * 40, -SIZE.y - 6), 18.0, Color(0.95, 0.85, 0.5))
-	for x: float in [-SIZE.x / 3.0, SIZE.x / 3.0]:
-		var center := Vector2(x, -28)
-		draw_circle(center, 28.0, Color(0.3, 0.22, 0.15))
-		draw_line(center, center + Vector2.from_angle(_wheel_angle) * 24.0, Color(0.6, 0.5, 0.35), 5.0)
+	var cart_size := TEXTURE.get_size() * SIZE.x / TEXTURE.get_width()
+	draw_texture_rect(TEXTURE, Rect2(Vector2(-cart_size.x / 2.0, -cart_size.y), cart_size), false)
+	var sack_size := SACK_TEXTURE.get_size() * SACK_WIDTH / SACK_TEXTURE.get_width()
+	var body_top := -cart_size.y + 8.0
+	for x: float in [-SACK_WIDTH * 0.9, 0.0, SACK_WIDTH * 0.9]:
+		draw_texture_rect(SACK_TEXTURE, Rect2(Vector2(x - sack_size.x / 2.0, body_top - sack_size.y * 0.7), sack_size), false)

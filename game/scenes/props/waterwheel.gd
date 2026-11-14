@@ -6,8 +6,12 @@ extends WeatherTarget
 
 signal gear_changed(gear: int)
 
-const RADIUS := 190.0
-const AXLE_HEIGHT := 260.0
+const WHEEL_TEXTURE := preload("res://assets/sprites/farm/waterwheel.png")
+const STAND_TEXTURE := preload("res://assets/sprites/farm/waterwheel_stand.png")
+## 美术里轮子直径 1473、支架高 1265、轴心离地 1070（原画像素），按轮子直径 400px 等比换算
+const RADIUS := 200.0
+const AXLE_HEIGHT := 290.0
+const STAND_HEIGHT := 344.0
 const TURN_SECONDS := 0.6
 const TARGET_HALF_WIDTH := 520.0
 const GEAR_COLORS: Array[Color] = [
@@ -99,13 +103,12 @@ func _draw() -> void:
 				Vector2(start_x, 0), Vector2(start_x, depth), Vector2(end.x, depth), end,
 			]), color, 14.0)
 	var axle := Vector2(0, -AXLE_HEIGHT)
-	draw_colored_polygon(PackedVector2Array([Vector2(-120, 0), axle, Vector2(120, 0)]), Color(0.42, 0.3, 0.2))
-	draw_arc(axle, RADIUS, 0.0, TAU, 48, Color(0.55, 0.38, 0.22), 18.0)
-	for index in 8:
-		var direction := Vector2.from_angle(_angle + index * TAU / 8.0)
-		draw_line(axle, axle + direction * RADIUS, Color(0.5, 0.35, 0.2), 10.0)
-		draw_rect(Rect2(axle + direction * RADIUS - Vector2(22, 22), Vector2(44, 44)), Color(0.62, 0.45, 0.28))
-	draw_circle(axle, 30.0, Color(0.3, 0.22, 0.15))
+	var wheel_size := Vector2.ONE * RADIUS * 2.0
+	draw_set_transform(axle, _angle)
+	draw_texture_rect(WHEEL_TEXTURE, Rect2(-wheel_size / 2.0, wheel_size), false)
+	draw_set_transform(Vector2.ZERO)
+	var stand_size := STAND_TEXTURE.get_size() * STAND_HEIGHT / STAND_TEXTURE.get_height()
+	draw_texture_rect(STAND_TEXTURE, Rect2(Vector2(-stand_size.x / 2.0, -STAND_HEIGHT), stand_size), false)
 	for index in range(1, 4):
 		var lamp := Vector2((index - 2) * 70.0, -AXLE_HEIGHT - RADIUS - 70.0)
 		var is_lit := gear == index

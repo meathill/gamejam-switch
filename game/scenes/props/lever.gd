@@ -6,7 +6,8 @@ extends Interactable
 
 signal triggered
 
-const BOX_SIZE := Vector2(70, 110)
+const TEXTURE := preload("res://assets/sprites/farm/lever.png")
+const DRAW_HEIGHT := 110.0
 
 @export var requires_deep: WaterZone
 @export var action_name: String = "拉开关"
@@ -36,11 +37,11 @@ func _interact() -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(-8, -BOX_SIZE.y, 16, BOX_SIZE.y), Color(0.3, 0.3, 0.33))
-	var box := Rect2(-BOX_SIZE.x / 2.0, -BOX_SIZE.y - 40.0, BOX_SIZE.x, 70.0)
-	draw_rect(box, Color(0.42, 0.44, 0.48))
-	draw_rect(box, Color(0.22, 0.22, 0.25), false, 4.0)
-	var pivot := box.get_center()
-	var handle_end := pivot + (Vector2(18, 30) if is_pulled else Vector2(18, -40))
-	draw_line(pivot, handle_end, Color(0.2, 0.2, 0.22), 7.0)
-	draw_circle(handle_end, 11.0, Color(0.85, 0.3, 0.25) if not is_pulled else Color(0.4, 0.85, 0.5))
+	var draw_size := TEXTURE.get_size() * DRAW_HEIGHT / TEXTURE.get_height()
+	# 拉下后把手倒向另一边
+	if is_pulled:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(-1, 1))
+	draw_texture_rect(TEXTURE, Rect2(Vector2(-draw_size.x / 2.0, -draw_size.y), draw_size), false)
+	draw_set_transform(Vector2.ZERO)
+	var light := Color(0.4, 0.85, 0.5) if is_pulled else Color(0.85, 0.3, 0.25)
+	draw_circle(Vector2(0, -DRAW_HEIGHT - 24.0), 9.0, light)

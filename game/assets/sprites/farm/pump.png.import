@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://jyu8jhxpjlc5"
-path="res://.godot/imported/farmhouse.png-6007fbdfc39c48e0ccbe82ea3dbda2dc.ctex"
+uid="uid://dbgvkdvdf51fd"
+path="res://.godot/imported/pump.png-3d6a7b27fc381ec732222ed0fa688e27.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/farm/farmhouse.png"
-dest_files=["res://.godot/imported/farmhouse.png-6007fbdfc39c48e0ccbe82ea3dbda2dc.ctex"]
+source_file="res://assets/sprites/farm/pump.png"
+dest_files=["res://.godot/imported/pump.png-3d6a7b27fc381ec732222ed0fa688e27.ctex"]
 
 [params]
 

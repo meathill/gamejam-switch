@@ -15,6 +15,8 @@ interface SingleImage {
   output: string;
   /** 裁掉透明边后，按最长边缩放到这个尺寸（不放大） */
   maxSize: number;
+  /** 指定裁切范围（原画像素），用于图层里有离得很远的杂点、自动裁切不准的情况 */
+  crop?: Bounds;
 }
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
@@ -47,8 +49,96 @@ const SINGLE_IMAGES: SingleImage[] = [
   { source: 'art/npc/老奶奶.png', output: 'game/assets/sprites/npc/granny.png', maxSize: 360 },
   { source: 'art/npc/农民.png', output: 'game/assets/sprites/npc/farmer.png', maxSize: 360 },
   { source: 'art/npc/一家人.png', output: 'game/assets/sprites/npc/family.png', maxSize: 360 },
+  // 第二关机关（art/backgrounds/farm_surface、farm_underground、farm_end 的分层，按游戏内显示尺寸 1.5 倍出图）
+  // 水车轮显示直径约 400px，支架与轮子同比例（400 / 1473）
+  {
+    source: 'art/backgrounds/farm_surface/17_waterwheel.png',
+    output: 'game/assets/sprites/farm/waterwheel.png',
+    maxSize: 600,
+  },
+  {
+    source: 'art/backgrounds/farm_surface/16_waterwheel_stand.png',
+    output: 'game/assets/sprites/farm/waterwheel_stand.png',
+    maxSize: 515,
+  },
+  // 粮仓（含晾架、木箱）显示约 560px 高；种子车约 260px 宽，图层左上角有杂点，手动指定裁切
+  {
+    source: 'art/backgrounds/farm_surface/22_granary_full.png',
+    output: 'game/assets/sprites/farm/granary.png',
+    maxSize: 1420,
+  },
+  {
+    source: 'art/backgrounds/farm_surface/20_cart.png',
+    output: 'game/assets/sprites/farm/cart.png',
+    maxSize: 390,
+    crop: { left: 2905, top: 1905, right: 4012, bottom: 2629 },
+  },
+  {
+    source: 'art/backgrounds/farm_surface/12_seed_sack.png',
+    output: 'game/assets/sprites/farm/seed_sack.png',
+    maxSize: 120,
+  },
+  // 农田三态：已恢复的嫩芽、积水和碎石（低洼田）、旱田，按约 40px 高横向平铺
+  {
+    source: 'art/backgrounds/farm_surface/02_sprouts.png',
+    output: 'game/assets/sprites/farm/sprouts.png',
+    maxSize: 560,
+  },
+  {
+    source: 'art/backgrounds/farm_surface/04_field_water.png',
+    output: 'game/assets/sprites/farm/field_water.png',
+    maxSize: 600,
+  },
+  {
+    source: 'art/backgrounds/farm_surface/03_field_rocks.png',
+    output: 'game/assets/sprites/farm/field_rocks.png',
+    maxSize: 500,
+  },
+  {
+    source: 'art/backgrounds/farm_end/01_dry_field.png',
+    output: 'game/assets/sprites/farm/dry_field.png',
+    maxSize: 480,
+  },
+  // 地下：爬梯拉伸到实际高度，竖井拉伸到井的尺寸
+  {
+    source: 'art/backgrounds/farm_underground/01_ladder.png',
+    output: 'game/assets/sprites/farm/ladder.png',
+    maxSize: 1240,
+  },
+  {
+    source: 'art/backgrounds/farm_underground/09_shaft.png',
+    output: 'game/assets/sprites/farm/shaft.png',
+    maxSize: 1400,
+  },
+  {
+    source: 'art/backgrounds/farm_underground/10_elevator_platform.png',
+    output: 'game/assets/sprites/farm/elevator_platform.png',
+    maxSize: 390,
+  },
+  { source: 'art/backgrounds/farm_underground/08_fan.png', output: 'game/assets/sprites/farm/fan.png', maxSize: 240 },
+  {
+    source: 'art/backgrounds/farm_underground/03_lever.png',
+    output: 'game/assets/sprites/farm/lever.png',
+    maxSize: 150,
+  },
+  { source: 'art/backgrounds/farm_underground/04_pump.png', output: 'game/assets/sprites/farm/pump.png', maxSize: 330 },
+  {
+    source: 'art/backgrounds/farm_underground/24_trees.png',
+    output: 'game/assets/sprites/farm/trees.png',
+    maxSize: 720,
+  },
+  // 平铺纹理：按背景同样的 0.375 缩放（5120 → 1920），1:1 平铺时纸纹粗细和远景一致
+  {
+    source: 'art/backgrounds/farm_underground/21_earth.png',
+    output: 'game/assets/textures/farm/earth.png',
+    maxSize: 1920,
+  },
+  {
+    source: 'art/backgrounds/farm_underground/25_room_wall.png',
+    output: 'game/assets/textures/farm/room_wall.png',
+    maxSize: 1920,
+  },
   // 第二关近景（原画是 5120×2880 的整幅分层，裁掉透明边后单独摆放）：粮仓显示约 560px 高
-  { source: 'art/backgrounds/farm/08_farmhouse.png', output: 'game/assets/sprites/farm/farmhouse.png', maxSize: 1100 },
   {
     source: 'art/backgrounds/farm/09_weathervane.png',
     output: 'game/assets/sprites/farm/weathervane.png',
@@ -122,7 +212,9 @@ async function buildFrameGroup(group: FrameGroup): Promise<void> {
 
 async function buildSingleImage(image: SingleImage): Promise<void> {
   const file = path.join(ROOT, image.source);
-  const { bounds, width, height } = await readBounds(file);
+  const measured = await readBounds(file);
+  const { width, height } = measured;
+  const bounds = image.crop ?? measured.bounds;
   const output = path.join(ROOT, image.output);
   await mkdir(path.dirname(output), { recursive: true });
   const padding = Math.min(CROP_PADDING, Math.round(Math.max(width, height) * 0.02));

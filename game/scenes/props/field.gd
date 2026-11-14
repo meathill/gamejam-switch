@@ -10,11 +10,15 @@ const TARGET_HEIGHT_ABOVE := 520.0
 const ICE_THICKNESS := 24.0
 const COLORS: Dictionary[FarmRules.FieldState, Color] = {
 	FarmRules.FieldState.DRY: Color(0.66, 0.52, 0.34),
-	FarmRules.FieldState.WATERLOGGED: Color(0.32, 0.26, 0.2),
+	FarmRules.FieldState.WATERLOGGED: Color(0.27, 0.2, 0.18),
 	FarmRules.FieldState.MUD_ICE: Color(0.78, 0.88, 0.95),
-	FarmRules.FieldState.RESTORED: Color(0.36, 0.26, 0.17),
+	FarmRules.FieldState.RESTORED: Color(0.56, 0.31, 0.27),
 }
-const SPROUT_COLOR := Color(0.45, 0.8, 0.4)
+const SPROUT_HEIGHT := 46.0
+const DRY_TEXTURE := preload("res://assets/sprites/farm/dry_field.png")
+const WATER_TEXTURE := preload("res://assets/sprites/farm/field_water.png")
+const ROCKS_TEXTURE := preload("res://assets/sprites/farm/field_rocks.png")
+const SPROUTS_TEXTURE := preload("res://assets/sprites/farm/sprouts.png")
 
 @export var field_name: String = "农田"
 @export var width: float = 500.0:
@@ -163,20 +167,20 @@ func _lift_player_onto_ice() -> void:
 
 func _draw() -> void:
 	var surface := 0.0 if state == FarmRules.FieldState.MUD_ICE else depth
-	var rect := Rect2(0, surface, width, SOIL_HEIGHT if surface == depth else depth + SOIL_HEIGHT)
-	draw_rect(rect, COLORS[state])
 	match state:
 		FarmRules.FieldState.DRY:
-			for index in int(width / 70.0):
-				var x := 30.0 + index * 70.0
-				draw_polyline(PackedVector2Array([Vector2(x, depth + 6), Vector2(x + 14, depth + 20), Vector2(x + 4, depth + 34)]), COLORS[state].darkened(0.35), 3.0)
+			TextureDraw.draw_strip(self, DRY_TEXTURE, Rect2(0, depth, width, SOIL_HEIGHT))
 		FarmRules.FieldState.WATERLOGGED:
-			draw_rect(Rect2(0, depth - 16, width, 18), Color(0.42, 0.36, 0.3, 0.85))
+			draw_rect(Rect2(0, depth, width, SOIL_HEIGHT), COLORS[state])
+			var water_top := depth * 0.4
+			draw_texture_rect(WATER_TEXTURE, Rect2(0, water_top, width, depth - water_top + SOIL_HEIGHT * 0.5), false, Color(1, 1, 1, 0.92))
+			TextureDraw.draw_strip(self, ROCKS_TEXTURE, Rect2(0, depth - 34, width, 40))
+		FarmRules.FieldState.MUD_ICE:
+			draw_rect(Rect2(0, 0, width, depth + SOIL_HEIGHT), COLORS[state])
+			TextureDraw.draw_strip(self, ROCKS_TEXTURE, Rect2(0, depth - 34, width, 40), Color(0.8, 0.9, 1.0, 0.6))
+			draw_line(Vector2(0, 2), Vector2(width, 2), Color.WHITE, 4.0)
 		FarmRules.FieldState.RESTORED:
-			for index in int(width / 60.0):
-				var base := Vector2(30.0 + index * 60.0, depth)
-				draw_line(base, base + Vector2(0, -34), SPROUT_COLOR, 4.0)
-				draw_circle(base + Vector2(-9, -30), 9.0, SPROUT_COLOR)
-				draw_circle(base + Vector2(9, -36), 9.0, SPROUT_COLOR)
+			draw_rect(Rect2(0, depth, width, SOIL_HEIGHT), COLORS[state])
+			TextureDraw.draw_strip(self, SPROUTS_TEXTURE, Rect2(0, depth - SPROUT_HEIGHT + 4.0, width, SPROUT_HEIGHT))
 	if _highlight_color.a > 0.0:
 		draw_rect(Rect2(-6, surface - 50.0, width + 12, depth - surface + SOIL_HEIGHT + 56.0), _highlight_color, false, 4.0)

@@ -59,15 +59,15 @@ const BACKDROPS: Backdrop[] = [
       { name: 'building_front', layers: ['03_building_front.png'], isMirrored: false },
     ],
   },
-  // 第二关农田：只取天空和云做远景，农舍、风向标等近景用 build-sprites 出单图，在关卡里摆放
+  // 第二关农田：只取天空和云做远景，粮仓、水车等近景用 build-sprites 出单图，在关卡里摆放
   {
     name: 'farm',
-    sourceDir: 'art/backgrounds/farm',
+    sourceDir: 'art/backgrounds/farm_surface',
     canvas: { width: 5120, height: 2880 },
-    horizonY: 2440,
+    horizonY: 2320,
     groups: [
-      { name: 'sky', layers: ['14_sky.png'], isMirrored: false },
-      { name: 'clouds', layers: ['13_cloud_right.png', '12_cloud_big.png', '11_cloud_left.png'], isMirrored: true },
+      { name: 'sky', layers: ['11_sky.png'], isMirrored: false },
+      { name: 'clouds', layers: ['10_cloud_right.png', '09_cloud_big.png', '07_cloud_left.png'], isMirrored: true },
     ],
   },
 ];

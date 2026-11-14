@@ -1,7 +1,9 @@
 @tool
 class_name Decor
 extends Node2D
-## 装饰：贴图（原点在底边中点，按 height 等比缩放）或纯色矩形（原点在左上角）。没有碰撞。
+## 装饰，没有碰撞：
+##   有贴图、没有 size：原点在底边中点，按 height 等比缩放
+##   有 size：原点在左上角，铺满 size（有贴图时按世界坐标 1:1 平铺，否则纯色）
 
 @export var texture: Texture2D:
 	set(value):
@@ -27,8 +29,14 @@ extends Node2D
 
 
 func _draw() -> void:
+	if size != Vector2.ZERO:
+		if texture:
+			texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+			TextureDraw.draw_world_tiled(self, texture, Rect2(Vector2.ZERO, size))
+		else:
+			draw_rect(Rect2(Vector2.ZERO, size), color)
+		return
 	if not texture:
-		draw_rect(Rect2(Vector2.ZERO, size), color)
 		return
 	var display_size := texture.get_size() * height / texture.get_height()
 	if is_flipped:

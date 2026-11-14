@@ -11,11 +11,24 @@ extends StaticBody2D
 	set(value):
 		color = value
 		queue_redraw()
+## 纹理（按世界坐标 1:1 平铺）；为空时用纯色
+@export var texture: Texture2D:
+	set(value):
+		texture = value
+		texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		queue_redraw()
+## 顶面的土色带（地表）；透明时只画一条亮边
+@export var top_color: Color = Color.TRANSPARENT:
+	set(value):
+		top_color = value
+		queue_redraw()
 ## 作为楼房绘制窗户
 @export var is_building: bool = false:
 	set(value):
 		is_building = value
 		queue_redraw()
+
+const TOP_BAND_HEIGHT := 40.0
 
 ## 隐藏的平台：运行时不显示、没有碰撞，直到 reveal()
 @export var is_hidden: bool = false
@@ -49,8 +62,15 @@ func _rebuild() -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), color)
-	draw_line(Vector2.ZERO, Vector2(size.x, 0), color.lightened(0.25), 6.0)
+	if texture:
+		TextureDraw.draw_world_tiled(self, texture, Rect2(Vector2.ZERO, size))
+	else:
+		draw_rect(Rect2(Vector2.ZERO, size), color)
+	if top_color.a > 0.0:
+		draw_rect(Rect2(0, 0, size.x, minf(TOP_BAND_HEIGHT, size.y)), top_color)
+		draw_line(Vector2(0, TOP_BAND_HEIGHT), Vector2(size.x, TOP_BAND_HEIGHT), top_color.darkened(0.12), 3.0)
+	elif not texture:
+		draw_line(Vector2.ZERO, Vector2(size.x, 0), color.lightened(0.25), 6.0)
 	if is_building:
 		_draw_windows()
 

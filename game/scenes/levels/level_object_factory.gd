@@ -63,6 +63,10 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			if entry.has("color"):
 				block.color = LevelData.to_color(entry["color"])
 			block.is_building = entry.get("building", false)
+			if entry.has("texture"):
+				block.texture = load(entry["texture"])
+			if entry.has("top_color"):
+				block.top_color = LevelData.to_color(entry["top_color"])
 			return block
 		"decor":
 			var decor := Decor.new()

@@ -97,7 +97,6 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 		"lever":
 			var lever := Lever.new()
 			lever.action_name = entry.get("action", lever.action_name)
-			lever.locked_text = entry.get("locked_text", lever.locked_text)
 			lever.pulled_text = entry.get("pulled_text", "")
 			return lever
 		"drainage_station":

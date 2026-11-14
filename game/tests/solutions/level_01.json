@@ -4,12 +4,13 @@
     { "cast": "snow" },
     { "expect_water": "street", "frozen": true },
 
-    { "teleport": [2700, 0] },
+    { "teleport": [3170, 0] },
     { "cast": "rain" },
+    { "expect_water": "channel", "level": 1 },
+    { "interact": true },
+    { "expect_prop": "drain_switch", "is_pulled": false },
     { "cast": "rain" },
     { "expect_water": "channel", "level": 2 },
-
-    { "teleport": [3550, 0] },
     { "interact": true },
     { "wait": 1.8 },
     { "expect_water": "plaza", "level": 1, "polluted": false },

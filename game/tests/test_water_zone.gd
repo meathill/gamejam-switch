@@ -92,6 +92,29 @@ func test_drainage_switch_is_locked_until_channel_is_full() -> void:
 	assert_false(lever.is_pulled)
 
 
+func _locked_message(channel_level: int, frozen: bool = false) -> String:
+	var channel := _make_zone(channel_level)
+	channel.is_frozen = frozen
+	var plaza := _make_zone(2, true)
+	add_child_autofree(channel)
+	add_child_autofree(plaza)
+	var lever := _make_station(channel, plaza)
+	var messages: Array[String] = []
+	var record := func(text: String, _color: Color) -> void: messages.append(text)
+	GameState.message_posted.connect(record)
+	lever.call("_interact")
+	GameState.message_posted.disconnect(record)
+	assert_false(lever.is_pulled)
+	return messages[0] if messages.size() > 0 else ""
+
+
+## 回归：排水槽只下过一次雨（浅水）时，开关还提示“排水槽是干的”，让人以为雨水没用
+func test_drainage_switch_explains_what_is_missing() -> void:
+	assert_string_contains(_locked_message(0), "干")
+	assert_string_contains(_locked_message(1), "不够")
+	assert_string_contains(_locked_message(2, true), "冻")
+
+
 func test_drainage_station_drains_and_cleans_target() -> void:
 	var channel := _make_zone(2)
 	var plaza := _make_zone(2, true)

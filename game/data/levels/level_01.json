@@ -58,15 +58,14 @@
     {
       "type": "lever",
       "id": "drain_switch",
-      "pos": [3550, 0],
+      "pos": [3170, 0],
       "requires_deep": "channel",
-      "action": "拉排水开关",
-      "locked_text": "排水槽是干的，开关拉下去也没用"
+      "action": "拉排水开关"
     },
     {
       "type": "drainage_station",
       "id": "drainage_station",
-      "pos": [3350, 0],
+      "pos": [3430, 0],
       "switch": "drain_switch",
       "drains": "plaza",
       "message": "排水站重新启动了！广场的污水开始退去"

@@ -116,3 +116,23 @@ func test_catalog_order() -> void:
 	assert_eq(LevelCatalog.first(), ids[0])
 	assert_eq(LevelCatalog.get_next(ids[-1]), "")
 	assert_eq(LevelCatalog.get_next("missing"), "")
+
+
+func test_field_gear_range() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "waterwheel", "id": "wheel", "pos": [1000, 0] })
+	objects.append({ "type": "field", "name": "田", "pos": [1200, 0], "width": 300, "wheel": "wheel", "gear": 4 })
+	_assert_has_error(_make(objects), "档位必须在")
+
+
+func test_field_needs_wheel_unless_pump_only() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "field", "name": "田", "pos": [1200, 0], "width": 300 })
+	_assert_has_error(_make(objects), "必须连接水车")
+
+
+func test_seed_cart_goal_must_be_cart_goal() -> void:
+	var objects := _base_objects()
+	objects[2]["id"] = "goal"
+	objects.append({ "type": "seed_cart", "pos": [800, 0], "goal": "goal" })
+	_assert_has_error(_make(objects), "by_cart")

@@ -21,6 +21,8 @@ const MAX_FALL_SPEED := 1800.0
 const SPRITE_SCALE := 0.7
 ## 站着不动超过这个时间换成“稍息”姿势
 const IDLE_REST_SECONDS := 6.0
+## 站在检查点附近（这个范围内）就会把它设为重生点
+const CHECKPOINT_REACH := Vector2(140, 120)
 const FRAME_DIR := "res://assets/sprites/cat/"
 
 enum State { NORMAL, CASTING, DROWNING }
@@ -52,7 +54,7 @@ func _physics_process(delta: float) -> void:
 	_update_checkpoint()
 	var water := _find_water_under()
 	if water and water.get_state().is_deep_liquid() and global_position.y > water.get_surface_global_y() + DROWN_DEPTH:
-		_drown()
+		drown("小猫被深水卷走了……")
 		return
 	_apply_gravity(delta)
 	if _state == State.NORMAL and not is_input_locked:
@@ -102,11 +104,14 @@ func _cast() -> void:
 		_state = State.NORMAL
 
 
-func _drown() -> void:
+## 落水、陷进淤泥等：播放动画后回到检查点
+func drown(message: String) -> void:
+	if _state == State.DROWNING:
+		return
 	_state = State.DROWNING
 	velocity = Vector2.ZERO
 	_sprite.play("dead")
-	GameState.post_warning("小猫被深水卷走了……")
+	GameState.post_warning(message)
 	var tween := create_tween()
 	tween.tween_property(_sprite, "modulate:a", 0.0, DROWN_SECONDS)
 	await tween.finished
@@ -170,9 +175,9 @@ func _update_checkpoint() -> void:
 	if not is_on_floor():
 		return
 	for node in get_tree().get_nodes_in_group("checkpoints"):
-		var marker := node as Node2D
-		if global_position.x >= marker.global_position.x and marker.global_position.x > GameState.checkpoint_position.x:
-			GameState.checkpoint_position = marker.global_position
+		var offset := ((node as Node2D).global_position - global_position).abs()
+		if offset.x <= CHECKPOINT_REACH.x and offset.y <= CHECKPOINT_REACH.y:
+			GameState.checkpoint_position = (node as Node2D).global_position
 
 
 func _update_animation(delta: float) -> void:

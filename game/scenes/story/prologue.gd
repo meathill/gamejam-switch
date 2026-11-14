@@ -46,7 +46,9 @@ func _ready() -> void:
 	await get_tree().create_timer(0.6).timeout
 	await dialogue.play(DialogueBox.load_lines(DIALOGUE_PATH))
 	var level_id := LevelCatalog.first()
-	await _show_title_card(LevelData.load_level(level_id))
+	var card := TitleCard.new(LevelData.load_level(level_id))
+	add_child(card)
+	await card.play(false)
 	SceneRouter.go_to_level(level_id)
 
 
@@ -109,23 +111,3 @@ func _make_glowing_sprite(texture: Texture2D, height: float, glow: Color) -> Nod
 	node.draw.connect(func() -> void: node.draw_circle(Vector2.ZERO, height * 0.75, glow))
 	node.add_child(sprite)
 	return node
-
-
-func _show_title_card(level: LevelData) -> void:
-	var layer := CanvasLayer.new()
-	layer.layer = 30
-	add_child(layer)
-	var label := Label.new()
-	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 72)
-	label.add_theme_constant_override("outline_size", 12)
-	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	label.text = "%s\n%s" % [level.chapter, level.title]
-	label.modulate.a = 0.0
-	layer.add_child(label)
-	var tween := create_tween()
-	tween.tween_property(label, "modulate:a", 1.0, 1.0)
-	tween.tween_interval(1.6)
-	await tween.finished

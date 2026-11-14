@@ -5,6 +5,11 @@ extends Area2D
 
 const AREA_SIZE := Vector2(360, 400)
 
+## 由种子车送达才算通关（小猫走进来不结算）
+@export var is_cart_goal: bool = false
+## 画出避难所小屋；用美术贴图（decor）表现时关掉
+@export var is_house_drawn: bool = true
+
 var _has_warned: bool = false
 
 
@@ -24,7 +29,7 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not body.is_in_group("player"):
+	if not body.is_in_group("player") or is_cart_goal:
 		return
 	if GameState.is_all_objectives_done():
 		GameState.complete_level()
@@ -33,7 +38,15 @@ func _on_body_entered(body: Node2D) -> void:
 		GameState.post_warning(GameState.get_remaining_text())
 
 
+func arrive_by_cart() -> void:
+	GameState.complete_level()
+
+
 func _draw() -> void:
+	if not is_house_drawn:
+		draw_line(Vector2(0, 0), Vector2(0, -180), Color(0.85, 0.85, 0.8), 5.0)
+		draw_colored_polygon(PackedVector2Array([Vector2(0, -180), Vector2(80, -155), Vector2(0, -130)]), Color(1.0, 0.85, 0.35))
+		return
 	draw_rect(Rect2(-160, -220, 320, 220), Color(0.62, 0.52, 0.38))
 	draw_colored_polygon(PackedVector2Array([Vector2(-190, -220), Vector2(0, -330), Vector2(190, -220)]), Color(0.75, 0.35, 0.3))
 	draw_rect(Rect2(-40, -120, 80, 120), Color(0.3, 0.22, 0.15))

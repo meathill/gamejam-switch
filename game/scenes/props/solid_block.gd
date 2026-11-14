@@ -17,7 +17,17 @@ extends StaticBody2D
 		is_building = value
 		queue_redraw()
 
+## 隐藏的平台：运行时不显示、没有碰撞，直到 reveal()
+@export var is_hidden: bool = false
+
 var _collision: CollisionShape2D
+
+
+func reveal() -> void:
+	visible = true
+	_collision.set_deferred("disabled", false)
+	modulate.a = 0.0
+	create_tween().tween_property(self, "modulate:a", 1.0, 0.6)
 
 
 func _ready() -> void:
@@ -25,6 +35,9 @@ func _ready() -> void:
 	_collision.shape = RectangleShape2D.new()
 	add_child(_collision)
 	_rebuild()
+	if is_hidden and not Engine.is_editor_hint():
+		visible = false
+		_collision.disabled = true
 
 
 func _rebuild() -> void:

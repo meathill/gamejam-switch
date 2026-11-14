@@ -1,7 +1,7 @@
 @tool
 class_name Checkpoint
 extends Node2D
-## 检查点。小猫站上地面并越过它的 x 坐标后，落水会在这里重生。原点在地面。
+## 检查点。小猫站在它附近的地面上后，落水会在这里重生（以最近经过的为准）。原点在地面。
 
 
 func _ready() -> void:

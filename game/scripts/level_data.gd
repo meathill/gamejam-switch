@@ -17,6 +17,8 @@ var camera_limits: Rect2i = Rect2i()
 var player_start: Vector2 = Vector2.ZERO
 ## 远景配置，见 Backdrop
 var backdrop: Dictionary = {}
+## 小猫低于这个高度时视为在地下，不显示雨幕
+var underground_y: float = INF
 var objects: Array[Dictionary] = []
 
 
@@ -41,6 +43,7 @@ static func from_dict(level_id: String, data: Dictionary) -> LevelData:
 	level.camera_limits = Rect2i(to_rect(data.get("camera_limits", [0, 0, 0, 0])))
 	level.player_start = to_vector(data.get("player_start", [0, 0]))
 	level.backdrop = data.get("backdrop", {})
+	level.underground_y = data.get("underground_y", INF)
 	level.objects.assign(data.get("objects", []))
 	return level
 
@@ -133,6 +136,21 @@ func _validate_object(entry: Dictionary, label: String, types_by_id: Dictionary[
 			_validate_water(entry, label, errors)
 		"raft":
 			_validate_raft(entry, label, errors)
+		"field":
+			if not FarmRules.FieldState.has((entry.get("state", "dry") as String).to_upper()):
+				errors.append("%s：未知的田地状态 %s" % [label, entry["state"]])
+			if not entry.get("pump_only", false) and not entry.has("wheel"):
+				errors.append("%s：不是 pump_only 的田必须连接水车 wheel" % label)
+			_validate_gear(entry, label, errors)
+		"elevator", "pump":
+			_validate_gear(entry, label, errors)
+		"weather_rule_area":
+			for key: String in entry["disabled"]:
+				if not Weather.Type.has(key.to_upper()):
+					errors.append("%s：disabled 里的 \"%s\" 不是天气" % [label, key])
+		"seed_cart":
+			if not find_object(entry["goal"]).get("by_cart", false):
+				errors.append("%s：终点要设置 by_cart，种子车送达才结算" % label)
 
 
 func _validate_water(entry: Dictionary, label: String, errors: PackedStringArray) -> void:
@@ -164,6 +182,12 @@ func _validate_raft(entry: Dictionary, label: String, errors: PackedStringArray)
 	)
 	if same_dock.size() > 1:
 		errors.append("%s：和其他浮箱停在同一个停靠点" % label)
+
+
+func _validate_gear(entry: Dictionary, label: String, errors: PackedStringArray) -> void:
+	var gear: int = entry.get("gear", 1)
+	if gear < 1 or gear > FarmRules.GEAR_COUNT:
+		errors.append("%s：档位必须在 1~%d" % [label, FarmRules.GEAR_COUNT])
 
 
 ## 有 size 的对象只要和镜头范围相交即可（左右边界墙在镜头外）

@@ -108,6 +108,12 @@ func complete_objective(kind: String) -> void:
 	objectives_changed.emit()
 
 
+## 已完成的目标又失效了（如恢复的低洼田重新积水）
+func revert_objective(kind: String) -> void:
+	_objectives[kind] = _objectives[kind] - Vector2i(1, 0)
+	objectives_changed.emit()
+
+
 ## x = 已完成，y = 总数
 func get_objective(kind: String) -> Vector2i:
 	return _objectives.get(kind, Vector2i.ZERO)

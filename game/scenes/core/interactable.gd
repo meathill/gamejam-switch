@@ -39,6 +39,10 @@ func _ready() -> void:
 	add_child(_prompt)
 
 
+func get_player() -> Player:
+	return get_tree().get_first_node_in_group("player") as Player
+
+
 func get_action_name() -> String:
 	return "互动"
 

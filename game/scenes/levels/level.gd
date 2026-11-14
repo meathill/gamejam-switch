@@ -39,11 +39,22 @@ func _ready() -> void:
 	add_child(PauseMenu.new())
 	GameState.level_completed.connect(_on_level_completed)
 	GameState.dialogue_requested.connect(_on_dialogue_requested)
-	if data.intro_dialogue and not GameState.seen_intros.get(data.id, false):
-		GameState.seen_intros[data.id] = true
-		_set_gameplay_active(false)
+	if GameState.seen_intros.get(data.id, false):
+		return
+	GameState.seen_intros[data.id] = true
+	_set_gameplay_active(false)
+	# 第一关的标题卡在序章结尾播放过
+	if data.id != LevelCatalog.first():
+		var card := TitleCard.new(data)
+		add_child(card)
+		await card.play(true)
+	if data.intro_dialogue:
 		await _play_dialogue(data.intro_dialogue)
-		_set_gameplay_active(true)
+	_set_gameplay_active(true)
+
+
+func _physics_process(_delta: float) -> void:
+	_rain.visible = _player.global_position.y < data.underground_y
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -49,7 +49,7 @@ func rebuild() -> void:
 		var type: String = entry["type"]
 		LevelObjectFactory.link(created[index], entry, _nodes)
 		var parent_field := LevelSchema.get_parent_field(type)
-		var parent: Node2D = _nodes[entry[parent_field]] if parent_field else layers[LevelSchema.get_layer(type)]
+		var parent: Node2D = _nodes[entry[parent_field]] if parent_field else layers[LevelSchema.get_layer(entry)]
 		parent.add_child(created[index])
 	for layer_name in LevelSchema.LAYERS:
 		add_child(layers[layer_name])

@@ -1,3 +1,4 @@
+@tool
 class_name LevelData
 extends RefCounted
 ## 一关的数据：元数据 + 对象列表（data/levels/<id>.json）。纯数据，不依赖节点。

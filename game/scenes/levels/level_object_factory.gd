@@ -1,3 +1,4 @@
+@tool
 class_name LevelObjectFactory
 extends RefCounted
 ## 把关卡数据里的一个对象转成节点。create 只设置自身字段，引用其他对象的字段在 link 里连接。

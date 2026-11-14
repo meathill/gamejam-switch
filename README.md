@@ -1,6 +1,6 @@
 # Weather Shift（暂定名）
 
-GitHub Game Off 2026（主题 **SHIFT**）参赛作品。被神明托付最后神力的流浪猫，在洪水淹没的城市里切换雨、风、雪、日照四种天气，改变水的状态，救出被困的人。
+GitHub Game Off 2026（主题 **SHIFT**）参赛作品。被神明托付最后神力的流浪猫，在洪水淹没的城市和农田里切换雨、风、雪、日照四种天气，改变水的状态，救出被困的人。
 
 - 在线试玩：<https://meathill.github.io/gamejam-switch/>（push 到 master 后由 GitHub Actions 自动部署）
 - 需求：[docs/PRD.md](docs/PRD.md)
@@ -15,11 +15,11 @@ GitHub Game Off 2026（主题 **SHIFT**）参赛作品。被神明托付最后�
 | 跳跃     | Space / W / ↑        | A       |
 | 切换天气 | Shift（下一个）、1-4 | LB / RB |
 | 施放天气 | F / J                | X       |
-| 救援     | E / K                | Y       |
+| 互动     | E / K                | Y       |
 | 重开     | R                    | Select  |
 | 暂停     | Esc                  | Start   |
 
-手机（横屏）：左下角左右按钮移动，右下角跳跃 / 施放（魔杖）/ 切换天气（显示当前天气），靠近居民时出现救援按钮，右上角暂停。对话点屏幕推进，右下角“跳过”。
+手机（横屏）：左下角左右按钮移动，右下角跳跃 / 施放（魔杖）/ 切换天气（显示当前天气），靠近居民或机关时出现互动按钮，右上角暂停。对话点屏幕推进，右下角“跳过”。
 
 ## 开发
 
@@ -37,6 +37,13 @@ pnpm run export:web   # 导出 Web 到 build/web
 pnpm run serve:web    # 本地试玩 Web 版 http://localhost:8060
 pnpm run format && pnpm run lint && pnpm run typecheck
 ```
+
+## 新增一关
+
+1. 在 `game/data/levels/` 新建 `<id>.json`（参考已有关卡；字段约定见 `game/scripts/level_schema.gd` 和 [TECH_SPEC 5.5](docs/TECH_SPEC.md)），并把 id 加进 `levels.json`。
+2. 在编辑器里打开 `scenes/levels/level.tscn`，选中 `LevelMap` 把 `level_id` 改成新关卡即可预览；改 JSON 后点“重新加载关卡数据”。
+3. 在 `game/tests/solutions/<id>.json` 写解法（传送、施放、互动与断言），`pnpm run test:game` 会校验数据并回放解法，要求能通关。
+4. 新增了中文文案就跑 `pnpm run fonts`。
 
 ## 目录
 

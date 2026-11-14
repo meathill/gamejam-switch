@@ -1,3 +1,4 @@
+@tool
 class_name WaterRules
 extends RefCounted
 ## 天气对水域的作用规则。纯逻辑，不依赖任何节点，规则表见 docs/TECH_SPEC.md 5.3。

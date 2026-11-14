@@ -100,7 +100,7 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 - `GameState.is_touch_mode`：启动时 `DisplayServer.is_touchscreen_available()`，或收到第一次 `InputEventScreenTouch` 时开启（发 `touch_mode_changed`）。
 - `TouchControls`（CanvasLayer）只在触屏模式且玩法未锁定时显示；每个 `TouchButton` 内部是一个 `TouchScreenButton`，直接触发输入动作（`move_left`/`move_right` 开启 `passby_press`，手指滑动可换向）。所以玩法代码不区分键盘和触屏。
-- 救援按钮只在 `GameState.is_interact_available` 时出现（居民的检测区发出）。
+- 互动按钮只在 `GameState.is_interact_available` 时出现（任一 `Interactable` 的检测区里有小猫且可互动）。
 - 暂停、通关、对话跳过都是 Button（`MenuOverlay`），键盘靠焦点、触屏靠点击。触摸默认模拟鼠标，所以对话“点击推进”天然支持。
 - 提示文案用 `GameState.pick_hint(键盘版, 触屏版)`；`HintSign` 有 `touch_text`。
 
@@ -112,10 +112,10 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 ### 5.1 Autoload
 
-| 单例          | 职责                                                                                                                                                           |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GameState`   | 当前天气、救援进度、检查点、关卡完成；信号 `weather_changed`、`target_changed`、`weather_cast`、`message_posted`、`rescue_progress_changed`、`level_completed` |
-| `SceneRouter` | 场景切换 + 淡入淡出                                                                                                                                            |
+| 单例          | 职责                                                                                                                                                        |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GameState`   | 当前天气、当前关卡 id、按类别计数的通关目标（`register_objective`/`complete_objective`）、检查点、天气限制区域、关卡内对白请求（`play_dialogue`）、关卡完成 |
+| `SceneRouter` | 场景切换 + 淡入淡出；`go_to_level(id)` 进入通用关卡场景                                                                                                     |
 
 音频接入时再加 `AudioDirector`（见 TODO）。HUD、对话框、暂停菜单、雨幕都由场景脚本 `new()` 出来，不做成 autoload。
 
@@ -123,50 +123,54 @@ art/** filter=lfs diff=lfs merge=lfs -text
 
 ```text
 scripts/                      纯逻辑，无节点依赖
-  Weather                     天气枚举（顺序 = 圆环四段）、名称/颜色/图标
-  WaterState                  (level, is_frozen, is_polluted)
-  WaterRules                  apply(weather, state) -> Result{is_success, state, reason}；find_next_dock()
+  Weather                     天气枚举（顺序 = 圆环四段）、名称/颜色/图标、get_key/from_key（"rain"…）
+  WaterState / WaterRules     水域状态与规则：apply(weather, state, shallow_freeze_only) -> Result
+  FarmRules                   第二关：水车档位循环 next_gear()、农田状态机 apply_field()
+  CastResult                  一次施放的结果：is_success / is_busy / reason_text
+  LevelCatalog                关卡顺序（data/levels/levels.json）
+  LevelSchema / LevelData     关卡 JSON 的字段约定、解析与 validate()
   InputBindings               输入映射注册
 
-scenes/water/WaterZone        @tool Node2D，原点 = 洼地左上角（地面高度）
-  导出：zone_name, size, level, is_frozen, is_polluted, dock_positions(PackedFloat32Array)
-  运行时生成池底和冰面 StaticBody2D；_draw 画水/冰/污染/高亮
-  apply_weather(weather, direction) / transition_to(state)，动画期间返回 BUSY
-  子节点中的 Raft 由它摆放：x = 停靠点，y = 随水面（L0/L1 搁浅在池底）
+scenes/core/
+  WeatherTarget               能被天气施放的对象基类：cast_weather()、get_target_rect()、get_status_text()、
+                              blocked_weathers（按天气屏蔽并给出提示）、信号 state_changed
+  Interactable                Area2D 基类：靠近显示“E xxx”，按互动键调用 _interact()
+  WeatherRuleArea             区域内禁用某些天气（轮盘、触屏按钮变灰）
 
-scenes/props/
-  Raft                        AnimatableBody2D，可承载小猫；结冰时显示冰霜
-  SolidBlock                  @tool 灰盒地形块（可画成楼房）
-  Resident / GoalArea         Area2D：E 救援 / 救齐后通关
-  DrainageStation             排水槽变成液态深水 → 关联水域 -1 级并净化
-  HintSign / Checkpoint       提示牌 / 检查点（越过 x 坐标后生效）
+scenes/levels/
+  Level（level.tscn）         通用关卡根节点：读取 GameState.current_level_id 的数据，镜头、HUD、开场标题卡与对白、通关
+  LevelMap                    @tool：按数据生成节点，编辑器里可预览（“重新加载关卡数据”按钮）
+  LevelObjectFactory          type → 节点（create）与引用连接（link）
 
-scenes/player/
-  Player                      CharacterBody2D，原点在脚底；NORMAL/CASTING/DROWNING
-  WeatherCaster               选中目标水域（影响范围内离小猫最近的），cast 时调用 apply_weather
-
-scenes/ui/  Hud, WeatherRing, DialogueBox, PauseMenu
-scenes/story/  title, prologue, StoryBackdrop, IldaRing
-scenes/levels/  Level（根脚本）+ level_01.tscn（关卡拼装）
+scenes/water/WaterZone        WeatherTarget，原点 = 洼地左上角（地面高度）；子节点 Raft 由它摆放
+scenes/props/                 SolidBlock（可隐藏，revealed_by 触发后出现）、Decor、Raft、Lever、DrainageStation、
+                              Resident（可 rescued_by 机关触发）、Npc、PlantingSpot、GoalArea（可由种子车送达）、
+                              HintSign、Checkpoint；第二关：Waterwheel、Field、Elevator、Ladder、Pump、Fan、Fog、
+                              DarkZone、SeedCart
+scenes/player/  Player（drown() 回检查点）、WeatherCaster（选中范围内最近的 WeatherTarget）
+scenes/ui/      Hud、WeatherRing、DialogueBox、PauseMenu、TitleCard
+scenes/story/   title、prologue、StoryBackdrop、IldaRing
+scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEffect
 ```
 
 原则：
 
-- **规则与表现分离**。`WaterRules` 不依赖任何节点，可以 100% 单元测试；`WaterZone` 只负责把状态变化转成 Tween、碰撞开关和信号。
-- **一次施放 = 一次状态变化**。`WaterZone` 在 Tween 播放期间拒绝新的施放，防止连按造成状态与表现不同步。
-- 机关之间的联动（排水站 → 广场）通过信号连接，不互相持有引用。
+- **规则与表现分离**。`WaterRules`、`FarmRules` 不依赖任何节点，可以 100% 单元测试；节点只负责把状态变化转成 Tween、碰撞开关和信号。
+- **一次施放 = 一次状态变化**。目标在动画期间返回 busy，拒绝新的施放。
+- 机关之间的联动通过信号连接：会触发别人的机关（Lever、DrainageStation、Pump、Fan、DarkZone）都发出 `triggered`，被触发方在关卡数据里用 `rescued_by` / `revealed_by` / `cleared_by` 引用它。
 
 ### 5.3 水域状态机
 
 状态 = `(level: 0|1|2, frozen: bool, polluted: bool)`。
 
-| 当前         | 雨             | 雪               | 日照             | 风           |
-| ------------ | -------------- | ---------------- | ---------------- | ------------ |
-| 液态 L0      | → L1           | ✗ 没有水         | ✗ 已经干了       | ✗ 水太浅     |
-| 液态 L1      | → L2           | → 冰面 L1        | → L0             | ✗ 水太浅     |
-| 液态 L2      | ✗ 水位已满     | → 冰面 L2        | → L1             | 推浮箱一格   |
-| 冰面 L1/L2   | ✗ 冰面无法涨水 | ✗ 已经结冰       | → 液态同水位     | ✗ 浮箱被冻住 |
-| 污染（液态） | 同液态         | ✗ 污染水结不了冰 | ✗ 污染水无法蒸发 | 同液态       |
+| 当前                            | 雨             | 雪                 | 日照             | 风           |
+| ------------------------------- | -------------- | ------------------ | ---------------- | ------------ |
+| 液态 L0                         | → L1           | ✗ 没有水           | ✗ 已经干了       | ✗ 水太浅     |
+| 液态 L1                         | → L2           | → 冰面 L1          | → L0             | ✗ 水太浅     |
+| 液态 L2                         | ✗ 水位已满     | → 冰面 L2          | → L1             | 推浮箱一格   |
+| 冰面 L1/L2                      | ✗ 冰面无法涨水 | ✗ 已经结冰         | → 液态同水位     | ✗ 浮箱被冻住 |
+| 污染（液态）                    | 同液态         | ✗ 污染水结不了冰   | ✗ 污染水无法蒸发 | 同液态       |
+| 深水 L2 + `shallow_freeze_only` | 同液态         | ✗ 水太深了，冻不住 | 同液态           | 同液态       |
 
 风的额外失败原因：区域内无浮箱、面朝方向没有下一个停靠点。
 
@@ -180,17 +184,24 @@ scenes/levels/  Level（根脚本）+ level_01.tscn（关卡拼装）
 4. 动画结束后发出 `state_changed`，HUD 和排水站据此刷新
 5. 施放成功时在水域上方生成一次性粒子（`WeatherEffect`）
 
+### 5.5 关卡数据（`game/data/levels/`）
+
+- `levels.json` 列出关卡顺序；`<id>.json` = 元数据（`chapter`、`title`、`intro_dialogue`、`outro_dialogue`、`complete_text`、`camera_limits`、`player_start`、`underground_y`、`backdrop`）+ `objects[]`。
+- 每个对象有 `type`，可选 `id`，坐标都是 `[x, y]`，颜色是 `[r, g, b]` 或 `"#rrggbb"`。各类型的必填字段、引用字段、所在图层见 `scripts/level_schema.gd`，字段到节点属性的映射见 `level_object_factory.gd`。
+- `LevelMap` 先在场景树外生成所有节点并连接引用（浮箱挂到水域下），再整层加入场景树，保证各节点 `_ready` 时引用已就绪。
+- 新增类型：`LevelSchema.TYPES` 登记 → 工厂加 `create`/`link` 分支 → 需要时在 `LevelData._validate_object` 加专属校验。
+
 ## 6. 对白数据
 
 `game/data/dialogue/*.json`，由 `DialogueBox` 播放：
 
-| type        | 字段                                       | 说明                                                 |
-| ----------- | ------------------------------------------ | ---------------------------------------------------- |
-| `narration` | `text`                                     | 旁白，无说话人                                       |
-| `line`      | `speaker`（`ilda`/`cat`/`system`）, `text` | 对白                                                 |
-| `choice`    | `text`, `options[{label, next}]`           | 选项，`next` 跳到对应 `id`                           |
-| `goto`      | `target`                                   | 跳转                                                 |
-| `event`     | `name`, `wait?`, `on_skip?`                | 发出 `event_triggered`；`on_skip` 为真时跳过也会触发 |
+| type        | 字段                                                         | 说明                                                 |
+| ----------- | ------------------------------------------------------------ | ---------------------------------------------------- |
+| `narration` | `text`                                                       | 旁白，无说话人                                       |
+| `line`      | `speaker`（`ilda`/`cat`/`system`/`farmer`/`family`）, `text` | 对白                                                 |
+| `choice`    | `text`, `options[{label, next}]`                             | 选项，`next` 跳到对应 `id`                           |
+| `goto`      | `target`                                                     | 跳转                                                 |
+| `event`     | `name`, `wait?`, `on_skip?`                                  | 发出 `event_triggered`；`on_skip` 为真时跳过也会触发 |
 
 任意行可带 `id`。导出预设的 `include_filter` 已加入 `data/*.json`（非资源文件默认不会打包）。
 
@@ -210,29 +221,33 @@ scenes/levels/  Level（根脚本）+ level_01.tscn（关卡拼装）
 
 纹理导入默认用 **Lossy（WebP，质量 0.8）**（`project.godot` 的 `importer_defaults`），水彩画风看不出差别，体积约为无损的 1/7。代码里按“显示尺寸 / 贴图尺寸”计算缩放，不写死缩放系数，换分辨率不影响画面。
 
-`pnpm run fonts` → `tools/src/build-font.ts`：扫描 `game/` 下 `.gd`/`.tscn`/`.json` 用到的字符，从 `art/fonts/LXGWWenKai-Medium.ttf`（霞鹜文楷，OFL）生成子集 `game/assets/fonts/ui_font.ttf`（约 250KB），并设为项目默认字体。Godot 默认字体没有 CJK，Web 上也没有系统字体可回退。
+`pnpm run fonts` → `tools/src/build-font.ts`：扫描 `game/` 下 `.gd`/`.tscn`/`.json` 用到的字符，从 `art/fonts/LXGWWenKai-Medium.ttf`（霞鹜文楷，OFL）生成子集 `game/assets/fonts/ui_font.ttf`（约 380KB），并设为项目默认字体。Godot 默认字体没有 CJK，Web 上也没有系统字体可回退。
 
 图标用 Phosphor（fill 风格）SVG，`currentColor` 替换为白色后由代码着色。
 
 ## 8. 测试
 
-| 范围                                      | 工具         | 命令                                                                                |
-| ----------------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
-| `WaterRules` 全状态 × 全天气              | GUT          | `pnpm run test:game`（= `godot --headless --path game -s addons/gut/gut_cmdln.gd`） |
-| WaterZone 浮箱/风/结冰/施放锁、排水站联动 | GUT          | 同上                                                                                |
-| tools 脚本                                | vitest       | `pnpm run test:tools`                                                               |
-| 画面与流程                                | 截图脚本     | 见下                                                                                |
-| 关卡可通关性                              | 人工试玩清单 | 见 PRD 7.3                                                                          |
+| 范围                                        | 工具         | 命令                                                                                |
+| ------------------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
+| `WaterRules` / `FarmRules` 全状态 × 全天气  | GUT          | `pnpm run test:game`（= `godot --headless --path game -s addons/gut/gut_cmdln.gd`） |
+| WaterZone 浮箱/风/结冰/施放锁、排水开关联动 | GUT          | 同上                                                                                |
+| 关卡数据校验（所有关卡 + 坏数据用例）       | GUT          | 同上（`test_level_data.gd`）                                                        |
+| 每关按解法回放能通关                        | GUT          | 同上（`test_level_solutions.gd`，解法在 `tests/solutions/<id>.json`）               |
+| tools 脚本                                  | vitest       | `pnpm run test:tools`                                                               |
+| 画面与流程                                  | 截图脚本     | 见下                                                                                |
+| 关卡可通关性                                | 人工试玩清单 | 见 PRD 7.3                                                                          |
 
 修 bug 时先写能复现的 GUT 用例（遵循 AGENTS.md）。
 
-截图脚本 `game/tests/capture.gd` 按物理帧执行脚本化操作（传送、切天气、施放、按键）并截图，用于不开编辑器检查画面：
+解法回放的步骤格式见 `tests/level_script_runner.gd` 顶部注释：`teleport`、`cast`、`interact`、`walk`、`wait`、`advance`（推进对白）以及 `expect_water` / `expect_field` / `expect_prop` / `expect_player` / `expect`。它用传送跳过移动，验证不了跳跃可达性，可达性用下面的截图脚本按真实按键检查。
+
+截图脚本 `game/tests/capture.gd` 按物理帧执行脚本化操作（传送、切天气、施放、按键）并截图，用于不开编辑器检查画面（macOS 上要加 `--always-on-top`，否则窗口被遮挡后不再渲染，截图全是同一帧）：
 
 ```bash
-godot --path game --resolution 1280x720 -s res://tests/capture.gd -- res://scenes/levels/level_01.tscn /tmp/cap level
+godot --path game --always-on-top --resolution 1280x720 -s res://tests/capture.gd -- res://scenes/levels/level.tscn /tmp/cap level [level_id]
 ```
 
-场景：`level`（主流程机制）、`finale`（救援与通关）、`prologue`（序章）。
+场景：`level`（第一关主流程）、`finale`（救援与通关）、`stairs` / `garden`（第一关台阶与支路的真实跳跃）、`farm`（第二关各区域）、`farm_moves`（第二关关键跳跃）、`prologue`（序章）。
 
 ## 9. 代码规范补充（GDScript）
 
@@ -270,9 +285,9 @@ pnpm install
 
 ## 12. 风险
 
-| 风险                       | 应对                                                                           |
-| -------------------------- | ------------------------------------------------------------------------------ |
-| Web 包体积过大（水彩大图） | 资源管线强制缩放；纹理导入用 Lossy/WebP；控制总包 < 50MB                       |
-| 移动端浏览器性能           | 不作为目标；粒子数量设上限                                                     |
-| 规则与表现不同步导致卡关   | 规则纯函数 + 测试；Tween 期间锁定施放；R 键随时重开                            |
-| 关卡设计未定稿             | 灰盒 + 可配置的 `WaterZone`/`DockLane`，关卡用场景拼装，改设计只改场景不改代码 |
+| 风险                       | 应对                                                                  |
+| -------------------------- | --------------------------------------------------------------------- |
+| Web 包体积过大（水彩大图） | 资源管线强制缩放；纹理导入用 Lossy/WebP；控制总包 < 50MB              |
+| 移动端浏览器性能           | 不作为目标；粒子数量设上限                                            |
+| 规则与表现不同步导致卡关   | 规则纯函数 + 测试；Tween 期间锁定施放；R 键随时重开                   |
+| 关卡设计未定稿             | 灰盒 + 关卡 JSON 数据，改设计只改数据；数据校验与解法回放测试兜住改错 |

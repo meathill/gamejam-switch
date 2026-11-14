@@ -1,3 +1,4 @@
+@tool
 class_name FarmRules
 extends RefCounted
 ## 第二关「农田」的规则：三档位水车、农田状态机。纯逻辑，不依赖节点。

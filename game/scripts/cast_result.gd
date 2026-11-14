@@ -1,3 +1,4 @@
+@tool
 class_name CastResult
 extends RefCounted
 ## 一次天气施放的结果。失败时 reason_text 是给玩家看的原因；is_busy 表示目标还在播放上一次的动画（不提示）。

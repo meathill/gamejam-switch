@@ -1,3 +1,4 @@
+@tool
 class_name LevelSchema
 extends RefCounted
 ## 关卡 JSON 里每种对象的字段约定。LevelData 用它校验，LevelMap 用它决定节点放在哪一层。

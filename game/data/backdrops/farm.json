@@ -1,0 +1,24 @@
+{
+  "texture_dir": "res://assets/backgrounds/farm/",
+  "design_size": [
+    1920,
+    1080
+  ],
+  "horizon_y": 915,
+  "layers": [
+    {
+      "name": "sky",
+      "file": "sky.png",
+      "top": 0,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "clouds",
+      "file": "clouds.png",
+      "top": 43,
+      "width": 3840,
+      "height": 894
+    }
+  ]
+}

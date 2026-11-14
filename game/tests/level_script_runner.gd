@@ -5,7 +5,11 @@ extends RefCounted
 ##   { "interact": true }                         按一次互动键
 ##   { "walk": 1, "seconds": 2.0 }                按住方向键走一段
 ##   { "wait": 1.5 }                              等待
+##   { "advance": 8 }                             按若干次对话推进键（每次先补全文字、再翻页）
 ##   { "expect_water": "id", "level": 2, "frozen": true, "polluted": false, "raft_dock": 1 }
+##   { "expect_field": "id", "state": "restored" }
+##   { "expect_prop": "id", "gear": 2 }           对象的属性值
+##   { "expect_player": [x, y] }                  小猫位置（误差 40px）
 ##   { "expect": { "rescued": 2, "fields": 3, "complete": true } }
 
 const PHYSICS_FPS := 60
@@ -56,6 +60,27 @@ func _run_step(step: Dictionary, label: String) -> void:
 		await _wait_frames(SETTLE_FRAMES)
 	elif step.has("wait"):
 		await _wait_seconds(step["wait"])
+	elif step.has("advance"):
+		for press in int(step["advance"]):
+			_press("advance", true)
+			await _wait_frames(2)
+			_press("advance", false)
+			await _wait_frames(10)
+		await _wait_frames(SETTLE_FRAMES)
+	elif step.has("expect_field"):
+		var field := _level.map.get_object(step["expect_field"]) as Field
+		var expected: FarmRules.FieldState = FarmRules.FieldState[(step["state"] as String).to_upper()]
+		_test.assert_eq(FarmRules.FIELD_STATE_NAMES[field.state], FarmRules.FIELD_STATE_NAMES[expected], "%s：田地状态" % label)
+	elif step.has("expect_prop"):
+		var node := _level.map.get_object(step["expect_prop"])
+		for key: String in step:
+			if key != "expect_prop":
+				var actual: Variant = node.get(key)
+				var expected_value: Variant = int(step[key]) if actual is int else step[key]
+				_test.assert_eq(actual, expected_value, "%s：%s" % [label, key])
+	elif step.has("expect_player"):
+		var expected_position := LevelData.to_vector(step["expect_player"])
+		_test.assert_lt(_player.global_position.distance_to(expected_position), 40.0, "%s：小猫在 %s" % [label, _player.global_position])
 	elif step.has("expect_water"):
 		_expect_water(step, label)
 	elif step.has("expect"):

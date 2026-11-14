@@ -167,6 +167,53 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 210, "do": "log", "name": "garden_exit" },
 				{ "frame": 211, "do": "shot", "name": "garden_exit" },
 			]
+		"farm":
+			var steps: Array[Dictionary] = [{ "frame": 40, "do": "key", "key": KEY_ESCAPE }]
+			var stops: Array[Vector2] = [
+				Vector2(150, 0), Vector2(1100, -260), Vector2(2300, 0), Vector2(2900, 0), Vector2(3550, 0),
+				Vector2(4300, 0), Vector2(3300, 1300), Vector2(2800, 1300), Vector2(2200, 1300), Vector2(5000, 0),
+			]
+			for index in stops.size():
+				steps.append({ "frame": 60 + index * 40, "do": "teleport", "to": stops[index] })
+				steps.append({ "frame": 95 + index * 40, "do": "shot", "name": "farm_%02d" % index })
+			return steps
+		"farm_moves":
+			# B 助跑跳过低洼田到 D；从 D 跳回低洼田左侧台阶再上 B；地下从隐藏平台跳上泵房平台
+			return [
+				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
+				{ "frame": 50, "do": "teleport", "to": Vector2(1250, -260) },
+				{ "frame": 60, "do": "press", "action": "move_right" },
+				{ "frame": 85, "do": "press", "action": "jump" },
+				{ "frame": 110, "do": "release", "action": "jump" },
+				{ "frame": 170, "do": "release", "action": "move_right" },
+				{ "frame": 180, "do": "log", "name": "b_to_d" },
+				{ "frame": 190, "do": "teleport", "to": Vector2(2000, 0) },
+				{ "frame": 200, "do": "press", "action": "move_left" },
+				{ "frame": 205, "do": "press", "action": "jump" },
+				{ "frame": 225, "do": "release", "action": "jump" },
+				{ "frame": 260, "do": "press", "action": "jump" },
+				{ "frame": 285, "do": "release", "action": "jump" },
+				{ "frame": 320, "do": "release", "action": "move_left" },
+				{ "frame": 330, "do": "log", "name": "d_to_b" },
+				{ "frame": 340, "do": "teleport", "to": Vector2(2760, 1300) },
+				{ "frame": 345, "do": "weather", "weather": Weather.Type.WIND },
+				{ "frame": 360, "do": "cast" },
+				{ "frame": 380, "do": "teleport", "to": Vector2(2300, 1300) },
+				{ "frame": 381, "do": "weather", "weather": Weather.Type.SUN },
+				{ "frame": 400, "do": "cast" },
+				{ "frame": 440, "do": "teleport", "to": Vector2(2720, 1300) },
+				{ "frame": 450, "do": "press", "action": "move_left" },
+				{ "frame": 455, "do": "press", "action": "jump" },
+				{ "frame": 475, "do": "release", "action": "jump" },
+				{ "frame": 479, "do": "release", "action": "move_left" },
+				{ "frame": 510, "do": "log", "name": "on_platform" },
+				{ "frame": 515, "do": "press", "action": "move_left" },
+				{ "frame": 518, "do": "press", "action": "jump" },
+				{ "frame": 540, "do": "release", "action": "jump" },
+				{ "frame": 560, "do": "release", "action": "move_left" },
+				{ "frame": 580, "do": "log", "name": "on_ledge" },
+				{ "frame": 581, "do": "shot", "name": "on_ledge" },
+			]
 		"standing":
 			return [
 				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },

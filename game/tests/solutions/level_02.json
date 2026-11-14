@@ -1,0 +1,68 @@
+{
+  "steps": [
+    { "teleport": [1100, -260] },
+    { "cast": "rain" },
+    { "expect_field": "field_b", "state": "dry" },
+
+    { "teleport": [2900, 0] },
+    { "cast": "wind" },
+    { "expect_prop": "wheel", "gear": 1 },
+
+    { "teleport": [1100, -260] },
+    { "cast": "rain" },
+    { "expect_field": "field_b", "state": "restored" },
+
+    { "teleport": [1560, 0] },
+    { "cast": "rain" },
+    { "expect_field": "field_c", "state": "waterlogged" },
+    { "cast": "sun" },
+    { "expect_field": "field_c", "state": "dry" },
+    { "cast": "rain" },
+    { "expect_field": "field_c", "state": "restored" },
+    { "expect": { "fields": 2 } },
+
+    { "teleport": [2900, 0] },
+    { "cast": "wind" },
+    { "expect_prop": "wheel", "gear": 2 },
+    { "teleport": [3550, 0] },
+    { "interact": true },
+    { "wait": 3.0 },
+    { "expect_player": [3550, 1300] },
+
+    { "teleport": [3250, 1300] },
+    { "interact": true },
+    { "advance": 10 },
+    { "cast": "rain" },
+    { "expect": { "rescued": 0 } },
+
+    { "teleport": [3200, 1300] },
+    { "cast": "snow", "facing": -1 },
+    { "expect_water": "pool", "frozen": true },
+    { "teleport": [2760, 1300] },
+    { "cast": "wind", "facing": -1 },
+    { "teleport": [2300, 1300] },
+    { "cast": "sun" },
+    { "teleport": [2550, 1130] },
+    { "expect_player": [2550, 1130] },
+
+    { "teleport": [2400, 950] },
+    { "interact": true },
+    { "expect_prop": "pump_lever", "is_pulled": true },
+    { "teleport": [2200, 950] },
+    { "interact": true },
+    { "wait": 2.8 },
+    { "expect_player": [2200, 0] },
+
+    { "teleport": [2900, 0] },
+    { "cast": "wind", "wait": 2.5 },
+    { "expect_prop": "wheel", "gear": 3 },
+    { "expect_water": "slope", "level": 0 },
+    { "expect_field": "field_k", "state": "restored" },
+    { "expect": { "rescued": 1, "fields": 3 } },
+
+    { "teleport": [2250, 0] },
+    { "interact": true },
+    { "wait": 11.5 },
+    { "expect": { "complete": true } }
+  ]
+}

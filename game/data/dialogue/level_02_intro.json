@@ -1,0 +1,11 @@
+{
+  "id": "level_02_intro",
+  "lines": [
+    { "type": "narration", "text": "洪水退去，城外的农田露了出来。高处的田干裂，低处的田积满淤泥。田野中央立着一台大水车。" },
+    { "type": "line", "speaker": "farmer", "text": "小家伙，你也是从城里逃出来的？" },
+    { "type": "line", "speaker": "farmer", "text": "我的家人还在地下沟渠里干活。水车没切对档位前，千万别乱下雨，水灌进井里，下面的人就完了。" },
+    { "type": "line", "speaker": "cat", "text": "我去找他们。" },
+    { "type": "line", "speaker": "ilda", "text": "水车有三个档位，风能推动它。看清每条管道通向哪里。" },
+    { "type": "line", "speaker": "system", "text": "第二关任务：恢复三块农田，救出地下的家人，再把种子车送到高地粮仓。" }
+  ]
+}

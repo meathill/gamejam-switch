@@ -1,0 +1,8 @@
+{
+  "id": "level_02_outro",
+  "lines": [
+    { "type": "narration", "text": "三块田都绿了。种子车停在粮仓前，老农和家人抱在一起。" },
+    { "type": "line", "speaker": "farmer", "text": "水回来了，人也回来了。明年这片田还能继续种。" },
+    { "type": "line", "speaker": "ilda", "text": "圆环又亮起了一段。下一程，是河谷。" }
+  ]
+}

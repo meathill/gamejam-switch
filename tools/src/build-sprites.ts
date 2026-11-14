@@ -45,6 +45,14 @@ const SINGLE_IMAGES: SingleImage[] = [
   // 关卡里显示 240px 高
   { source: 'art/npc/大叔.png', output: 'game/assets/sprites/npc/uncle.png', maxSize: 360 },
   { source: 'art/npc/老奶奶.png', output: 'game/assets/sprites/npc/granny.png', maxSize: 360 },
+  { source: 'art/npc/农民.png', output: 'game/assets/sprites/npc/farmer.png', maxSize: 360 },
+  { source: 'art/npc/一家人.png', output: 'game/assets/sprites/npc/family.png', maxSize: 360 },
+  // 第二关近景（原画是 5120×2880 的整幅分层，裁掉透明边后单独摆放）：粮仓显示约 560px 高
+  { source: 'art/backgrounds/farm/08_farmhouse.png', output: 'game/assets/sprites/farm/farmhouse.png', maxSize: 1100 },
+  { source: 'art/backgrounds/farm/09_weathervane.png', output: 'game/assets/sprites/farm/weathervane.png', maxSize: 640 },
+  { source: 'art/backgrounds/farm/06_fence.png', output: 'game/assets/sprites/farm/fence.png', maxSize: 400 },
+  { source: 'art/backgrounds/farm/10_pergola.png', output: 'game/assets/sprites/farm/pergola.png', maxSize: 840 },
+  { source: 'art/backgrounds/farm/04_grass.png', output: 'game/assets/sprites/farm/grass.png', maxSize: 900 },
   // HUD 显示 210px
   { source: 'art/ui/ui/轮盘.png', output: 'game/assets/ui/weather_wheel.png', maxSize: 320 },
   // 轮盘中心 72px、触屏按钮约 95px

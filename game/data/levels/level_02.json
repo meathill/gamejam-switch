@@ -1,0 +1,130 @@
+{
+  "chapter": "第二关",
+  "title": "田野与地下沟渠",
+  "intro_dialogue": "res://data/dialogue/level_02_intro.json",
+  "outro_dialogue": "res://data/dialogue/level_02_outro.json",
+  "complete_text": "第二关完成\n\n三块田都恢复了，老农一家团聚。\n残缺的圆环，又亮起了一段。",
+  "camera_limits": [-400, -1100, 6200, 3000],
+  "player_start": [150, 0],
+  "underground_y": 600,
+  "backdrop": {
+    "manifest": "farm",
+    "horizon_offset": 40,
+    "layers": [{ "name": "clouds", "scroll": [0.1, 1], "tiled": true }]
+  },
+  "objects": [
+    { "type": "decor", "id": "underground_wall", "pos": [1950, 700], "size": [3650, 620], "color": [0.13, 0.12, 0.14] },
+    { "type": "decor", "pos": [420, 0], "texture": "res://assets/sprites/farm/grass.png", "height": 90 },
+    { "type": "decor", "pos": [2560, 0], "texture": "res://assets/sprites/farm/weathervane.png", "height": 420 },
+    { "type": "decor", "pos": [4580, 0], "texture": "res://assets/sprites/farm/fence.png", "height": 110 },
+    { "type": "decor", "pos": [5050, 0], "texture": "res://assets/sprites/farm/farmhouse.png", "height": 560 },
+
+    { "type": "block", "id": "left_wall", "pos": [-400, -1400], "size": [200, 3500] },
+    { "type": "block", "id": "ground_a", "pos": [-200, 0], "size": [900, 1900], "color": [0.55, 0.4, 0.3] },
+    { "type": "block", "id": "step_a", "pos": [700, -130], "size": [150, 1030], "color": [0.55, 0.4, 0.3] },
+    { "type": "block", "id": "highland_b", "pos": [850, -260], "size": [650, 1160], "color": [0.55, 0.4, 0.3] },
+    { "type": "block", "id": "step_c", "pos": [1500, 0], "size": [120, 1900], "color": [0.55, 0.4, 0.3] },
+    { "type": "block", "id": "pit_c", "pos": [1620, 200], "size": [330, 1700], "color": [0.45, 0.33, 0.25] },
+    { "type": "block", "id": "ground_de", "pos": [1950, 0], "size": [1450, 700], "color": [0.55, 0.4, 0.3] },
+    { "type": "block", "id": "ground_k", "pos": [3700, 0], "size": [1900, 700], "color": [0.55, 0.4, 0.3] },
+    { "type": "block", "id": "right_wall", "pos": [5600, -1400], "size": [200, 3500] },
+
+    { "type": "block", "id": "tunnel_floor_west", "pos": [1950, 1300], "size": [900, 600], "color": [0.3, 0.27, 0.27] },
+    { "type": "block", "id": "tunnel_floor_shaft", "pos": [3150, 1300], "size": [550, 600], "color": [0.3, 0.27, 0.27] },
+    { "type": "block", "id": "tunnel_floor_east", "pos": [4300, 1300], "size": [1300, 600], "color": [0.3, 0.27, 0.27] },
+    { "type": "block", "id": "tunnel_end", "pos": [4600, 700], "size": [1000, 600], "color": [0.3, 0.27, 0.27] },
+    { "type": "block", "id": "pump_ledge", "pos": [1950, 950], "size": [500, 40], "color": [0.4, 0.36, 0.33] },
+    {
+      "type": "block",
+      "id": "hidden_platform",
+      "pos": [2470, 1130],
+      "size": [160, 30],
+      "color": [0.6, 0.55, 0.42],
+      "revealed_by": "dark"
+    },
+
+    { "type": "water", "id": "pool", "name": "地下积水", "pos": [2850, 1300], "size": [300, 160] },
+    { "type": "water", "id": "slope", "name": "被淹的斜坡", "pos": [3700, 1300], "size": [600, 220], "shallow_freeze_only": true },
+
+    { "type": "waterwheel", "id": "wheel", "pos": [2900, 0] },
+    { "type": "field", "id": "field_b", "name": "高地田", "pos": [900, -260], "width": 520, "wheel": "wheel", "gear": 1 },
+    {
+      "type": "field",
+      "id": "field_c",
+      "name": "低洼田",
+      "pos": [1620, 0],
+      "width": 330,
+      "depth": 200,
+      "pit": true,
+      "state": "waterlogged",
+      "can_flood": true,
+      "wheel": "wheel",
+      "gear": 1
+    },
+    { "type": "field", "id": "field_k", "name": "井口田", "pos": [3850, 0], "width": 600, "pump_only": true },
+    { "type": "elevator", "id": "elevator", "pos": [3550, 0], "travel": 1300, "wheel": "wheel", "gear": 2 },
+
+    {
+      "type": "npc",
+      "id": "farmer",
+      "pos": [520, 0],
+      "name": "老农",
+      "texture": "res://assets/sprites/npc/farmer.png",
+      "dialogue": "res://data/dialogue/level_02_farmer.json"
+    },
+    {
+      "type": "resident",
+      "id": "family",
+      "pos": [3320, 1300],
+      "name": "老农的家人",
+      "thanks": "水退了，我们能回去了！谢谢你，小猫。",
+      "texture": "res://assets/sprites/npc/family.png",
+      "dialogue": "res://data/dialogue/level_02_family.json",
+      "rescued_by": "pump"
+    },
+    { "type": "fan", "id": "fan", "pos": [2760, 1300] },
+    { "type": "fog", "id": "fog", "pos": [2560, 700], "size": [100, 600], "cleared_by": "fan" },
+    { "type": "pump", "id": "pump", "pos": [2060, 950], "wheel": "wheel", "gear": 3, "lever": "pump_lever", "drains": ["slope"], "irrigates": "field_k" },
+    {
+      "type": "lever",
+      "id": "pump_lever",
+      "pos": [2400, 950],
+      "action": "拉下机械拉杆",
+      "pulled_text": "咔哒一声，机械拉杆落了下去"
+    },
+    { "type": "ladder", "id": "ladder", "pos": [2200, 950], "height": 950, "lever": "pump_lever" },
+    {
+      "type": "weather_rule_area",
+      "id": "no_rain_underground",
+      "pos": [1950, 700],
+      "size": [3650, 620],
+      "disabled": ["rain"],
+      "reason": "雨水会灌进地下，这里不能下雨"
+    },
+    {
+      "type": "weather_rule_area",
+      "id": "no_rain_shaft",
+      "pos": [3400, -300],
+      "size": [300, 1000],
+      "disabled": ["rain"],
+      "reason": "雨水会顺着竖井灌进地下"
+    },
+    { "type": "seed_cart", "id": "cart", "pos": [2250, 0], "goal": "granary" },
+    { "type": "goal", "id": "granary", "pos": [5050, 0], "by_cart": true, "house": false },
+
+    {
+      "type": "sign",
+      "pos": [150, 0],
+      "text": "E 和人说话、使用机关\nShift 切换天气　F 施放",
+      "touch_text": "靠近后点互动按钮\n天气按钮切换，魔杖按钮施放"
+    },
+    { "type": "sign", "pos": [2700, 0], "text": "风推动水车换档\n蓝：农田　黄：升降梯　绿：抽水泵" },
+    { "type": "sign", "pos": [3250, 0], "text": "升降梯要水车在档位 2 才有电" },
+
+    { "type": "dark_zone", "id": "dark", "pos": [1950, 700], "size": [600, 600] },
+
+    { "type": "checkpoint", "pos": [300, 0] },
+    { "type": "checkpoint", "pos": [2100, 0] },
+    { "type": "checkpoint", "pos": [3500, 1300] }
+  ]
+}

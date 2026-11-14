@@ -1,0 +1,7 @@
+{
+  "id": "level_02_farmer",
+  "lines": [
+    { "type": "line", "speaker": "farmer", "text": "左边的蓝管通向两块田，中间的黄管给升降梯供电，右边的绿管接着地下的抽水泵。" },
+    { "type": "line", "speaker": "farmer", "text": "低处那块田先得晒干淤泥，再浇水，不然越浇越烂。" }
+  ]
+}

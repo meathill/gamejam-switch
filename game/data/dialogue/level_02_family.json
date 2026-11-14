@@ -1,0 +1,9 @@
+{
+  "id": "level_02_family",
+  "lines": [
+    { "type": "line", "speaker": "family", "text": "是……一只猫？你是来帮我们的吗？" },
+    { "type": "line", "speaker": "family", "text": "回地面的斜坡被深水淹了。泵房的排水泵没电，动力管也断了。" },
+    { "type": "line", "speaker": "family", "text": "回到水车那里，把它切到抽水的位置。水一退，我们就能顺着斜坡回去。" },
+    { "type": "line", "speaker": "cat", "text": "等我。" }
+  ]
+}

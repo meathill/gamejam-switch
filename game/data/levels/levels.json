@@ -1,3 +1,6 @@
 {
-  "levels": ["level_01"]
+  "levels": [
+    "level_01",
+    "level_02"
+  ]
 }

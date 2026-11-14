@@ -96,3 +96,15 @@ func test_find_next_dock() -> void:
 func test_weather_cycle_wraps() -> void:
 	assert_eq(Weather.cycle(Weather.Type.SUN, 1), Weather.Type.RAIN)
 	assert_eq(Weather.cycle(Weather.Type.RAIN, -1), Weather.Type.SUN)
+
+
+func test_shallow_freeze_only_rejects_deep_water() -> void:
+	var deep := WaterRules.apply(Weather.Type.SNOW, WaterState.new(2), true)
+	_assert_fail(deep, WaterRules.Reason.DEEP_NO_FREEZE)
+	_assert_state(WaterRules.apply(Weather.Type.SNOW, WaterState.new(1), true), 1, true)
+
+
+func test_weather_keys_round_trip() -> void:
+	for type: int in Weather.Type.values():
+		assert_eq(Weather.from_key(Weather.get_key(type)), type)
+	assert_eq(Weather.get_key(Weather.Type.SNOW), "snow")

@@ -17,6 +17,7 @@ enum Reason {
 	FROZEN_NO_WIND,
 	NO_RAFT,
 	NO_DOCK,
+	DEEP_NO_FREEZE,
 	BUSY,
 }
 
@@ -33,6 +34,7 @@ const _REASON_TEXTS: Dictionary[Reason, String] = {
 	Reason.FROZEN_NO_WIND: "浮箱被冻住了",
 	Reason.NO_RAFT: "这里没有能被风推动的东西",
 	Reason.NO_DOCK: "那个方向没有停靠点",
+	Reason.DEEP_NO_FREEZE: "水太深了，冻不住",
 	Reason.BUSY: "",
 }
 
@@ -50,11 +52,14 @@ class Result:
 		reason = failure_reason
 
 
-static func apply(weather: Weather.Type, state: WaterState) -> Result:
+## shallow_freeze_only：只能冻结浅水（地下深水冻不住）
+static func apply(weather: Weather.Type, state: WaterState, shallow_freeze_only: bool = false) -> Result:
 	match weather:
 		Weather.Type.RAIN:
 			return _apply_rain(state)
 		Weather.Type.SNOW:
+			if shallow_freeze_only and not state.is_frozen and state.level >= MAX_LEVEL:
+				return _fail(state, Reason.DEEP_NO_FREEZE)
 			return _apply_snow(state)
 		Weather.Type.SUN:
 			return _apply_sun(state)

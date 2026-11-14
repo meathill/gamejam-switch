@@ -1,10 +1,8 @@
 @tool
 class_name WaterZone
-extends Node2D
+extends WeatherTarget
 ## 一个可被天气作用的水域（洼地）。原点在洼地左上角、与地面齐平，向下 size.y 为池底。
 ## 洼地两侧的墙由相邻的地面块提供，这里只生成池底和冰面碰撞。
-
-signal state_changed(zone: WaterZone)
 
 const SHALLOW_HEIGHT := 60.0
 ## 深水水面与地面齐平，结冰后冰面可以直接走过去，不会有台阶
@@ -40,6 +38,8 @@ const BASIN_COLOR := Color(0.15, 0.14, 0.24)
 		_refresh()
 ## 浮箱停靠点（本地 x 坐标，从左到右）
 @export var dock_positions: PackedFloat32Array = PackedFloat32Array()
+## 只能冻结浅水（地下深水冻不住）
+@export var shallow_freeze_only: bool = false
 
 var _display_surface_y: float = 0.0:
 	set(value):
@@ -103,6 +103,26 @@ func get_center_global() -> Vector2:
 	return global_position + size / 2.0
 
 
+func get_effect_rect() -> Rect2:
+	return Rect2(global_position.x, get_surface_global_y(), size.x, 1.0)
+
+
+func get_display_name() -> String:
+	return zone_name
+
+
+func get_status_text() -> String:
+	var level_names: Array[String] = ["干燥", "浅水", "深水"]
+	var parts: Array[String] = ["水位 %d %s" % [level, level_names[level]]]
+	parts.append("冰面" if is_frozen else "液态")
+	if is_polluted:
+		parts.append("污染")
+	var rafts := get_rafts().size()
+	if rafts > 0:
+		parts.append("浮箱 ×%d" % rafts)
+	return " · ".join(parts)
+
+
 func get_rafts() -> Array[Raft]:
 	var rafts: Array[Raft] = []
 	for child in get_children():
@@ -120,11 +140,11 @@ func is_busy() -> bool:
 	return _is_busy
 
 
-## 施放天气；风需要方向（-1 左 / 1 右）
+## 施放天气；风需要方向（-1 左 / 1 右）。返回带规则原因的结果，WeatherCaster 走 cast_weather
 func apply_weather(weather: Weather.Type, direction: int = 0) -> WaterRules.Result:
 	if _is_busy:
 		return WaterRules.Result.new(false, get_state(), WaterRules.Reason.BUSY)
-	var result := WaterRules.apply(weather, get_state())
+	var result := WaterRules.apply(weather, get_state(), shallow_freeze_only)
 	if not result.is_success:
 		return result
 	if weather == Weather.Type.WIND:
@@ -134,6 +154,15 @@ func apply_weather(weather: Weather.Type, direction: int = 0) -> WaterRules.Resu
 	else:
 		transition_to(result.state)
 	return result
+
+
+func _cast(weather: Weather.Type, direction: int) -> CastResult:
+	var result := apply_weather(weather, direction)
+	if result.is_success:
+		return CastResult.ok()
+	if result.reason == WaterRules.Reason.BUSY:
+		return CastResult.busy()
+	return CastResult.fail(WaterRules.get_reason_text(result.reason))
 
 
 ## 外部机关（如排水站）也通过这里改变水域状态

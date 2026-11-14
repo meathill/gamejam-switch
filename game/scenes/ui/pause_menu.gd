@@ -3,7 +3,7 @@ extends Node
 ## Esc / 暂停键暂停。暂停时整棵树停止，只有这个节点和菜单处理输入。
 
 const TITLE_SCENE := "res://scenes/story/title.tscn"
-const KEY_HELP := "← → 移动　Space 跳跃　Shift / 1-4 切换天气　F 施放　E 救援"
+const KEY_HELP := "← → 移动　Space 跳跃　Shift / 1-4 切换天气　F 施放　E 互动"
 
 var _menu: MenuOverlay
 

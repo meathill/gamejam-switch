@@ -6,7 +6,7 @@ extends RefCounted
 ##   { "walk": 1, "seconds": 2.0 }                按住方向键走一段
 ##   { "wait": 1.5 }                              等待
 ##   { "expect_water": "id", "level": 2, "frozen": true, "polluted": false, "raft_dock": 1 }
-##   { "expect": { "rescued": 2, "complete": true } }
+##   { "expect": { "rescued": 2, "fields": 3, "complete": true } }
 
 const PHYSICS_FPS := 60
 const SETTLE_FRAMES := 8
@@ -38,7 +38,7 @@ func _run_step(step: Dictionary, label: String) -> void:
 				break
 			await _wait_frames(1)
 	elif step.has("cast"):
-		GameState.set_weather(Weather.Type.get((step["cast"] as String).to_upper()))
+		GameState.set_weather(Weather.from_key(step["cast"]))
 		_player.facing = step.get("facing", _player.facing)
 		_test.assert_true(_player.is_on_floor(), "%s：小猫不在地面上，无法施放" % label)
 		_player.call("_cast")
@@ -82,7 +82,9 @@ func _expect_water(step: Dictionary, label: String) -> void:
 
 func _expect(expected: Dictionary, label: String) -> void:
 	if expected.has("rescued"):
-		_test.assert_eq(GameState.rescued_count, int(expected["rescued"]), "%s：救出人数" % label)
+		_test.assert_eq(GameState.get_objective("resident").x, int(expected["rescued"]), "%s：救出人数" % label)
+	if expected.has("fields"):
+		_test.assert_eq(GameState.get_objective("field").x, int(expected["fields"]), "%s：恢复的田" % label)
 	if expected.has("complete"):
 		_test.assert_eq(GameState.is_level_complete, expected["complete"], "%s：通关" % label)
 

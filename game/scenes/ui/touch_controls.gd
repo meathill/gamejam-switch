@@ -25,6 +25,7 @@ func _ready() -> void:
 	_add("pause", "pause", Vector2(1855, 150), 50.0)
 	_refresh_weather(GameState.current_weather)
 	GameState.weather_changed.connect(_refresh_weather)
+	GameState.weather_rules_changed.connect(func() -> void: _refresh_weather(GameState.current_weather))
 	GameState.touch_mode_changed.connect(func(_enabled: bool) -> void: _refresh_visibility())
 	GameState.interact_available_changed.connect(func(_available: bool) -> void: _refresh_visibility())
 	_refresh_visibility()
@@ -40,6 +41,7 @@ func _add(action: StringName, icon_name: String, center: Vector2, radius: float,
 
 func _refresh_weather(weather: Weather.Type) -> void:
 	_weather_button.icon = load(Weather.get_icon_path(weather))
+	_weather_button.tint = Color(0.5, 0.5, 0.5) if GameState.is_weather_disabled(weather) else Color.WHITE
 
 
 func _refresh_visibility() -> void:

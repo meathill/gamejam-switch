@@ -1,8 +1,8 @@
 class_name WeatherCaster
 extends Node2D
-## 选中小猫附近的水域，并把天气施放到它上面
+## 选中小猫附近的天气目标（水域、水车、农田……），并把天气施放到它上面
 
-var target: WaterZone = null
+var target: WeatherTarget = null
 
 
 func _ready() -> void:
@@ -13,7 +13,7 @@ func _physics_process(_delta: float) -> void:
 	var next := _find_target()
 	if next == target:
 		return
-	if target:
+	if is_instance_valid(target):
 		target.set_highlight(Color.TRANSPARENT)
 	target = next
 	_refresh_highlight()
@@ -21,27 +21,30 @@ func _physics_process(_delta: float) -> void:
 
 
 func cast(weather: Weather.Type, direction: int) -> void:
-	if not target:
-		GameState.post_warning("附近没有可以施放天气的水域")
+	if GameState.is_weather_disabled(weather):
+		GameState.post_warning(GameState.get_disabled_reason(weather))
 		return
-	var result := target.apply_weather(weather, direction)
+	if not target:
+		GameState.post_warning("附近没有可以施放天气的地方")
+		return
+	var result := target.cast_weather(weather, direction)
 	if result.is_success:
-		WeatherEffect.spawn_on_zone(target.get_parent(), weather, target, direction)
+		WeatherEffect.spawn_on_target(target.get_parent(), weather, target, direction)
 		GameState.weather_cast.emit(target, weather)
-	elif result.reason != WaterRules.Reason.BUSY:
-		GameState.post_warning(WaterRules.get_reason_text(result.reason))
+	elif not result.is_busy:
+		GameState.post_warning(result.reason_text)
 
 
-func _find_target() -> WaterZone:
-	var best: WaterZone = null
+func _find_target() -> WeatherTarget:
+	var best: WeatherTarget = null
 	var best_distance := INF
-	for node in get_tree().get_nodes_in_group("water_zones"):
-		var zone := node as WaterZone
-		if not zone.get_target_rect().has_point(global_position):
+	for node in get_tree().get_nodes_in_group(WeatherTarget.GROUP):
+		var candidate := node as WeatherTarget
+		if not candidate.is_inside_tree() or not candidate.get_target_rect().has_point(global_position):
 			continue
-		var distance := absf(zone.get_center_global().x - global_position.x)
+		var distance := absf(candidate.get_center_global().x - global_position.x)
 		if distance < best_distance:
-			best = zone
+			best = candidate
 			best_distance = distance
 	return best
 

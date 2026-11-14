@@ -1,10 +1,10 @@
 @tool
 class_name Resident
-extends Area2D
-## 等待救援的居民。原点在脚底。小猫靠近后按 E 救援。
+extends Interactable
+## 等待救援的居民，计入通关目标。原点在脚底。
+## 默认小猫靠近后按 E 救援；is_rescued_by_trigger 的居民由机关调用 rescue() 后自己离开，按 E 只对话。
 
 const LIGHT_COLOR := Color(1.0, 0.95, 0.7)
-const DETECT_SIZE := Vector2(260, 260)
 const DISPLAY_HEIGHT := 240.0
 
 @export var resident_name: String = "居民"
@@ -15,35 +15,23 @@ const DISPLAY_HEIGHT := 240.0
 		queue_redraw()
 ## 手里拿着手电筒（序章里对面楼闪烁的那束光）
 @export var has_flashlight: bool = false
+## 由机关触发救援（如排水开关、排水泵），小猫不能直接救
+@export var is_rescued_by_trigger: bool = false
+## 互动时先播放的对白（可选）
+@export_file("*.json") var dialogue: String = ""
 
-var _is_player_near: bool = false
 var _is_rescued: bool = false
-var _prompt: Label
 var _time: float = 0.0
 
 
+func _init() -> void:
+	prompt_height = DISPLAY_HEIGHT + 50.0
+
+
 func _ready() -> void:
-	var shape := RectangleShape2D.new()
-	shape.size = DETECT_SIZE
-	var collision := CollisionShape2D.new()
-	collision.shape = shape
-	collision.position = Vector2(0, -DETECT_SIZE.y / 2.0)
-	add_child(collision)
-	if Engine.is_editor_hint():
-		return
-	collision_layer = 0
-	collision_mask = 2
-	body_entered.connect(_on_body_entered)
-	body_exited.connect(_on_body_exited)
-	_prompt = Label.new()
-	_prompt.text = GameState.pick_hint("E 救援", "救援")
-	_prompt.add_theme_font_size_override("font_size", 28)
-	_prompt.add_theme_constant_override("outline_size", 8)
-	_prompt.add_theme_color_override("font_outline_color", Color.BLACK)
-	_prompt.position = Vector2(-50, -DISPLAY_HEIGHT - 50.0)
-	_prompt.visible = false
-	add_child(_prompt)
-	GameState.register_resident()
+	super()
+	if not Engine.is_editor_hint():
+		GameState.register_objective("resident")
 
 
 func _process(delta: float) -> void:
@@ -52,17 +40,20 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if _is_player_near and not _is_rescued and event.is_action_pressed("interact"):
-		get_viewport().set_input_as_handled()
-		_rescue()
+func get_action_name() -> String:
+	return "对话" if is_rescued_by_trigger else "救援"
 
 
-func _rescue() -> void:
+func can_interact() -> bool:
+	return not _is_rescued and (not is_rescued_by_trigger or not dialogue.is_empty())
+
+
+func rescue() -> void:
+	if _is_rescued:
+		return
 	_is_rescued = true
-	_prompt.visible = false
-	GameState.set_interact_available(false)
-	GameState.rescue_resident()
+	refresh_prompt()
+	GameState.complete_objective("resident")
 	GameState.post_message("%s：%s" % [resident_name, thanks_text])
 	var tween := create_tween().set_parallel()
 	tween.tween_property(self, "modulate:a", 0.0, 1.2)
@@ -71,19 +62,11 @@ func _rescue() -> void:
 	queue_free()
 
 
-func _on_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player") and not _is_rescued:
-		_is_player_near = true
-		_prompt.text = GameState.pick_hint("E 救援", "救援")
-		_prompt.visible = true
-		GameState.set_interact_available(true)
-
-
-func _on_body_exited(body: Node2D) -> void:
-	if body.is_in_group("player") and _is_player_near:
-		_is_player_near = false
-		_prompt.visible = false
-		GameState.set_interact_available(false)
+func _interact() -> void:
+	if dialogue:
+		await GameState.play_dialogue(dialogue)
+	if not is_rescued_by_trigger:
+		rescue()
 
 
 func _draw() -> void:

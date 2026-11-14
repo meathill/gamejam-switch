@@ -1,15 +1,15 @@
 class_name Hud
 extends CanvasLayer
-## 关卡 HUD：天气圆环、目标水域状态、救援进度、提示消息
+## 关卡 HUD：天气圆环、选中目标的状态、通关目标进度、提示消息
 
 const TOAST_SECONDS := 2.4
 
 var _weather_label: Label
 var _target_label: Label
-var _rescue_label: Label
+var _objective_label: Label
 var _toast_label: Label
 var _toast_tween: Tween
-var _target: WaterZone = null
+var _target: WeatherTarget = null
 
 
 func _ready() -> void:
@@ -17,12 +17,13 @@ func _ready() -> void:
 	_build()
 	GameState.weather_changed.connect(func(_weather: Weather.Type) -> void: _refresh_weather())
 	GameState.target_changed.connect(_on_target_changed)
-	GameState.rescue_progress_changed.connect(_on_rescue_progress_changed)
+	GameState.objectives_changed.connect(_refresh_objectives)
+	GameState.weather_rules_changed.connect(_refresh_weather)
 	GameState.message_posted.connect(show_toast)
 	GameState.touch_mode_changed.connect(func(_enabled: bool) -> void: _refresh_weather())
 	_refresh_weather()
 	_on_target_changed(null)
-	_on_rescue_progress_changed(GameState.rescued_count, GameState.total_residents)
+	_refresh_objectives()
 
 
 func show_toast(text: String, color: Color = GameState.MESSAGE_COLOR) -> void:
@@ -35,43 +36,41 @@ func show_toast(text: String, color: Color = GameState.MESSAGE_COLOR) -> void:
 	_toast_tween.tween_property(_toast_label, "modulate:a", 0.0, 0.5)
 
 
-func _on_target_changed(zone: WaterZone) -> void:
-	if _target and _target.state_changed.is_connected(_on_target_state_changed):
+func _on_target_changed(target: WeatherTarget) -> void:
+	if is_instance_valid(_target) and _target.state_changed.is_connected(_on_target_state_changed):
 		_target.state_changed.disconnect(_on_target_state_changed)
-	_target = zone
+	_target = target
 	if _target:
 		_target.state_changed.connect(_on_target_state_changed)
 	_refresh_target()
 
 
-func _on_target_state_changed(_zone: WaterZone) -> void:
+func _on_target_state_changed(_target_node: WeatherTarget) -> void:
 	_refresh_target()
 
 
-func _on_rescue_progress_changed(rescued: int, total: int) -> void:
-	_rescue_label.text = "救援  %d / %d" % [rescued, total]
+func _refresh_objectives() -> void:
+	var parts: Array[String] = []
+	for kind in GameState.get_objective_kinds():
+		var progress := GameState.get_objective(kind)
+		parts.append("%s  %d / %d" % [GameState.OBJECTIVE_LABELS[kind], progress.x, progress.y])
+	_objective_label.text = "\n".join(parts)
 
 
 func _refresh_weather() -> void:
 	var weather := GameState.current_weather
-	_weather_label.text = Weather.get_display_name(weather) + GameState.pick_hint("\nShift 切换 · F 施放", "")
-	_weather_label.modulate = Weather.get_color(weather).lightened(0.3)
+	var is_disabled := GameState.is_weather_disabled(weather)
+	var hint := "\n这里不能用" if is_disabled else GameState.pick_hint("\nShift 切换 · F 施放", "")
+	_weather_label.text = Weather.get_display_name(weather) + hint
+	_weather_label.modulate = Color(0.6, 0.6, 0.6) if is_disabled else Weather.get_color(weather).lightened(0.3)
 
 
 func _refresh_target() -> void:
-	if not _target:
-		_target_label.text = "附近没有水域"
+	if not is_instance_valid(_target):
+		_target_label.text = "附近没有可以施放天气的地方"
 		return
-	var state := _target.get_state()
-	var level_names: Array[String] = ["干燥", "浅水", "深水"]
-	var parts: Array[String] = ["水位 %d %s" % [state.level, level_names[state.level]]]
-	parts.append("冰面" if state.is_frozen else "液态")
-	if state.is_polluted:
-		parts.append("污染")
-	var rafts := _target.get_rafts().size()
-	if rafts > 0:
-		parts.append("浮箱 ×%d" % rafts)
-	_target_label.text = "%s：%s" % [_target.zone_name, " · ".join(parts)]
+	var status := _target.get_status_text()
+	_target_label.text = "%s：%s" % [_target.get_display_name(), status] if status else _target.get_display_name()
 
 
 func _build() -> void:
@@ -88,12 +87,12 @@ func _build() -> void:
 	_weather_label = _make_label(26, HORIZONTAL_ALIGNMENT_CENTER)
 	ring_box.add_child(_weather_label)
 
-	_rescue_label = _make_label(32, HORIZONTAL_ALIGNMENT_RIGHT)
-	_rescue_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	_rescue_label.offset_left = -360
-	_rescue_label.offset_right = -40
-	_rescue_label.offset_top = 36
-	root.add_child(_rescue_label)
+	_objective_label = _make_label(32, HORIZONTAL_ALIGNMENT_RIGHT)
+	_objective_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_objective_label.offset_left = -360
+	_objective_label.offset_right = -40
+	_objective_label.offset_top = 36
+	root.add_child(_objective_label)
 
 	_target_label = _make_label(28, HORIZONTAL_ALIGNMENT_CENTER)
 	_target_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)

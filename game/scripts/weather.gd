@@ -26,6 +26,15 @@ const _ICONS: Dictionary[Type, String] = {
 }
 
 
+## 关卡数据、解法文件里使用的名字："rain" / "wind" / "snow" / "sun"
+static func get_key(type: Type) -> String:
+	return (Type.find_key(type) as String).to_lower()
+
+
+static func from_key(key: String) -> Type:
+	return Type[key.to_upper()]
+
+
 static func get_display_name(type: Type) -> String:
 	return _NAMES[type]
 

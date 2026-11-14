@@ -1,7 +1,7 @@
 @tool
 class_name GoalArea
 extends Area2D
-## 高地避难所：救出所有居民后到达这里即通关。原点在地面中点。
+## 终点（避难所）：完成所有目标后到达这里即通关。原点在地面中点。
 
 const AREA_SIZE := Vector2(360, 400)
 
@@ -26,12 +26,11 @@ func _ready() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if GameState.is_all_rescued():
+	if GameState.is_all_objectives_done():
 		GameState.complete_level()
 	elif not _has_warned:
 		_has_warned = true
-		var remaining := GameState.total_residents - GameState.rescued_count
-		GameState.post_warning("还有 %d 位居民被困在城里" % remaining)
+		GameState.post_warning(GameState.get_remaining_text())
 
 
 func _draw() -> void:

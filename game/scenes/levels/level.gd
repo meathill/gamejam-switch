@@ -38,6 +38,7 @@ func _ready() -> void:
 	add_child(_touch_controls)
 	add_child(PauseMenu.new())
 	GameState.level_completed.connect(_on_level_completed)
+	GameState.dialogue_requested.connect(_on_dialogue_requested)
 	if data.intro_dialogue and not GameState.seen_intros.get(data.id, false):
 		GameState.seen_intros[data.id] = true
 		_set_gameplay_active(false)
@@ -55,6 +56,13 @@ func _set_gameplay_active(active: bool) -> void:
 	_touch_controls.is_active = active
 
 
+func _on_dialogue_requested(path: String) -> void:
+	_set_gameplay_active(false)
+	await _play_dialogue(path)
+	_set_gameplay_active(true)
+	GameState.dialogue_finished.emit()
+
+
 func _play_dialogue(path: String) -> void:
 	var dialogue := DialogueBox.new()
 	add_child(dialogue)
@@ -68,7 +76,10 @@ func _on_level_completed() -> void:
 	await get_tree().create_timer(COMPLETE_DELAY).timeout
 	if data.outro_dialogue:
 		await _play_dialogue(data.outro_dialogue)
-	var menu := MenuOverlay.new(data.complete_text.format({ "rescued": GameState.rescued_count }), 30)
+	var menu := MenuOverlay.new(data.complete_text.format({
+		"rescued": GameState.get_objective("resident").x,
+		"fields": GameState.get_objective("field").x,
+	}), 30)
 	var next_id := LevelCatalog.get_next(data.id)
 	if next_id:
 		menu.add_button("下一关", SceneRouter.go_to_level.bind(next_id))

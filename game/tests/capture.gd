@@ -73,7 +73,7 @@ func _run(step: Dictionary) -> void:
 			var state: Node = root.get_node("GameState")
 			print("[capture] %s x=%.0f weather=%s rescued=%d touch=%s paused=%s" % [
 				step["name"], player.get("global_position").x, state.get("current_weather"),
-				state.get("rescued_count"), state.get("is_touch_mode"), paused,
+				state.call("get_objective", "resident").x, state.get("is_touch_mode"), paused,
 			])
 
 

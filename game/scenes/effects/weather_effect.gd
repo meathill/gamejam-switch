@@ -10,9 +10,8 @@ const WIND_SWIRLS: Array[Texture2D] = [
 ]
 
 
-static func spawn_on_zone(parent: Node, weather: Weather.Type, zone: WaterZone, direction: int) -> void:
-	var top := zone.get_surface_global_y()
-	spawn(parent, weather, Rect2(zone.global_position.x, top, zone.size.x, 1.0), direction)
+static func spawn_on_target(parent: Node, weather: Weather.Type, target: WeatherTarget, direction: int) -> void:
+	spawn(parent, weather, target.get_effect_rect(), direction)
 
 
 static func spawn(parent: Node, weather: Weather.Type, area: Rect2, direction: int = 1, amount_scale: float = 1.0) -> void:

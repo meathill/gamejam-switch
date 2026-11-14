@@ -2,7 +2,6 @@ extends Node2D
 ## 序章文游：屋顶上的小猫遇见伊尔妲。对白数据在 data/dialogue/prologue.json。
 
 const DIALOGUE_PATH := "res://data/dialogue/prologue.json"
-const LEVEL_SCENE := "res://scenes/levels/level_01.tscn"
 const CAT_PORTRAIT := preload("res://assets/portraits/cat.png")
 const CAT_POSITION := Vector2(480, 520)
 const RING_POSITION := Vector2(1080, 300)
@@ -46,8 +45,9 @@ func _ready() -> void:
 	dialogue.event_triggered.connect(_on_event)
 	await get_tree().create_timer(0.6).timeout
 	await dialogue.play(DialogueBox.load_lines(DIALOGUE_PATH))
-	await _show_title_card()
-	SceneRouter.go_to(LEVEL_SCENE)
+	var level_id := LevelCatalog.first()
+	await _show_title_card(LevelData.load_level(level_id))
+	SceneRouter.go_to_level(level_id)
 
 
 func _on_event(event_name: String) -> void:
@@ -111,7 +111,7 @@ func _make_glowing_sprite(texture: Texture2D, height: float, glow: Color) -> Nod
 	return node
 
 
-func _show_title_card() -> void:
+func _show_title_card(level: LevelData) -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 30
 	add_child(layer)
@@ -122,7 +122,7 @@ func _show_title_card() -> void:
 	label.add_theme_font_size_override("font_size", 72)
 	label.add_theme_constant_override("outline_size", 12)
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	label.text = "第一关\n被淹没的城市"
+	label.text = "%s\n%s" % [level.chapter, level.title]
 	label.modulate.a = 0.0
 	layer.add_child(label)
 	var tween := create_tween()

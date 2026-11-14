@@ -9,6 +9,7 @@ const ON_COLOR := Color(0.55, 1.0, 0.7)
 
 @export var channel: WaterZone
 @export var drained_zone: WaterZone
+@export var message: String = "排水站重新启动了！"
 
 var _is_active: bool = false
 
@@ -24,7 +25,7 @@ func _on_channel_changed(zone: WaterZone) -> void:
 		return
 	_is_active = true
 	queue_redraw()
-	GameState.post_message("排水站重新启动了！广场的污水开始退去")
+	GameState.post_message(message)
 	await get_tree().create_timer(0.8).timeout
 	var state := drained_zone.get_state()
 	drained_zone.transition_to(WaterState.new(maxi(state.level - 1, 0), state.is_frozen, false))

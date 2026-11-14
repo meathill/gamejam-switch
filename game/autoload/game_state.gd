@@ -17,7 +17,9 @@ var current_weather: Weather.Type = Weather.Type.RAIN
 var rescued_count: int = 0
 var total_residents: int = 0
 var checkpoint_position: Vector2 = Vector2.ZERO
-var has_seen_level_intro: bool = false
+var current_level_id: String = ""
+## 已经看过开场对白的关卡（重开不再播放）
+var seen_intros: Dictionary[String, bool] = {}
 var is_level_complete: bool = false
 ## 触屏模式：有触摸屏或发生过触摸时开启，显示虚拟按键和触屏版提示文案
 var is_touch_mode: bool = false

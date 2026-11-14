@@ -2,7 +2,6 @@ extends Node2D
 ## 标题画面
 
 const PROLOGUE_SCENE := "res://scenes/story/prologue.tscn"
-const LEVEL_SCENE := "res://scenes/levels/level_01.tscn"
 const CAT_PORTRAIT := preload("res://assets/portraits/cat.png")
 
 
@@ -43,8 +42,8 @@ func _build_menu() -> void:
 	column.add_child(start)
 	var skip := _make_button("跳过序章")
 	skip.pressed.connect(func() -> void:
-		GameState.has_seen_level_intro = false
-		SceneRouter.go_to(LEVEL_SCENE)
+		GameState.seen_intros.clear()
+		SceneRouter.go_to_level(LevelCatalog.first())
 	)
 	column.add_child(skip)
 	# 手机浏览器的地址栏会占掉不少高度，Web 版提供全屏入口（浏览器要求由用户点击触发）

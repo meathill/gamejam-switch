@@ -1,38 +1,16 @@
 @tool
 class_name DrainageStation
-extends Node2D
-## 废弃排水站：开关（Lever）拉下后启动，把关联水域排掉一级并净化，完成后发出 triggered。原点在地面中点。
-
-signal triggered
+extends Machine
+## 废弃排水站：前置条件（通常是“排水开关已拉下”）满足后启动。排掉哪片水、救谁，写在关卡数据的 links 里。
 
 const BUILDING_SIZE := Vector2(300, 260)
 const OFF_COLOR := Color(0.35, 0.3, 0.3)
 const ON_COLOR := Color(0.55, 1.0, 0.7)
-const START_DELAY := 0.8
-
-@export var switch: Lever
-@export var drained_zone: WaterZone
-@export var message: String = "排水站重新启动了！"
-
-var _is_active: bool = false
 
 
-func _ready() -> void:
-	if Engine.is_editor_hint():
-		return
-	switch.triggered.connect(_activate)
-
-
-func _activate() -> void:
-	if _is_active:
-		return
-	_is_active = true
-	queue_redraw()
-	GameState.post_message(message)
-	await get_tree().create_timer(START_DELAY).timeout
-	var state := drained_zone.get_state()
-	await drained_zone.transition_to(WaterState.new(maxi(state.level - 1, 0), state.is_frozen, false))
-	triggered.emit()
+func _init() -> void:
+	machine_name = "排水站"
+	start_delay = 0.8
 
 
 func _draw() -> void:
@@ -40,8 +18,8 @@ func _draw() -> void:
 	draw_rect(rect, Color(0.33, 0.35, 0.38))
 	draw_rect(Rect2(rect.position + Vector2(40, 60), Vector2(90, 90)), Color(0.2, 0.22, 0.25))
 	draw_circle(rect.position + Vector2(85, 105), 36.0, Color(0.45, 0.47, 0.5))
-	var light := ON_COLOR if _is_active else OFF_COLOR
-	draw_circle(rect.position + Vector2(220, 60), 22.0, light)
-	if _is_active:
+	var is_on := _is_starting
+	draw_circle(rect.position + Vector2(220, 60), 22.0, ON_COLOR if is_on else OFF_COLOR)
+	if is_on:
 		draw_circle(rect.position + Vector2(220, 60), 50.0, Color(ON_COLOR, 0.25))
 	draw_rect(Rect2(rect.position + Vector2(180, 140), Vector2(80, 120)), Color(0.25, 0.25, 0.28))

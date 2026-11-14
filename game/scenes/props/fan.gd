@@ -1,9 +1,7 @@
 @tool
 class_name Fan
 extends WeatherTarget
-## 地下通风机：风天吹动后一直转，发出 triggered（吹散冻雾）。原点在地面中点。
-
-signal triggered
+## 地下通风机：风天吹动后一直转，发出 started 事件。原点在地面中点。
 
 const RADIUS := 80.0
 const TEXTURE := preload("res://assets/sprites/farm/fan.png")
@@ -29,7 +27,11 @@ func get_effect_rect() -> Rect2:
 
 
 func get_display_name() -> String:
-	return "通风机"
+	return display_name if display_name else "通风机"
+
+
+func get_unmet_reason(_condition: Dictionary) -> String:
+	return "" if _is_running else "%s还没转起来" % get_display_name()
 
 
 func get_status_text() -> String:
@@ -47,8 +49,7 @@ func _cast(weather: Weather.Type, _direction: int) -> CastResult:
 	if _is_running:
 		return CastResult.fail("通风机已经转起来了")
 	_is_running = true
-	GameState.post_message("通风机转起来了，冻雾被吹散了")
-	triggered.emit()
+	level_event.emit("started")
 	state_changed.emit(self)
 	return CastResult.ok()
 

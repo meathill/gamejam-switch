@@ -71,58 +71,65 @@ func test_cast_is_rejected_while_animating() -> void:
 	assert_eq(zone.level, 1)
 
 
-func _make_station(channel: WaterZone, plaza: WaterZone) -> Lever:
+func _make_switch(channel: WaterZone) -> Lever:
 	var lever := Lever.new()
-	lever.requires_deep = channel
+	lever.lever_name = "排水开关"
+	lever.requirements.append(Requirement.new(channel, { "is": "deep" }))
 	add_child_autofree(lever)
-	var station := DrainageStation.new()
-	station.switch = lever
-	station.drained_zone = plaza
-	add_child_autofree(station)
 	return lever
-
-
-func test_drainage_switch_is_locked_until_channel_is_full() -> void:
-	var channel := _make_zone(1)
-	var plaza := _make_zone(2, true)
-	add_child_autofree(channel)
-	add_child_autofree(plaza)
-	var lever := _make_station(channel, plaza)
-	lever.call("_interact")
-	assert_false(lever.is_pulled)
 
 
 func _locked_message(channel_level: int, frozen: bool = false) -> String:
 	var channel := _make_zone(channel_level)
+	channel.zone_name = "排水槽"
 	channel.is_frozen = frozen
-	var plaza := _make_zone(2, true)
 	add_child_autofree(channel)
-	add_child_autofree(plaza)
-	var lever := _make_station(channel, plaza)
-	var messages: Array[String] = []
-	var record := func(text: String, _color: Color) -> void: messages.append(text)
-	GameState.message_posted.connect(record)
-	lever.call("_interact")
-	GameState.message_posted.disconnect(record)
-	assert_false(lever.is_pulled)
-	return messages[0] if messages.size() > 0 else ""
+	return Requirement.first_unmet(_make_switch(channel).requirements)
 
 
 ## 回归：排水槽只下过一次雨（浅水）时，开关还提示“排水槽是干的”，让人以为雨水没用
-func test_drainage_switch_explains_what_is_missing() -> void:
+func test_switch_requirement_explains_what_is_missing() -> void:
 	assert_string_contains(_locked_message(0), "干")
 	assert_string_contains(_locked_message(1), "不够")
 	assert_string_contains(_locked_message(2, true), "冻")
+	assert_eq(_locked_message(2), "")
 
 
-func test_drainage_station_drains_and_cleans_target() -> void:
-	var channel := _make_zone(2)
-	var plaza := _make_zone(2, true)
+func test_custom_hint_overrides_generated_reason() -> void:
+	var channel := _make_zone(0)
 	add_child_autofree(channel)
-	add_child_autofree(plaza)
-	var lever := _make_station(channel, plaza)
+	var requirement := Requirement.new(channel, { "is": "deep", "hint": "先灌满排水槽" })
+	assert_eq(requirement.get_unmet_reason(), "先灌满排水槽")
+
+
+func test_station_starts_after_switch_is_pulled() -> void:
+	var channel := _make_zone(2)
+	add_child_autofree(channel)
+	var lever := _make_switch(channel)
+	var station := DrainageStation.new()
+	station.start_delay = 0.1
+	station.requirements.append(Requirement.new(lever, { "is": "pulled" }))
+	add_child_autofree(station)
+	await wait_physics_frames(3)
+	assert_false(station.is_running)
 	lever.call("_interact")
-	assert_true(lever.is_pulled)
+	await wait_for_signal(station.level_event, TIMEOUT)
+	assert_true(station.is_running)
+
+
+func test_lower_action_drains_and_cleans() -> void:
+	var plaza := _make_zone(2, true)
+	add_child_autofree(plaza)
+	plaza.do_lower({ "clean": true })
 	await wait_for_signal(plaza.state_changed, TIMEOUT)
 	assert_eq(plaza.level, 1)
 	assert_false(plaza.is_polluted)
+
+
+func test_unblock_action_allows_weather_again() -> void:
+	var plaza := _make_zone(1)
+	plaza.blocked_weathers = { "snow": "会冻坏站顶的大叔" }
+	add_child_autofree(plaza)
+	assert_false(plaza.cast_weather(Weather.Type.SNOW, 1).is_success)
+	plaza.do_unblock({ "weather": "snow" })
+	assert_true(plaza.cast_weather(Weather.Type.SNOW, 1).is_success)

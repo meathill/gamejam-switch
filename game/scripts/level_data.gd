@@ -21,6 +21,8 @@ var backdrop: Dictionary = {}
 ## 小猫低于这个高度时视为在地下，不显示雨幕
 var underground_y: float = INF
 var objects: Array[Dictionary] = []
+## 对象间的联动，格式见 LevelSchema
+var links: Array[Dictionary] = []
 
 
 static func get_path_for(level_id: String) -> String:
@@ -46,6 +48,7 @@ static func from_dict(level_id: String, data: Dictionary) -> LevelData:
 	level.backdrop = data.get("backdrop", {})
 	level.underground_y = data.get("underground_y", INF)
 	level.objects.assign(data.get("objects", []))
+	level.links.assign(data.get("links", []))
 	return level
 
 
@@ -109,8 +112,11 @@ func validate() -> PackedStringArray:
 		var entry := objects[index]
 		if LevelSchema.TYPES.has(entry.get("type", "")):
 			_validate_object(entry, _label(entry, index), types_by_id, errors)
-	if count_type("goal") != 1:
-		errors.append("终点 goal 必须恰好一个，现在有 %d 个" % count_type("goal"))
+	for index in links.size():
+		_validate_link(links[index], "links #%d" % index, types_by_id, errors)
+	var has_cart_ending := links.any(func(link: Dictionary) -> bool: return link.get("do") == "complete_level")
+	if count_type("goal") + (1 if has_cart_ending else 0) != 1:
+		errors.append("通关方式必须恰好一种：一个终点 goal，或一条 do = complete_level 的联动")
 	var objective_count := 0
 	for type in LevelSchema.OBJECTIVE_TYPES:
 		objective_count += count_type(type)
@@ -130,6 +136,11 @@ func _validate_object(entry: Dictionary, label: String, types_by_id: Dictionary[
 				errors.append("%s：%s 引用的 \"%s\" 不存在" % [label, field, ref_id])
 			elif not (refs[field] as Array).has(types_by_id[ref_id]):
 				errors.append("%s：%s 只能引用 %s，\"%s\" 是 %s" % [label, field, refs[field], ref_id, types_by_id[ref_id]])
+	if entry.has("requires"):
+		if not LevelSchema.supports_requires(type):
+			errors.append("%s：%s 不支持 requires" % [label, type])
+		for condition: Dictionary in entry["requires"]:
+			_validate_condition(condition, label, types_by_id, errors)
 	if entry.has("pos") and not _is_in_camera(entry):
 		errors.append("%s：超出镜头范围" % label)
 	match type:
@@ -149,9 +160,6 @@ func _validate_object(entry: Dictionary, label: String, types_by_id: Dictionary[
 			for key: String in entry["disabled"]:
 				if not Weather.Type.has(key.to_upper()):
 					errors.append("%s：disabled 里的 \"%s\" 不是天气" % [label, key])
-		"seed_cart":
-			if not find_object(entry["goal"]).get("by_cart", false):
-				errors.append("%s：终点要设置 by_cart，种子车送达才结算" % label)
 
 
 func _validate_water(entry: Dictionary, label: String, errors: PackedStringArray) -> void:
@@ -183,6 +191,56 @@ func _validate_raft(entry: Dictionary, label: String, errors: PackedStringArray)
 	)
 	if same_dock.size() > 1:
 		errors.append("%s：和其他浮箱停在同一个停靠点" % label)
+
+
+func _validate_link(link: Dictionary, label: String, types_by_id: Dictionary[String, String], errors: PackedStringArray) -> void:
+	var source: String = link.get("when", "")
+	if not types_by_id.has(source):
+		errors.append("%s：when 引用的 \"%s\" 不存在" % [label, source])
+	elif not LevelSchema.get_events(types_by_id[source]).has(link.get("event", "")):
+		errors.append("%s：%s 没有事件 \"%s\"，可用：%s" % [
+			label, types_by_id[source], link.get("event", ""), LevelSchema.get_events(types_by_id[source])])
+	var action: String = link.get("do", "")
+	var params: Array = []
+	if link.has("target"):
+		var target: String = link["target"]
+		if not types_by_id.has(target):
+			errors.append("%s：target 引用的 \"%s\" 不存在" % [label, target])
+			return
+		var actions := LevelSchema.get_actions(types_by_id[target])
+		if not actions.has(action):
+			errors.append("%s：%s 没有动作 \"%s\"，可用：%s" % [label, types_by_id[target], action, actions.keys()])
+			return
+		params = actions[action]
+	elif LevelSchema.GLOBAL_ACTIONS.has(action):
+		params = LevelSchema.GLOBAL_ACTIONS[action]
+	else:
+		errors.append("%s：没有 target 时只能用全局动作 %s" % [label, LevelSchema.GLOBAL_ACTIONS.keys()])
+		return
+	for param: String in params:
+		if not link.has(param):
+			errors.append("%s：动作 %s 缺少参数 %s" % [label, action, param])
+	if link.has("weather") and not Weather.Type.has((link["weather"] as String).to_upper()):
+		errors.append("%s：\"%s\" 不是天气" % [label, link["weather"]])
+
+
+func _validate_condition(condition: Dictionary, label: String, types_by_id: Dictionary[String, String], errors: PackedStringArray) -> void:
+	var target: String = condition.get("target", "")
+	if not types_by_id.has(target):
+		errors.append("%s：requires 引用的 \"%s\" 不存在" % [label, target])
+		return
+	var conditions := LevelSchema.get_conditions(types_by_id[target])
+	var keys := condition.keys().filter(func(key: String) -> bool: return key != "target" and key != "hint")
+	if keys.size() != 1 or not conditions.has(keys[0]):
+		errors.append("%s：requires 里 %s 能检查的是 %s" % [label, types_by_id[target], conditions.keys()])
+		return
+	var allowed: Array = conditions[keys[0]]
+	var value: Variant = condition[keys[0]]
+	if keys[0] == "gear":
+		if int(value) < 1 or int(value) > FarmRules.GEAR_COUNT:
+			errors.append("%s：档位必须在 1~%d" % [label, FarmRules.GEAR_COUNT])
+	elif not allowed.has(value):
+		errors.append("%s：requires 里 %s 只能是 %s" % [label, keys[0], allowed])
 
 
 func _validate_gear(entry: Dictionary, label: String, errors: PackedStringArray) -> void:

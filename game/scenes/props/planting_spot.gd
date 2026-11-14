@@ -2,6 +2,9 @@
 class_name PlantingSpot
 extends Interactable
 ## 可选目标（不计入通关）：先清理垃圾（每按一次 E 清掉一堆），再种下种子，树苗长出来。原点在地面中点。
+## 垃圾清完发出 cleared、种下后发出 planted 事件（提示文案写在关卡联动里）。
+
+signal level_event(event: String)
 
 const TRASH_COLOR := Color(0.36, 0.33, 0.36)
 const TRUNK_COLOR := Color(0.45, 0.32, 0.2)
@@ -13,7 +16,6 @@ const TREE_HEIGHT := 220.0
 	set(value):
 		trash_count = value
 		queue_redraw()
-@export var planted_text: String = "种子落进土里，冒出了一点新绿。"
 
 var _cleared: int = 0
 var _is_planted: bool = false
@@ -45,10 +47,10 @@ func _interact() -> void:
 		_cleared += 1
 		queue_redraw()
 		if _cleared == trash_count:
-			GameState.post_message("垃圾清干净了，露出一小块泥土")
+			level_event.emit("cleared")
 		return
 	_is_planted = true
-	GameState.post_message(planted_text)
+	level_event.emit("planted")
 	create_tween().tween_property(self, "_growth", 1.0, 1.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 

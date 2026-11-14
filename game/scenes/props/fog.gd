@@ -1,7 +1,7 @@
 @tool
 class_name Fog
 extends StaticBody2D
-## 挡路的冻雾：一堵过不去的墙，被关联的机关触发后（clear）散开。原点在左上角。
+## 挡路的冻雾：一堵过不去的墙，联动 clear 后散开。原点在左上角。
 
 @export var size: Vector2 = Vector2(120, 600):
 	set(value):
@@ -20,7 +20,7 @@ func _ready() -> void:
 	add_child(_collision)
 
 
-func clear() -> void:
+func do_clear(_params: Dictionary) -> void:
 	_collision.set_deferred("disabled", true)
 	create_tween().tween_property(self, "modulate:a", 0.0, 1.2)
 

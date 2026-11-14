@@ -14,6 +14,7 @@ extends Node2D
 ## 运行时由 Level 在 _enter_tree 里注入；为空时按 level_id 读取
 var data: LevelData
 var _nodes: Dictionary[String, Node2D] = {}
+var _events: LevelEvents
 
 
 func _ready() -> void:
@@ -51,5 +52,7 @@ func rebuild() -> void:
 		var parent_field := LevelSchema.get_parent_field(type)
 		var parent: Node2D = _nodes[entry[parent_field]] if parent_field else layers[LevelSchema.get_layer(entry)]
 		parent.add_child(created[index])
+	if not Engine.is_editor_hint():
+		_events = LevelEvents.new(data.links, _nodes)
 	for layer_name in LevelSchema.LAYERS:
 		add_child(layers[layer_name])

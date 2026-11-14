@@ -88,10 +88,15 @@ func set_highlight(color: Color) -> void:
 	queue_redraw()
 
 
-## 排水泵把地下水抽上来浇灌（井口田）
-func irrigate() -> void:
+## 联动：直接浇灌（如排水泵把地下水抽上来浇井口田）
+func do_irrigate(_params: Dictionary) -> void:
 	_set_state(FarmRules.FieldState.RESTORED)
-	GameState.post_message("%s喝饱了水，冒出了新芽" % field_name)
+
+
+## 条件 { "is": restored / dry / waterlogged }
+func get_unmet_reason(condition: Dictionary) -> String:
+	var expected: FarmRules.FieldState = FarmRules.FieldState[(condition["is"] as String).to_upper()]
+	return "" if state == expected else "%s还不是%s" % [field_name, FarmRules.FIELD_STATE_NAMES[expected]]
 
 
 func _cast(weather: Weather.Type, _direction: int) -> CastResult:
@@ -104,6 +109,7 @@ func _cast(weather: Weather.Type, _direction: int) -> CastResult:
 
 
 func _set_state(next: FarmRules.FieldState) -> void:
+	var previous := state
 	state = next
 	_sync_objective()
 	if is_pit:
@@ -112,6 +118,10 @@ func _set_state(next: FarmRules.FieldState) -> void:
 			_lift_player_onto_ice()
 		_check_hazard()
 	state_changed.emit(self)
+	if state == FarmRules.FieldState.RESTORED and previous != state:
+		level_event.emit("restored")
+	elif state == FarmRules.FieldState.WATERLOGGED and previous == FarmRules.FieldState.RESTORED:
+		level_event.emit("flooded")
 
 
 func _sync_objective() -> void:

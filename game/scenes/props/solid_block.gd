@@ -30,17 +30,24 @@ extends StaticBody2D
 
 const TOP_BAND_HEIGHT := 40.0
 
-## 隐藏的平台：运行时不显示、没有碰撞，直到 reveal()
+## 隐藏的平台：运行时不显示、没有碰撞，直到联动 reveal
 @export var is_hidden: bool = false
 
 var _collision: CollisionShape2D
 
 
-func reveal() -> void:
+func do_reveal(_params: Dictionary) -> void:
 	visible = true
 	_collision.set_deferred("disabled", false)
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.6)
+
+
+func do_hide(_params: Dictionary) -> void:
+	_collision.set_deferred("disabled", true)
+	var tween := create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(func() -> void: visible = false)
 
 
 func _ready() -> void:

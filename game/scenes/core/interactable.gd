@@ -3,6 +3,7 @@ class_name Interactable
 extends Area2D
 ## 可互动对象的基类：小猫进入检测区后显示“E xxx”提示（触屏显示互动按钮），按互动键调用 _interact()。
 ## 原点在脚底。子类覆盖 get_action_name()、can_interact()、_interact()。
+## requirements（关卡数据的 requires）没满足时，按互动键只提示原因。
 
 const PROMPT_FONT_SIZE := 28
 
@@ -11,6 +12,7 @@ var detect_size: Vector2 = Vector2(260, 260)
 ## 提示文字相对原点的高度
 var prompt_height: float = 290.0
 var is_player_near: bool = false
+var requirements: Array[Requirement] = []
 var _prompt: Label
 
 
@@ -64,6 +66,10 @@ func refresh_prompt() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if is_player_near and can_interact() and event.is_action_pressed("interact"):
 		get_viewport().set_input_as_handled()
+		var reason := Requirement.first_unmet(requirements)
+		if reason:
+			GameState.post_warning(reason)
+			return
 		_interact()
 		refresh_prompt()
 

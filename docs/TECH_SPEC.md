@@ -143,8 +143,8 @@ scenes/levels/
   LevelObjectFactory          type → 节点（create）与引用连接（link）
 
 scenes/water/WaterZone        WeatherTarget，原点 = 洼地左上角（地面高度）；子节点 Raft 由它摆放
-scenes/props/                 SolidBlock（可隐藏，revealed_by 触发后出现）、Decor、Raft、Lever、DrainageStation、
-                              Resident（可 rescued_by 机关触发）、Npc、PlantingSpot、GoalArea（可由种子车送达）、
+scenes/props/                 SolidBlock（可隐藏，联动 reveal 后出现）、Decor、Raft、Lever、Machine（DrainageStation、
+                              Pump 的基类：前置条件满足后自动启动）、Resident（可只靠联动救出）、Npc、PlantingSpot、GoalArea、
                               HintSign、Checkpoint；第二关：Waterwheel、Field、Elevator、Ladder、Pump、Fan、Fog、
                               DarkZone、SeedCart
 scenes/player/  Player（drown() 回检查点）、WeatherCaster（选中范围内最近的 WeatherTarget）
@@ -157,7 +157,7 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 - **规则与表现分离**。`WaterRules`、`FarmRules` 不依赖任何节点，可以 100% 单元测试；节点只负责把状态变化转成 Tween、碰撞开关和信号。
 - **一次施放 = 一次状态变化**。目标在动画期间返回 busy，拒绝新的施放。
-- 机关之间的联动通过信号连接：会触发别人的对象（Lever、DrainageStation、Pump、Fan、DarkZone、获救的 Resident）都发出 `triggered`，被触发方在关卡数据里用 `rescued_by` / `revealed_by` / `cleared_by` / `unblocked_by`（解除水域的禁用天气）引用它。
+- 机关之间的联动全部写在关卡数据的 `links` 和 `requires` 里（见 5.5），代码只提供每种对象的事件、动作和条件，不写某一关的具体联动和文案。
 
 ### 5.3 水域状态机
 
@@ -190,6 +190,37 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 - 每个对象有 `type`，可选 `id`，坐标都是 `[x, y]`，颜色是 `[r, g, b]` 或 `"#rrggbb"`。各类型的必填字段、引用字段、所在图层见 `scripts/level_schema.gd`，字段到节点属性的映射见 `level_object_factory.gd`。
 - `LevelMap` 先在场景树外生成所有节点并连接引用（浮箱挂到水域下），再整层加入场景树，保证各节点 `_ready` 时引用已就绪。
 - 新增类型：`LevelSchema.TYPES` 登记 → 工厂加 `create`/`link` 分支 → 需要时在 `LevelData._validate_object` 加专属校验。
+
+#### 联动 `links`
+
+“当 `when` 发生 `event`，就对 `target` 执行 `do`”，其余字段是动作参数，`delay` 为延迟秒数：
+
+```json
+{ "when": "uncle", "event": "rescued", "do": "unblock", "target": "plaza", "weather": "snow" }
+{ "when": "drainage_station", "event": "started", "do": "rescue", "target": "uncle", "delay": 0.5 }
+{ "when": "cart", "event": "arrived", "do": "complete_level" }
+```
+
+- 对象发出 `level_event(event)` 信号，`LevelEvents` 按表调用目标的 `do_<动作>(link)`；没有 `target` 的是全局动作：`message`（text）、`warning`（text）、`dialogue`（path）、`complete_level`。
+- 每种对象的事件、动作见 `LevelSchema.TYPES`（`events`、`actions`），常用的：
+
+| 类型                                     | 事件                                           | 动作                                                               | 条件                                                          |
+| ---------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| water                                    | deep / shallow / dry / frozen                  | unblock、block、lower（by、clean）、set（level、frozen、polluted） | is: deep / shallow / dry / frozen / liquid / clean / polluted |
+| lever                                    | pulled                                         | —                                                                  | is: pulled                                                    |
+| drainage_station / pump                  | started                                        | —                                                                  | is: started                                                   |
+| resident                                 | rescued                                        | rescue                                                             | is: rescued                                                   |
+| waterwheel                               | gear_1 / gear_2 / gear_3                       | —                                                                  | gear: 1~3                                                     |
+| field                                    | restored / flooded                             | irrigate                                                           | is: restored / dry / waterlogged                              |
+| fan / dark_zone                          | started / lit                                  | —                                                                  | is: running / lit                                             |
+| block / fog / ladder / weather_rule_area | —                                              | reveal、hide / clear / enable / enable、disable                    | —                                                             |
+| elevator / seed_cart / planting_spot     | powered / departed、arrived / cleared、planted | —                                                                  | —                                                             |
+
+#### 前置条件 `requires`
+
+`[{ "target": id, 条件: 取值, "hint": 可选 }]`，全部满足才算满足。支持的对象：lever、elevator、ladder、seed_cart（按 E 时检查）、drainage_station、pump（满足后自动启动）。没满足时按目标对象的状态自动生成提示（如“排水槽里的水还不够，再下一场雨”），`hint` 可覆盖。
+
+所有联动和条件都在 `LevelData.validate()` 里校验：引用、事件名、动作名、必填参数、条件取值。
 
 ## 6. 对白数据
 

@@ -2,7 +2,9 @@
 class_name Elevator
 extends Interactable
 ## 竖井升降梯：水车在 power_gear 档位时通电，按 E 在井口和井底之间往返。原点在井口地面中点，travel 为向下的行程。
-## 第一次通电时井口的防水挡板合上（之后一直关着）。
+## 第一次通电时井口的防水挡板合上（之后一直关着），并发出 powered 事件。
+
+signal level_event(event: String)
 
 const PLATFORM_SIZE := Vector2(260, 30)
 const RIDE_SPEED := 520.0
@@ -64,7 +66,7 @@ func is_powered() -> bool:
 
 func _interact() -> void:
 	if not is_powered():
-		GameState.post_warning("升降梯没有动力，水车要切到档位 %d" % power_gear)
+		GameState.post_warning("升降梯没有动力：" + wheel.get_unmet_reason({ "gear": power_gear }))
 		return
 	_ride(1.0 - roundf(_progress))
 
@@ -98,7 +100,7 @@ func _move_detector() -> void:
 func _on_gear_changed(gear: int) -> void:
 	if gear == power_gear and not _is_cover_closed:
 		_is_cover_closed = true
-		GameState.post_message("升降梯通电了，井口的防水挡板合上了")
+		level_event.emit("powered")
 	queue_redraw()
 
 

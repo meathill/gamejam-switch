@@ -59,7 +59,13 @@ func get_effect_rect() -> Rect2:
 
 
 func get_display_name() -> String:
-	return "三档位大水车"
+	return display_name if display_name else "水车"
+
+
+## 条件 { "gear": n }
+func get_unmet_reason(condition: Dictionary) -> String:
+	var target_gear := int(condition["gear"])
+	return "" if gear == target_gear else "%s要切到档位 %d（%s）" % [get_display_name(), target_gear, FarmRules.get_gear_name(target_gear)]
 
 
 func get_status_text() -> String:
@@ -91,6 +97,7 @@ func _turn() -> void:
 	_is_busy = false
 	gear_changed.emit(gear)
 	state_changed.emit(self)
+	level_event.emit("gear_%d" % gear)
 
 
 func _draw() -> void:

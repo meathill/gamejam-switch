@@ -1,7 +1,7 @@
 @tool
 class_name Ladder
 extends Interactable
-## 机械爬梯：拉杆拉下后出现（enable），按 E 在底端和顶端之间自动爬过去。原点在底端地面，height 向上。
+## 机械爬梯：联动 enable 后出现（或一开始就 enabled），按 E 在底端和顶端之间自动爬过去。原点在底端地面，height 向上。
 
 const CLIMB_SPEED := 420.0
 const RAIL_COLOR := Color(0.55, 0.45, 0.3)
@@ -26,9 +26,8 @@ func _ready() -> void:
 	super()
 
 
-func enable() -> void:
+func do_enable(_params: Dictionary) -> void:
 	is_enabled = true
-	GameState.post_message("一架爬梯放了下来，直通地面")
 	refresh_prompt()
 
 

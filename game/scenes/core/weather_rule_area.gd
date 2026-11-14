@@ -2,7 +2,7 @@
 class_name WeatherRuleArea
 extends Area2D
 ## 天气限制区域：小猫在里面时，disabled_weathers 里的天气不能施放（轮盘和按钮变灰，施放时提示 reason）。
-## 原点在左上角。is_active 为 false 时不生效，机关可以随时开关它。
+## 原点在左上角。is_active 为 false 时不生效，联动 enable / disable 可以开关它。
 
 @export var size: Vector2 = Vector2(600, 600):
 	set(value):
@@ -15,6 +15,14 @@ extends Area2D
 		is_active = value
 		if not Engine.is_editor_hint() and is_inside_tree():
 			GameState.weather_rules_changed.emit()
+
+
+func do_enable(_params: Dictionary) -> void:
+	is_active = true
+
+
+func do_disable(_params: Dictionary) -> void:
+	is_active = false
 
 
 func _ready() -> void:

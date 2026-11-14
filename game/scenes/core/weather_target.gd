@@ -3,13 +3,17 @@ class_name WeatherTarget
 extends Node2D
 ## 能被天气施放的对象（水域、水车、农田……）的基类。
 ## 小猫在 get_target_rect() 范围内时，WeatherCaster 选中离它最近的一个；施放结果用 CastResult 返回。
-## blocked_weathers：这个目标上禁用的天气 → 提示文案（如 { "snow": "会冻坏站顶的居民" }）
+## blocked_weathers：这个目标上禁用的天气 → 提示文案（如 { "snow": "会冻坏站顶的居民" }），可以被联动 unblock / block
 
 signal state_changed(target: WeatherTarget)
+## 关卡联动用的事件，见 LevelSchema
+signal level_event(event: String)
 
 const GROUP := "weather_targets"
 
 var blocked_weathers: Dictionary[String, String] = {}
+## 关卡数据里的 name；为空时用各类型的默认名
+var display_name: String = ""
 
 
 func _init() -> void:
@@ -21,11 +25,6 @@ func cast_weather(weather: Weather.Type, direction: int) -> CastResult:
 	if blocked_weathers.has(key):
 		return CastResult.fail(blocked_weathers[key])
 	return _cast(weather, direction)
-
-
-## 解除所有禁用的天气（如站顶的居民离开后，广场可以下雪了）
-func clear_blocked_weathers() -> void:
-	blocked_weathers.clear()
 
 
 func get_target_rect() -> Rect2:
@@ -42,7 +41,7 @@ func get_effect_rect() -> Rect2:
 
 
 func get_display_name() -> String:
-	return name
+	return display_name if display_name else name
 
 
 func get_status_text() -> String:

@@ -5,8 +5,6 @@ extends Area2D
 
 const AREA_SIZE := Vector2(360, 400)
 
-## 由种子车送达才算通关（小猫走进来不结算）
-@export var is_cart_goal: bool = false
 ## 画出避难所小屋；用美术贴图（decor）表现时关掉
 @export var is_house_drawn: bool = true
 
@@ -29,17 +27,13 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not body.is_in_group("player") or is_cart_goal:
+	if not body.is_in_group("player"):
 		return
 	if GameState.is_all_objectives_done():
 		GameState.complete_level()
 	elif not _has_warned:
 		_has_warned = true
 		GameState.post_warning(GameState.get_remaining_text())
-
-
-func arrive_by_cart() -> void:
-	GameState.complete_level()
 
 
 func _draw() -> void:

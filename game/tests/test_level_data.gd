@@ -102,7 +102,7 @@ func test_object_outside_camera() -> void:
 func test_goal_must_be_unique() -> void:
 	var objects := _base_objects()
 	objects.append({ "type": "goal", "pos": [3000, 0] })
-	_assert_has_error(_make(objects), "goal 必须恰好一个")
+	_assert_has_error(_make(objects), "通关方式必须恰好一种")
 
 
 func test_level_needs_objective() -> void:
@@ -131,8 +131,57 @@ func test_field_needs_wheel_unless_pump_only() -> void:
 	_assert_has_error(_make(objects), "必须连接水车")
 
 
-func test_seed_cart_goal_must_be_cart_goal() -> void:
+func _make_with_links(links: Array) -> LevelData:
 	var objects := _base_objects()
-	objects[2]["id"] = "goal"
-	objects.append({ "type": "seed_cart", "pos": [800, 0], "goal": "goal" })
-	_assert_has_error(_make(objects), "by_cart")
+	objects.append({ "type": "water", "id": "w", "name": "水", "pos": [100, 0], "size": [300, 200] })
+	objects.append({ "type": "lever", "id": "k", "pos": [900, 0], "requires": [{ "target": "w", "is": "deep" }] })
+	var level := _make(objects)
+	level.links.assign(links)
+	return level
+
+
+func test_valid_links() -> void:
+	var level := _make_with_links([
+		{ "when": "k", "event": "pulled", "do": "lower", "target": "w", "clean": true },
+		{ "when": "r", "event": "rescued", "do": "unblock", "target": "w", "weather": "snow" },
+		{ "when": "w", "event": "dry", "do": "message", "text": "干了" },
+	])
+	assert_eq(level.validate().size(), 0, str(level.validate()))
+
+
+func test_link_unknown_event() -> void:
+	_assert_has_error(_make_with_links([{ "when": "k", "event": "opened", "do": "message", "text": "x" }]), "没有事件")
+
+
+func test_link_unknown_action() -> void:
+	_assert_has_error(_make_with_links([{ "when": "k", "event": "pulled", "do": "explode", "target": "w" }]), "没有动作")
+
+
+func test_link_missing_param() -> void:
+	_assert_has_error(_make_with_links([{ "when": "k", "event": "pulled", "do": "unblock", "target": "w" }]), "缺少参数 weather")
+
+
+func test_link_global_action_needs_no_target() -> void:
+	_assert_has_error(_make_with_links([{ "when": "k", "event": "pulled", "do": "lower" }]), "全局动作")
+
+
+func test_requires_unknown_condition() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "water", "id": "w", "name": "水", "pos": [100, 0], "size": [300, 200] })
+	objects.append({ "type": "lever", "pos": [900, 0], "requires": [{ "target": "w", "is": "boiling" }] })
+	_assert_has_error(_make(objects), "只能是")
+
+
+func test_requires_not_supported_by_type() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "checkpoint", "pos": [900, 0], "requires": [{ "target": "r", "is": "rescued" }] })
+	_assert_has_error(_make(objects), "不支持 requires")
+
+
+func test_cart_ending_replaces_goal() -> void:
+	var objects := _base_objects()
+	objects.remove_at(2)
+	objects.append({ "type": "seed_cart", "id": "cart", "pos": [800, 0], "to_x": 3000 })
+	var level := _make(objects)
+	level.links.assign([{ "when": "cart", "event": "arrived", "do": "complete_level" }])
+	assert_eq(level.validate().size(), 0, str(level.validate()))

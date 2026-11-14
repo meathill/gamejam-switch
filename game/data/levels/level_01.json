@@ -3,114 +3,545 @@
   "title": "被淹没的城市",
   "intro_dialogue": "res://data/dialogue/level_01_intro.json",
   "complete_text": "第一关完成\n\n你救下了 {rescued} 位居民。城市的广播重新响起，雨声渐渐小了。\n残缺的圆环，亮起了一段。",
-  "camera_limits": [-400, -1300, 12000, 2000],
-  "player_start": [150, 0],
+  "camera_limits": [
+    -400,
+    -1300,
+    12000,
+    2000
+  ],
+  "player_start": [
+    150,
+    0
+  ],
   "backdrop": {
     "manifest": "city_far",
     "horizon_offset": 60,
     "layers": [
-      { "name": "far", "scroll": [0, 1] },
-      { "name": "mid", "scroll": [0.15, 1], "tiled": true }
+      {
+        "name": "far",
+        "scroll": [
+          0,
+          1
+        ]
+      },
+      {
+        "name": "mid",
+        "scroll": [
+          0.15,
+          1
+        ],
+        "tiled": true
+      }
     ]
   },
   "objects": [
-    { "type": "block", "id": "left_wall", "pos": [-600, -1400], "size": [200, 2300] },
-    { "type": "block", "id": "ground_a", "pos": [-400, 0], "size": [1800, 900] },
-    { "type": "block", "id": "crate", "pos": [600, -110], "size": [160, 110], "color": [0.5, 0.36, 0.22] },
-    { "type": "block", "id": "ground_c1", "pos": [2300, 0], "size": [500, 900] },
-    { "type": "block", "id": "ground_c2", "pos": [3100, 0], "size": [500, 900] },
-    { "type": "block", "id": "bus_stop_roof", "pos": [4250, -40], "size": [200, 30], "color": [0.55, 0.6, 0.55] },
-    { "type": "block", "id": "bus_stop_pole", "pos": [4330, -10], "size": [40, 230], "color": [0.45, 0.48, 0.45] },
-    { "type": "block", "id": "ground_e", "pos": [5100, 0], "size": [300, 900] },
-    { "type": "block", "id": "building", "pos": [7400, -460], "size": [500, 1360], "color": [0.3, 0.26, 0.42], "building": true },
-    { "type": "block", "id": "window_ledge", "pos": [7280, -200], "size": [120, 30], "color": [0.5, 0.46, 0.42] },
-    { "type": "block", "id": "ground_f", "pos": [7900, 0], "size": [450, 900] },
-    { "type": "block", "id": "garden_floor", "pos": [8350, 220], "size": [1100, 680], "color": [0.3, 0.36, 0.3] },
-    { "type": "block", "id": "step_1", "pos": [9450, 30], "size": [250, 870], "color": [0.5, 0.46, 0.42] },
-    { "type": "block", "id": "step_2", "pos": [9700, -160], "size": [250, 1060], "color": [0.5, 0.46, 0.42] },
-    { "type": "block", "id": "step_3", "pos": [9950, -350], "size": [250, 1250], "color": [0.5, 0.46, 0.42] },
-    { "type": "block", "id": "highland", "pos": [10200, -540], "size": [1400, 1440], "color": [0.3, 0.36, 0.3] },
-    { "type": "block", "id": "right_wall", "pos": [11600, -1400], "size": [200, 2300] },
-
-    { "type": "water", "id": "street", "name": "积水街道", "pos": [1400, 0], "size": [900, 220] },
-    { "type": "water", "id": "channel", "name": "排水槽", "pos": [2800, 0], "size": [300, 160], "level": 0 },
+    {
+      "type": "block",
+      "id": "left_wall",
+      "pos": [
+        -600,
+        -1400
+      ],
+      "size": [
+        200,
+        2300
+      ]
+    },
+    {
+      "type": "block",
+      "id": "ground_a",
+      "pos": [
+        -400,
+        0
+      ],
+      "size": [
+        1800,
+        900
+      ]
+    },
+    {
+      "type": "block",
+      "id": "crate",
+      "pos": [
+        600,
+        -110
+      ],
+      "size": [
+        160,
+        110
+      ],
+      "color": [
+        0.5,
+        0.36,
+        0.22
+      ]
+    },
+    {
+      "type": "block",
+      "id": "ground_c1",
+      "pos": [
+        2300,
+        0
+      ],
+      "size": [
+        500,
+        900
+      ]
+    },
+    {
+      "type": "block",
+      "id": "ground_c2",
+      "pos": [
+        3100,
+        0
+      ],
+      "size": [
+        500,
+        900
+      ]
+    },
+    {
+      "type": "block",
+      "id": "bus_stop_roof",
+      "pos": [
+        4250,
+        -40
+      ],
+      "size": [
+        200,
+        30
+      ],
+      "color": [
+        0.55,
+        0.6,
+        0.55
+      ]
+    },
+    {
+      "type": "block",
+      "id": "bus_stop_pole",
+      "pos": [
+        4330,
+        -10
+      ],
+      "size": [
+        40,
+        230
+      ],
+      "color": [
+        0.45,
+        0.48,
+        0.45
+      ]
+    },
+    {
+      "type": "block",
+      "id": "ground_e",
+      "pos": [
+        5100,
+        0
+      ],
+      "size": [
+        300,
+        900
+      ]
+    },
+    {
+      "type": "block",
+      "id": "building",
+      "pos": [
+        7400,
+        -460
+      ],
+      "size": [
+        500,
+        1360
+      ],
+      "color": [
+        0.3,
+        0.26,
+        0.42
+      ],
+      "building": true
+    },
+    {
+      "type": "block",
+      "id": "window_ledge",
+      "pos": [
+        7280,
+        -200
+      ],
+      "size": [
+        120,
+        30
+      ],
+      "color": [
+        0.5,
+        0.46,
+        0.42
+      ]
+    },
+    {
+      "type": "block",
+      "id": "ground_f",
+      "pos": [
+        7900,
+        0
+      ],
+      "size": [
+        450,
+        900
+      ]
+    },
+    {
+      "type": "block",
+      "id": "garden_floor",
+      "pos": [
+        8350,
+        220
+      ],
+      "size": [
+        1100,
+        680
+      ],
+      "color": [
+        0.3,
+        0.36,
+        0.3
+      ]
+    },
+    {
+      "type": "block",
+      "id": "step_1",
+      "pos": [
+        9450,
+        30
+      ],
+      "size": [
+        250,
+        870
+      ],
+      "color": [
+        0.5,
+        0.46,
+        0.42
+      ]
+    },
+    {
+      "type": "block",
+      "id": "step_2",
+      "pos": [
+        9700,
+        -160
+      ],
+      "size": [
+        250,
+        1060
+      ],
+      "color": [
+        0.5,
+        0.46,
+        0.42
+      ]
+    },
+    {
+      "type": "block",
+      "id": "step_3",
+      "pos": [
+        9950,
+        -350
+      ],
+      "size": [
+        250,
+        1250
+      ],
+      "color": [
+        0.5,
+        0.46,
+        0.42
+      ]
+    },
+    {
+      "type": "block",
+      "id": "highland",
+      "pos": [
+        10200,
+        -540
+      ],
+      "size": [
+        1400,
+        1440
+      ],
+      "color": [
+        0.3,
+        0.36,
+        0.3
+      ]
+    },
+    {
+      "type": "block",
+      "id": "right_wall",
+      "pos": [
+        11600,
+        -1400
+      ],
+      "size": [
+        200,
+        2300
+      ]
+    },
+    {
+      "type": "water",
+      "id": "street",
+      "name": "积水街道",
+      "pos": [
+        1400,
+        0
+      ],
+      "size": [
+        900,
+        220
+      ]
+    },
+    {
+      "type": "water",
+      "id": "channel",
+      "name": "排水槽",
+      "pos": [
+        2800,
+        0
+      ],
+      "size": [
+        300,
+        160
+      ],
+      "level": 0
+    },
     {
       "type": "water",
       "id": "plaza",
       "name": "被淹广场",
-      "pos": [3600, 0],
-      "size": [1500, 220],
+      "pos": [
+        3600,
+        0
+      ],
+      "size": [
+        1500,
+        220
+      ],
       "polluted": true,
-      "blocked_weathers": { "snow": "会冻坏站顶的大叔" },
-      "unblocked_by": "uncle"
+      "blocked_weathers": {
+        "snow": "会冻坏站顶的大叔"
+      }
     },
     {
       "type": "water",
       "id": "canal",
       "name": "浮箱水道",
-      "pos": [5400, 0],
-      "size": [2000, 260],
+      "pos": [
+        5400,
+        0
+      ],
+      "size": [
+        2000,
+        260
+      ],
       "level": 1,
       "polluted": true,
-      "docks": [130, 960, 1760]
+      "docks": [
+        130,
+        960,
+        1760
+      ]
     },
-    { "type": "raft", "id": "raft", "zone": "canal", "dock": 0 },
-
+    {
+      "type": "raft",
+      "id": "raft",
+      "zone": "canal",
+      "dock": 0
+    },
     {
       "type": "lever",
       "id": "drain_switch",
-      "pos": [3170, 0],
-      "requires_deep": "channel",
-      "action": "拉排水开关"
+      "pos": [
+        3170,
+        0
+      ],
+      "action": "拉排水开关",
+      "name": "排水开关",
+      "requires": [
+        {
+          "target": "channel",
+          "is": "deep"
+        }
+      ]
     },
     {
       "type": "drainage_station",
       "id": "drainage_station",
-      "pos": [3430, 0],
-      "switch": "drain_switch",
-      "drains": "plaza",
-      "message": "排水站重新启动了！广场的污水开始退去"
+      "pos": [
+        3430,
+        0
+      ],
+      "requires": [
+        {
+          "target": "drain_switch",
+          "is": "pulled"
+        }
+      ]
     },
     {
       "type": "resident",
       "id": "uncle",
-      "pos": [4350, -40],
+      "pos": [
+        4350,
+        -40
+      ],
       "name": "公交站的大叔",
       "thanks": "水退了！我自己能下去，先去高地避难所。",
-      "rescued_by": "drainage_station",
-      "texture": "res://assets/sprites/npc/uncle.png"
+      "texture": "res://assets/sprites/npc/uncle.png",
+      "rescue_on_interact": false
     },
     {
       "type": "resident",
       "id": "granny",
-      "pos": [7345, -200],
+      "pos": [
+        7345,
+        -200
+      ],
       "name": "楼里的奶奶",
       "thanks": "是你啊，小家伙……谢谢你回来找我。",
       "texture": "res://assets/sprites/npc/granny.png",
       "flashlight": true
     },
-    { "type": "planting_spot", "id": "garden", "pos": [8900, 220], "trash": 3 },
-    { "type": "goal", "id": "shelter", "pos": [11150, -540] },
-
+    {
+      "type": "planting_spot",
+      "id": "garden",
+      "pos": [
+        8900,
+        220
+      ],
+      "trash": 3
+    },
+    {
+      "type": "goal",
+      "id": "shelter",
+      "pos": [
+        11150,
+        -540
+      ]
+    },
     {
       "type": "sign",
-      "pos": [250, 0],
+      "pos": [
+        250,
+        0
+      ],
       "text": "← → 移动\nSpace 跳跃",
       "touch_text": "左下角按钮移动\n右下角按钮跳跃"
     },
     {
       "type": "sign",
-      "pos": [1100, 0],
+      "pos": [
+        1100,
+        0
+      ],
       "text": "Shift 切换天气　F 施放\n雪冻住水面，日照让水退去",
       "touch_text": "天气按钮切换，魔杖按钮施放\n雪冻住水面，日照让水退去"
     },
-    { "type": "sign", "pos": [2550, 0], "text": "排水槽干透了……\n灌满水，再拉下排水开关" },
-    { "type": "sign", "pos": [5230, 0], "text": "浮箱要在深水里才漂得起来\n风顺着你面朝的方向吹" },
-    { "type": "sign", "pos": [8150, 0], "text": "台阶通往高地避难所\n台阶下的空地，也许能种点什么" },
-    { "type": "sign", "pos": [10450, -540], "text": "远处，洪水正退向农田和河谷" },
-
-    { "type": "checkpoint", "pos": [2400, 0] },
-    { "type": "checkpoint", "pos": [5180, 0] },
-    { "type": "checkpoint", "pos": [8000, 0] }
+    {
+      "type": "sign",
+      "pos": [
+        2550,
+        0
+      ],
+      "text": "排水槽干透了……\n灌满水，再拉下排水开关"
+    },
+    {
+      "type": "sign",
+      "pos": [
+        5230,
+        0
+      ],
+      "text": "浮箱要在深水里才漂得起来\n风顺着你面朝的方向吹"
+    },
+    {
+      "type": "sign",
+      "pos": [
+        8150,
+        0
+      ],
+      "text": "台阶通往高地避难所\n台阶下的空地，也许能种点什么"
+    },
+    {
+      "type": "sign",
+      "pos": [
+        10450,
+        -540
+      ],
+      "text": "远处，洪水正退向农田和河谷"
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        2400,
+        0
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        5180,
+        0
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        8000,
+        0
+      ]
+    }
+  ],
+  "links": [
+    {
+      "when": "drainage_station",
+      "event": "started",
+      "do": "message",
+      "text": "排水站重新启动了！广场的污水开始退去"
+    },
+    {
+      "when": "drainage_station",
+      "event": "started",
+      "do": "lower",
+      "target": "plaza",
+      "clean": true
+    },
+    {
+      "when": "drainage_station",
+      "event": "started",
+      "do": "rescue",
+      "target": "uncle",
+      "delay": 0.5
+    },
+    {
+      "when": "uncle",
+      "event": "rescued",
+      "do": "unblock",
+      "target": "plaza",
+      "weather": "snow"
+    },
+    {
+      "when": "garden",
+      "event": "cleared",
+      "do": "message",
+      "text": "垃圾清干净了，露出一小块泥土"
+    },
+    {
+      "when": "garden",
+      "event": "planted",
+      "do": "message",
+      "text": "种子落进土里，冒出了一点新绿。"
+    }
   ]
 }

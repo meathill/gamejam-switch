@@ -28,4 +28,6 @@
 
 ## 工程
 
+- [ ] 关卡改用 YAML 编写：`levels/*.yaml` 经 `pnpm run levels` 转成 `game/data/levels/*.json`（转换时跑同一套校验），Godot 运行时仍只读 JSON
+
 - [ ] Linux 导出预设

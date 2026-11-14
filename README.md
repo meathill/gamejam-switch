@@ -42,8 +42,9 @@ pnpm run format && pnpm run lint && pnpm run typecheck
 
 1. 在 `game/data/levels/` 新建 `<id>.json`（参考已有关卡；字段约定见 `game/scripts/level_schema.gd` 和 [TECH_SPEC 5.5](docs/TECH_SPEC.md)），并把 id 加进 `levels.json`。
 2. 在编辑器里打开 `scenes/levels/level.tscn`，选中 `LevelMap` 把 `level_id` 改成新关卡即可预览；改 JSON 后点“重新加载关卡数据”。
-3. 在 `game/tests/solutions/<id>.json` 写解法（传送、施放、互动与断言），`pnpm run test:game` 会校验数据并回放解法，要求能通关。
-4. 新增了中文文案就跑 `pnpm run fonts`。
+3. 机关之间的联动（拉下开关后排水、获救后解禁天气、发提示等）写在 `links`，拉杆、升降梯、机器的前置条件写在 `requires`，可用的事件和动作见 [TECH_SPEC 5.5](docs/TECH_SPEC.md)。
+4. 在 `game/tests/solutions/<id>.json` 写解法（传送、施放、互动与断言），`pnpm run test:game` 会校验数据并回放解法，要求能通关。
+5. 新增了中文文案就跑 `pnpm run fonts`。
 
 ## 目录
 

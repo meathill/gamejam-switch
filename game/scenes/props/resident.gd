@@ -2,10 +2,10 @@
 class_name Resident
 extends Interactable
 ## 等待救援的居民，计入通关目标。原点在脚底。
-## 默认小猫靠近后按 E 救援；is_rescued_by_trigger 的居民由机关调用 rescue() 后自己离开，按 E 只对话。
-## 获救时发出 triggered（例如解除“会冻坏居民”的禁用天气）。
+## 默认小猫靠近后按 E 救援；关卡数据 rescue_on_interact = false 的居民要靠联动（do: rescue）救出，按 E 只对话。
+## 获救时发出 rescued 事件。
 
-signal triggered
+signal level_event(event: String)
 
 const LIGHT_COLOR := Color(1.0, 0.95, 0.7)
 const DISPLAY_HEIGHT := 240.0
@@ -18,7 +18,7 @@ const DISPLAY_HEIGHT := 240.0
 		queue_redraw()
 ## 手里拿着手电筒（序章里对面楼闪烁的那束光）
 @export var has_flashlight: bool = false
-## 由机关触发救援（如排水开关、排水泵），小猫不能直接救
+## 由联动救出（如排水后自己离开），小猫不能直接救
 @export var is_rescued_by_trigger: bool = false
 ## 互动时先播放的对白（可选）
 @export_file("*.json") var dialogue: String = ""
@@ -57,13 +57,21 @@ func rescue() -> void:
 	_is_rescued = true
 	refresh_prompt()
 	GameState.complete_objective("resident")
-	triggered.emit()
+	level_event.emit("rescued")
 	GameState.post_message("%s：%s" % [resident_name, thanks_text])
 	var tween := create_tween().set_parallel()
 	tween.tween_property(self, "modulate:a", 0.0, 1.2)
 	tween.tween_property(self, "position:y", position.y - 120.0, 1.2)
 	await tween.finished
 	queue_free()
+
+
+func do_rescue(_params: Dictionary) -> void:
+	rescue()
+
+
+func get_unmet_reason(_condition: Dictionary) -> String:
+	return "" if _is_rescued else "%s还没得救" % resident_name
 
 
 func _interact() -> void:

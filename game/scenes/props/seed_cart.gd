@@ -1,7 +1,10 @@
 @tool
 class_name SeedCart
 extends Interactable
-## 种子车：完成所有通关目标后按 E 启动，沿地面驶向终点，到达后由终点结算。原点在地面中点。
+## 种子车：完成所有通关目标（和 requires）后按 E 启动，沿地面驶到 target_x。
+## 出发时发出 departed、到达时发出 arrived 事件（通常联动 complete_level）。原点在地面中点。
+
+signal level_event(event: String)
 
 const SIZE := Vector2(260, 170)
 const TEXTURE := preload("res://assets/sprites/farm/cart.png")
@@ -9,7 +12,7 @@ const SACK_TEXTURE := preload("res://assets/sprites/farm/seed_sack.png")
 const SACK_WIDTH := 70.0
 const SPEED := 260.0
 
-@export var goal: GoalArea
+@export var target_x: float = 0.0
 
 var _is_moving: bool = false
 
@@ -32,13 +35,13 @@ func _interact() -> void:
 		GameState.post_warning(GameState.get_remaining_text())
 		return
 	_is_moving = true
-	GameState.post_message("种子车出发了，跟着它去粮仓")
-	var distance := absf(goal.global_position.x - global_position.x)
+	level_event.emit("departed")
+	var distance := absf(target_x - global_position.x)
 	var tween := create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	tween.tween_property(self, "global_position:x", goal.global_position.x, distance / SPEED)
+	tween.tween_property(self, "global_position:x", target_x, distance / SPEED)
 	await tween.finished
-	goal.arrive_by_cart()
+	level_event.emit("arrived")
 
 
 func _draw() -> void:

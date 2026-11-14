@@ -16,24 +16,12 @@ static func create(entry: Dictionary) -> Node2D:
 
 
 static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node2D]) -> void:
+	if entry.has("requires"):
+		var requirements: Array[Requirement] = []
+		for condition: Dictionary in entry["requires"]:
+			requirements.append(Requirement.new(nodes[condition["target"]], condition))
+		node.set("requirements", requirements)
 	match entry["type"]:
-		"block":
-			if entry.has("revealed_by"):
-				(node as SolidBlock).is_hidden = true
-				nodes[entry["revealed_by"]].connect("triggered", (node as SolidBlock).reveal)
-		"water":
-			if entry.has("unblocked_by"):
-				nodes[entry["unblocked_by"]].connect("triggered", (node as WaterZone).clear_blocked_weathers)
-		"lever":
-			if entry.has("requires_deep"):
-				(node as Lever).requires_deep = nodes[entry["requires_deep"]]
-		"drainage_station":
-			var station := node as DrainageStation
-			station.switch = nodes[entry["switch"]]
-			station.drained_zone = nodes[entry["drains"]]
-		"resident":
-			if entry.has("rescued_by"):
-				nodes[entry["rescued_by"]].connect("triggered", (node as Resident).rescue)
 		"field":
 			if entry.has("wheel"):
 				var field := node as Field
@@ -41,21 +29,9 @@ static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node
 				field.wheel.add_pipe(field.irrigation_gear, field.position + Vector2(field.width / 2.0, field.depth))
 		"elevator":
 			(node as Elevator).wheel = nodes[entry["wheel"]]
-		"ladder":
-			nodes[entry["lever"]].connect("triggered", (node as Ladder).enable)
 		"pump":
-			var pump := node as Pump
-			pump.wheel = nodes[entry["wheel"]]
-			if entry.has("lever"):
-				pump.lever = nodes[entry["lever"]]
-			for zone_id in LevelData.to_ids(entry.get("drains")):
-				pump.drained_zones.append(nodes[zone_id])
-			if entry.has("irrigates"):
-				pump.irrigated_field = nodes[entry["irrigates"]]
-		"fog":
-			nodes[entry["cleared_by"]].connect("triggered", (node as Fog).clear)
-		"seed_cart":
-			(node as SeedCart).goal = nodes[entry["goal"]]
+			if entry.has("wheel"):
+				(node as Pump).wheel = nodes[entry["wheel"]]
 
 
 static func _create_by_type(entry: Dictionary) -> Node2D:
@@ -70,6 +46,7 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 				block.texture = load(entry["texture"])
 			if entry.has("top_color"):
 				block.top_color = LevelData.to_color(entry["top_color"])
+			block.is_hidden = entry.get("hidden", false)
 			return block
 		"decor":
 			var decor := Decor.new()
@@ -99,12 +76,13 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			return raft
 		"lever":
 			var lever := Lever.new()
+			lever.lever_name = entry.get("name", lever.lever_name)
 			lever.action_name = entry.get("action", lever.action_name)
-			lever.pulled_text = entry.get("pulled_text", "")
 			return lever
 		"drainage_station":
 			var station := DrainageStation.new()
-			station.message = entry.get("message", station.message)
+			station.machine_name = entry.get("name", station.machine_name)
+			station.start_delay = entry.get("start_delay", station.start_delay)
 			return station
 		"resident":
 			var resident := Resident.new()
@@ -113,7 +91,7 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			if entry.has("texture"):
 				resident.texture = load(entry["texture"])
 			resident.has_flashlight = entry.get("flashlight", false)
-			resident.is_rescued_by_trigger = entry.has("rescued_by")
+			resident.is_rescued_by_trigger = not entry.get("rescue_on_interact", true)
 			resident.dialogue = entry.get("dialogue", "")
 			return resident
 		"npc":
@@ -127,11 +105,11 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 		"planting_spot":
 			var spot := PlantingSpot.new()
 			spot.trash_count = entry.get("trash", spot.trash_count)
-			spot.planted_text = entry.get("planted_text", spot.planted_text)
 			return spot
 		"waterwheel":
 			var wheel := Waterwheel.new()
 			wheel.gear = entry.get("gear", 0)
+			wheel.display_name = entry.get("name", "")
 			return wheel
 		"field":
 			var field := Field.new()
@@ -152,13 +130,18 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 		"ladder":
 			var ladder := Ladder.new()
 			ladder.height = entry["height"]
+			ladder.is_enabled = entry.get("enabled", false)
 			return ladder
 		"pump":
 			var pump := Pump.new()
+			pump.machine_name = entry.get("name", pump.machine_name)
 			pump.power_gear = entry.get("gear", 3)
+			pump.start_delay = entry.get("start_delay", pump.start_delay)
 			return pump
 		"fan":
-			return Fan.new()
+			var fan := Fan.new()
+			fan.display_name = entry.get("name", "")
+			return fan
 		"fog":
 			var fog := Fog.new()
 			fog.size = LevelData.to_vector(entry["size"])
@@ -166,6 +149,7 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 		"dark_zone":
 			var dark := DarkZone.new()
 			dark.size = LevelData.to_vector(entry["size"])
+			dark.display_name = entry.get("name", "")
 			return dark
 		"weather_rule_area":
 			var area := WeatherRuleArea.new()
@@ -173,12 +157,14 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			for key: String in entry["disabled"]:
 				area.disabled_weathers.append(Weather.from_key(key))
 			area.reason = entry["reason"]
+			area.is_active = entry.get("active", true)
 			return area
 		"seed_cart":
-			return SeedCart.new()
+			var cart := SeedCart.new()
+			cart.target_x = entry["to_x"]
+			return cart
 		"goal":
 			var goal := GoalArea.new()
-			goal.is_cart_goal = entry.get("by_cart", false)
 			goal.is_house_drawn = entry.get("house", true)
 			return goal
 		"sign":

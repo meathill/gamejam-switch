@@ -48,11 +48,13 @@ var _display_surface_y: float = 0.0:
 var _highlight_color: Color = Color.TRANSPARENT
 var _ice_shape: CollisionShape2D
 var _is_busy: bool = false
+var _last_state_event: String = ""
 
 
 func _ready() -> void:
 	z_index = 1
 	_display_surface_y = get_surface_y_for(level)
+	_last_state_event = get_state_event()
 	if Engine.is_editor_hint():
 		return
 	add_to_group("water_zones")
@@ -185,6 +187,75 @@ func transition_to(next: WaterState) -> void:
 	await tween.finished
 	_is_busy = false
 	state_changed.emit(self)
+	_emit_state_event()
+
+
+func get_state_event() -> String:
+	if is_frozen:
+		return "frozen"
+	if level == 0:
+		return "dry"
+	return "deep" if level >= WaterRules.MAX_LEVEL else "shallow"
+
+
+## 条件 { "is": deep / shallow / dry / frozen / liquid / clean / polluted }，没满足时说明还差什么
+func get_unmet_reason(condition: Dictionary) -> String:
+	var state := get_state()
+	match condition["is"]:
+		"deep":
+			if state.is_frozen:
+				return "%s冻住了，水流不过去，先用日照融化" % zone_name
+			if state.level == 0:
+				return "%s是干的，先下雨把它灌满" % zone_name
+			if not state.is_deep_liquid():
+				return "%s里的水还不够，再下一场雨" % zone_name
+		"shallow":
+			if not state.is_shallow_liquid():
+				return "%s的水位要是浅水" % zone_name
+		"dry":
+			if state.level > 0:
+				return "%s里还有水" % zone_name
+		"frozen":
+			if not state.is_frozen:
+				return "%s还没结冰" % zone_name
+		"liquid":
+			if state.is_frozen:
+				return "%s冻住了，先用日照融化" % zone_name
+		"clean":
+			if state.is_polluted:
+				return "%s的水被污染了" % zone_name
+		"polluted":
+			if not state.is_polluted:
+				return "%s的水是干净的" % zone_name
+	return ""
+
+
+## 联动：解除 / 设置某种天气的禁用
+func do_unblock(params: Dictionary) -> void:
+	blocked_weathers.erase(params["weather"])
+
+
+func do_block(params: Dictionary) -> void:
+	blocked_weathers[params["weather"]] = params["reason"]
+
+
+## 联动：水位下降 by 级（默认 1），clean 为真时同时净化
+func do_lower(params: Dictionary) -> void:
+	var state := get_state()
+	var polluted: bool = state.is_polluted and not params.get("clean", false)
+	transition_to(WaterState.new(maxi(state.level - int(params.get("by", 1)), 0), state.is_frozen, polluted))
+
+
+## 联动：直接设置状态，没写的字段保持不变
+func do_set(params: Dictionary) -> void:
+	transition_to(WaterState.new(int(params.get("level", level)), params.get("frozen", is_frozen), params.get("polluted", is_polluted)))
+
+
+func _emit_state_event() -> void:
+	var event := get_state_event()
+	if event != _last_state_event:
+		_last_state_event = event
+		level_event.emit(event)
 
 
 func _blow_rafts(direction: int) -> WaterRules.Reason:

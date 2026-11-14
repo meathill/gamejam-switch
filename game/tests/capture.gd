@@ -1,6 +1,6 @@
 extends SceneTree
 ## 开发用截图脚本：加载场景、执行脚本化步骤、按帧截图。
-## godot --path game -s res://tests/capture.gd -- <scene> <output_dir> <scenario>
+## godot --path game -s res://tests/capture.gd -- <scene> <output_dir> <scenario> [level_id]
 
 var _scene_path: String
 var _output_dir: String
@@ -16,7 +16,13 @@ func _initialize() -> void:
 	_scenario = args[2] if args.size() > 2 else "idle"
 	DirAccess.make_dir_recursive_absolute(_output_dir)
 	_steps = _build_steps(_scenario)
-	change_scene_to_file.call_deferred(_scene_path)
+	_start.call_deferred(args[3] if args.size() > 3 else "")
+
+
+func _start(level_id: String) -> void:
+	if level_id:
+		root.get_node("GameState").set("current_level_id", level_id)
+	change_scene_to_file(_scene_path)
 
 
 ## 按物理帧计时：渲染帧不锁帧率，用它计时会比真实时间快很多

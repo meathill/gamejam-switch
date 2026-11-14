@@ -26,7 +26,7 @@ func cast(weather: Weather.Type, direction: int) -> void:
 		return
 	var result := target.apply_weather(weather, direction)
 	if result.is_success:
-		WeatherEffect.spawn_on_zone(get_tree().current_scene, weather, target, direction)
+		WeatherEffect.spawn_on_zone(target.get_parent(), weather, target, direction)
 		GameState.weather_cast.emit(target, weather)
 	elif result.reason != WaterRules.Reason.BUSY:
 		GameState.post_warning(WaterRules.get_reason_text(result.reason))

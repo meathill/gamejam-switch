@@ -51,7 +51,6 @@ const SINGLE_IMAGES: SingleImage[] = [
   { source: 'art/backgrounds/farm/08_farmhouse.png', output: 'game/assets/sprites/farm/farmhouse.png', maxSize: 1100 },
   { source: 'art/backgrounds/farm/09_weathervane.png', output: 'game/assets/sprites/farm/weathervane.png', maxSize: 640 },
   { source: 'art/backgrounds/farm/06_fence.png', output: 'game/assets/sprites/farm/fence.png', maxSize: 400 },
-  { source: 'art/backgrounds/farm/10_pergola.png', output: 'game/assets/sprites/farm/pergola.png', maxSize: 840 },
   { source: 'art/backgrounds/farm/04_grass.png', output: 'game/assets/sprites/farm/grass.png', maxSize: 900 },
   // HUD 显示 210px
   { source: 'art/ui/ui/轮盘.png', output: 'game/assets/ui/weather_wheel.png', maxSize: 320 },

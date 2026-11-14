@@ -10,6 +10,7 @@ extends RefCounted
 ##   { "expect_field": "id", "state": "restored" }
 ##   { "expect_prop": "id", "gear": 2 }           对象的属性值
 ##   { "expect_player": [x, y] }                  小猫位置（误差 40px）
+##   { "expect_player_x_min": 2650 }              小猫在这个 x 的右边（检查没被卡住）
 ##   { "expect": { "rescued": 2, "fields": 3, "complete": true } }
 
 const PHYSICS_FPS := 60
@@ -78,6 +79,8 @@ func _run_step(step: Dictionary, label: String) -> void:
 				var actual: Variant = node.get(key)
 				var expected_value: Variant = int(step[key]) if actual is int else step[key]
 				_test.assert_eq(actual, expected_value, "%s：%s" % [label, key])
+	elif step.has("expect_player_x_min"):
+		_test.assert_gt(_player.global_position.x, float(step["expect_player_x_min"]), "%s：小猫被卡在 %s" % [label, _player.global_position])
 	elif step.has("expect_player"):
 		var expected_position := LevelData.to_vector(step["expect_player"])
 		_test.assert_lt(_player.global_position.distance_to(expected_position), 40.0, "%s：小猫在 %s" % [label, _player.global_position])

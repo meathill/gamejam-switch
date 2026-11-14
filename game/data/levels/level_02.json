@@ -39,7 +39,7 @@
     {
       "type": "block",
       "id": "hidden_platform",
-      "pos": [2470, 1130],
+      "pos": [2470, 1080],
       "size": [160, 30],
       "color": "#b9aed0",
       "revealed_by": "dark"

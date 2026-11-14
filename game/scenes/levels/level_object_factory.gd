@@ -21,6 +21,9 @@ static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node
 			if entry.has("revealed_by"):
 				(node as SolidBlock).is_hidden = true
 				nodes[entry["revealed_by"]].connect("triggered", (node as SolidBlock).reveal)
+		"water":
+			if entry.has("unblocked_by"):
+				nodes[entry["unblocked_by"]].connect("triggered", (node as WaterZone).clear_blocked_weathers)
 		"lever":
 			if entry.has("requires_deep"):
 				(node as Lever).requires_deep = nodes[entry["requires_deep"]]

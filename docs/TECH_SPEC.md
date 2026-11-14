@@ -157,7 +157,7 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 - **规则与表现分离**。`WaterRules`、`FarmRules` 不依赖任何节点，可以 100% 单元测试；节点只负责把状态变化转成 Tween、碰撞开关和信号。
 - **一次施放 = 一次状态变化**。目标在动画期间返回 busy，拒绝新的施放。
-- 机关之间的联动通过信号连接：会触发别人的机关（Lever、DrainageStation、Pump、Fan、DarkZone）都发出 `triggered`，被触发方在关卡数据里用 `rescued_by` / `revealed_by` / `cleared_by` 引用它。
+- 机关之间的联动通过信号连接：会触发别人的对象（Lever、DrainageStation、Pump、Fan、DarkZone、获救的 Resident）都发出 `triggered`，被触发方在关卡数据里用 `rescued_by` / `revealed_by` / `cleared_by` / `unblocked_by`（解除水域的禁用天气）引用它。
 
 ### 5.3 水域状态机
 

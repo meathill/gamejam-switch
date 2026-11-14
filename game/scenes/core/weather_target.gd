@@ -23,6 +23,11 @@ func cast_weather(weather: Weather.Type, direction: int) -> CastResult:
 	return _cast(weather, direction)
 
 
+## 解除所有禁用的天气（如站顶的居民离开后，广场可以下雪了）
+func clear_blocked_weathers() -> void:
+	blocked_weathers.clear()
+
+
 func get_target_rect() -> Rect2:
 	return Rect2(global_position, Vector2.ZERO)
 

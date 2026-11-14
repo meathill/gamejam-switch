@@ -41,7 +41,8 @@
       "pos": [3600, 0],
       "size": [1500, 220],
       "polluted": true,
-      "blocked_weathers": { "snow": "会冻坏站顶的大叔" }
+      "blocked_weathers": { "snow": "会冻坏站顶的大叔" },
+      "unblocked_by": "uncle"
     },
     {
       "type": "water",

@@ -9,13 +9,13 @@ extends RefCounted
 ## 从后往前绘制
 const LAYERS: Array[String] = ["background", "terrain", "water", "props", "signs", "checkpoints", "front"]
 
-## 会发出 triggered 信号、可以被 rescued_by / revealed_by / cleared_by 引用的类型
-const TRIGGER_TYPES: Array[String] = ["lever", "drainage_station", "pump", "fan", "dark_zone"]
+## 会发出 triggered 信号、可以被 rescued_by / revealed_by / cleared_by / unblocked_by 引用的类型
+const TRIGGER_TYPES: Array[String] = ["lever", "drainage_station", "pump", "fan", "dark_zone", "resident"]
 
 const TYPES: Dictionary[String, Dictionary] = {
 	"block": { "required": ["pos", "size"], "refs": { "revealed_by": TRIGGER_TYPES }, "layer": "terrain" },
 	"decor": { "required": ["pos"], "layer": "background" },
-	"water": { "required": ["pos", "size", "name"], "layer": "water" },
+	"water": { "required": ["pos", "size", "name"], "refs": { "unblocked_by": TRIGGER_TYPES }, "layer": "water" },
 	"raft": { "required": ["zone"], "refs": { "zone": ["water"] }, "parent": "zone" },
 	"lever": { "required": ["pos"], "refs": { "requires_deep": ["water"] }, "layer": "props" },
 	"drainage_station": {

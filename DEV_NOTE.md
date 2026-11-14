@@ -13,7 +13,7 @@
 - **HUD/对话框/暂停菜单用代码构建**，不手写 Control 布局的 .tscn。
 - **关卡用 JSON 数据而不是 .tscn**（`data/levels/`）：方便写校验和解法回放测试、策划不开 Godot 也能改、AI 能直接读写和 diff。代价是编辑器里不能拖拽改图，只能改 JSON 后在 `LevelMap` 上点“重新加载关卡数据”预览。迁移时先原样转换并截图对比，再改布局。
 - **解法回放用传送 + 施放 + 断言**（`tests/solutions/`），稳定但验证不了跳跃可达性；可达性用 `capture.gd` 的真实按键场景检查。
-- **机关联动统一用 `triggered` 信号**，被触发方在数据里写 `rescued_by` / `revealed_by` / `cleared_by`，不另做条件 DSL。
+- **机关联动统一用 `triggered` 信号**，被触发方在数据里写 `rescued_by` / `revealed_by` / `cleared_by` / `unblocked_by`，不另做条件 DSL。
 - **第二关的拉杆同时接上排水泵动力**：否则玩家能不下井直接把水车 1→2→3，跳过整个地下流程。
 - **检查点改为“最近经过的”**（原来是“x 最大的”）：第二关地下是往左走的。
 

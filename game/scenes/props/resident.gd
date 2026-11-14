@@ -3,6 +3,9 @@ class_name Resident
 extends Interactable
 ## 等待救援的居民，计入通关目标。原点在脚底。
 ## 默认小猫靠近后按 E 救援；is_rescued_by_trigger 的居民由机关调用 rescue() 后自己离开，按 E 只对话。
+## 获救时发出 triggered（例如解除“会冻坏居民”的禁用天气）。
+
+signal triggered
 
 const LIGHT_COLOR := Color(1.0, 0.95, 0.7)
 const DISPLAY_HEIGHT := 240.0
@@ -54,6 +57,7 @@ func rescue() -> void:
 	_is_rescued = true
 	refresh_prompt()
 	GameState.complete_objective("resident")
+	triggered.emit()
 	GameState.post_message("%s：%s" % [resident_name, thanks_text])
 	var tween := create_tween().set_parallel()
 	tween.tween_property(self, "modulate:a", 0.0, 1.2)

@@ -15,6 +15,9 @@
     { "wait": 1.8 },
     { "expect_water": "plaza", "level": 1, "polluted": false },
     { "expect": { "rescued": 1 } },
+    { "teleport": [4000, 0] },
+    { "cast": "snow" },
+    { "expect_water": "plaza", "frozen": true },
 
     { "teleport": [5530, -60] },
     { "cast": "rain" },

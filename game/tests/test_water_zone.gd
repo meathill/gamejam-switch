@@ -71,16 +71,35 @@ func test_cast_is_rejected_while_animating() -> void:
 	assert_eq(zone.level, 1)
 
 
-func test_drainage_station_drains_and_cleans_target() -> void:
+func _make_station(channel: WaterZone, plaza: WaterZone) -> Lever:
+	var lever := Lever.new()
+	lever.requires_deep = channel
+	add_child_autofree(lever)
+	var station := DrainageStation.new()
+	station.switch = lever
+	station.drained_zone = plaza
+	add_child_autofree(station)
+	return lever
+
+
+func test_drainage_switch_is_locked_until_channel_is_full() -> void:
 	var channel := _make_zone(1)
 	var plaza := _make_zone(2, true)
 	add_child_autofree(channel)
 	add_child_autofree(plaza)
-	var station := DrainageStation.new()
-	station.channel = channel
-	station.drained_zone = plaza
-	add_child_autofree(station)
-	channel.apply_weather(Weather.Type.RAIN)
+	var lever := _make_station(channel, plaza)
+	lever.call("_interact")
+	assert_false(lever.is_pulled)
+
+
+func test_drainage_station_drains_and_cleans_target() -> void:
+	var channel := _make_zone(2)
+	var plaza := _make_zone(2, true)
+	add_child_autofree(channel)
+	add_child_autofree(plaza)
+	var lever := _make_station(channel, plaza)
+	lever.call("_interact")
+	assert_true(lever.is_pulled)
 	await wait_for_signal(plaza.state_changed, TIMEOUT)
 	assert_eq(plaza.level, 1)
 	assert_false(plaza.is_polluted)

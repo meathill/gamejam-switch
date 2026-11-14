@@ -139,6 +139,9 @@ func _validate_water(entry: Dictionary, label: String, errors: PackedStringArray
 	var level: int = entry.get("level", 2)
 	if level < 0 or level > WaterRules.MAX_LEVEL:
 		errors.append("%s：水位必须在 0~%d" % [label, WaterRules.MAX_LEVEL])
+	for key: String in entry.get("blocked_weathers", {}):
+		if not Weather.Type.has(key.to_upper()):
+			errors.append("%s：blocked_weathers 里的 \"%s\" 不是天气" % [label, key])
 	var width: float = to_vector(entry["size"]).x
 	var previous := -INF
 	for dock: float in entry.get("docks", []):

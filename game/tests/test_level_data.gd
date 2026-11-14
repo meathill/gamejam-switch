@@ -72,6 +72,12 @@ func test_dock_outside_zone() -> void:
 	_assert_has_error(_make(objects), "超出水域宽度")
 
 
+func test_unknown_blocked_weather() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "water", "name": "水", "pos": [100, 0], "size": [300, 200], "blocked_weathers": { "fog": "x" } })
+	_assert_has_error(_make(objects), "不是天气")
+
+
 func test_raft_dock_index_out_of_range() -> void:
 	var objects := _base_objects()
 	objects.append({ "type": "water", "id": "w", "name": "水", "pos": [100, 0], "size": [300, 200], "docks": [50] })

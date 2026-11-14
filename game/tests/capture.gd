@@ -71,8 +71,8 @@ func _run(step: Dictionary) -> void:
 			Input.parse_input_event(touch)
 		"log":
 			var state: Node = root.get_node("GameState")
-			print("[capture] %s x=%.0f weather=%s rescued=%d touch=%s paused=%s" % [
-				step["name"], player.get("global_position").x, state.get("current_weather"),
+			print("[capture] %s pos=%s locked=%s weather=%s rescued=%d touch=%s paused=%s" % [
+				step["name"], player.get("global_position"), player.get("is_input_locked"), state.get("current_weather"),
 				state.call("get_objective", "resident").x, state.get("is_touch_mode"), paused,
 			])
 
@@ -104,7 +104,9 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 300, "do": "cast" },
 				{ "frame": 360, "do": "cast" },
 				{ "frame": 420, "do": "shot", "name": "05_channel_full" },
-				{ "frame": 480, "do": "teleport", "to": Vector2(3500, 0) },
+				{ "frame": 430, "do": "teleport", "to": Vector2(3550, 0) },
+				{ "frame": 450, "do": "press", "action": "interact" },
+				{ "frame": 452, "do": "release", "action": "interact" },
 				{ "frame": 530, "do": "shot", "name": "06_plaza_drained" },
 				{ "frame": 535, "do": "teleport", "to": Vector2(5530, -60) },
 				{ "frame": 580, "do": "cast" },
@@ -118,24 +120,52 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 		"finale":
 			return [
 				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
-				{ "frame": 60, "do": "teleport", "to": Vector2(7340, -200) },
-				{ "frame": 90, "do": "press", "action": "interact" },
-				{ "frame": 92, "do": "release", "action": "interact" },
-				{ "frame": 110, "do": "shot", "name": "11_rescue_window" },
-				{ "frame": 120, "do": "teleport", "to": Vector2(8200, 0) },
-				{ "frame": 121, "do": "weather", "weather": Weather.Type.SNOW },
-				{ "frame": 150, "do": "cast" },
-				{ "frame": 200, "do": "shot", "name": "12_lowland_ice" },
-				{ "frame": 201, "do": "press", "action": "move_right" },
-				{ "frame": 380, "do": "release", "action": "move_right" },
-				{ "frame": 400, "do": "shot", "name": "13_goal_missing" },
-				{ "frame": 410, "do": "teleport", "to": Vector2(4350, -40) },
-				{ "frame": 440, "do": "press", "action": "interact" },
-				{ "frame": 442, "do": "release", "action": "interact" },
-				{ "frame": 460, "do": "teleport", "to": Vector2(9500, 0) },
-				{ "frame": 470, "do": "press", "action": "move_right" },
-				{ "frame": 560, "do": "release", "action": "move_right" },
-				{ "frame": 680, "do": "shot", "name": "14_complete" },
+				{ "frame": 60, "do": "teleport", "to": Vector2(2700, 0) },
+				{ "frame": 80, "do": "cast" },
+				{ "frame": 140, "do": "cast" },
+				{ "frame": 200, "do": "teleport", "to": Vector2(3550, 0) },
+				{ "frame": 220, "do": "press", "action": "interact" },
+				{ "frame": 222, "do": "release", "action": "interact" },
+				{ "frame": 320, "do": "shot", "name": "11_uncle_leaves" },
+				{ "frame": 330, "do": "teleport", "to": Vector2(7340, -200) },
+				{ "frame": 360, "do": "press", "action": "interact" },
+				{ "frame": 362, "do": "release", "action": "interact" },
+				{ "frame": 380, "do": "shot", "name": "12_rescue_window" },
+				{ "frame": 390, "do": "teleport", "to": Vector2(10450, -540) },
+				{ "frame": 400, "do": "press", "action": "move_right" },
+				{ "frame": 490, "do": "release", "action": "move_right" },
+				{ "frame": 620, "do": "shot", "name": "14_complete" },
+			]
+		"stairs":
+			var steps: Array[Dictionary] = [
+				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
+				{ "frame": 50, "do": "teleport", "to": Vector2(9200, 220) },
+				{ "frame": 70, "do": "press", "action": "move_right" },
+			]
+			for index in 4:
+				var frame := 80 + index * 45
+				steps.append({ "frame": frame, "do": "press", "action": "jump" })
+				steps.append({ "frame": frame + 20, "do": "release", "action": "jump" })
+				steps.append({ "frame": frame + 40, "do": "log", "name": "after_jump_%d" % index })
+			steps.append({ "frame": 270, "do": "shot", "name": "stairs_top" })
+			steps.append({ "frame": 420, "do": "release", "action": "move_right" })
+			steps.append({ "frame": 440, "do": "shot", "name": "stairs_goal" })
+			steps.append({ "frame": 401, "do": "log", "name": "goal" })
+			return steps
+		"garden":
+			return [
+				{ "frame": 40, "do": "key", "key": KEY_ESCAPE },
+				{ "frame": 50, "do": "teleport", "to": Vector2(8150, 0) },
+				{ "frame": 51, "do": "press", "action": "move_right" },
+				{ "frame": 75, "do": "release", "action": "move_right" },
+				{ "frame": 120, "do": "shot", "name": "garden_trash" },
+				{ "frame": 121, "do": "teleport", "to": Vector2(8600, 220) },
+				{ "frame": 130, "do": "press", "action": "move_left" },
+				{ "frame": 150, "do": "press", "action": "jump" },
+				{ "frame": 170, "do": "release", "action": "jump" },
+				{ "frame": 200, "do": "release", "action": "move_left" },
+				{ "frame": 210, "do": "log", "name": "garden_exit" },
+				{ "frame": 211, "do": "shot", "name": "garden_exit" },
 			]
 		"standing":
 			return [

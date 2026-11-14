@@ -22,11 +22,24 @@ static func create(entry: Dictionary) -> Node2D:
 			zone.is_frozen = entry.get("frozen", false)
 			zone.is_polluted = entry.get("polluted", false)
 			zone.dock_positions = PackedFloat32Array(entry.get("docks", []))
+			zone.shallow_freeze_only = entry.get("shallow_freeze_only", false)
+			zone.blocked_weathers.assign(entry.get("blocked_weathers", {}))
 			node = zone
 		"raft":
 			var raft := Raft.new()
 			raft.dock_index = entry.get("dock", 0)
 			node = raft
+		"lever":
+			var lever := Lever.new()
+			lever.action_name = entry.get("action", lever.action_name)
+			lever.locked_text = entry.get("locked_text", lever.locked_text)
+			lever.pulled_text = entry.get("pulled_text", "")
+			node = lever
+		"planting_spot":
+			var spot := PlantingSpot.new()
+			spot.trash_count = entry.get("trash", spot.trash_count)
+			spot.planted_text = entry.get("planted_text", spot.planted_text)
+			node = spot
 		"drainage_station":
 			var station := DrainageStation.new()
 			station.message = entry.get("message", station.message)
@@ -38,6 +51,8 @@ static func create(entry: Dictionary) -> Node2D:
 			if entry.has("texture"):
 				resident.texture = load(entry["texture"])
 			resident.has_flashlight = entry.get("flashlight", false)
+			resident.is_rescued_by_trigger = entry.has("rescued_by")
+			resident.dialogue = entry.get("dialogue", "")
 			node = resident
 		"goal":
 			node = GoalArea.new()
@@ -58,7 +73,13 @@ static func create(entry: Dictionary) -> Node2D:
 
 static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node2D]) -> void:
 	match entry["type"]:
+		"lever":
+			if entry.has("requires_deep"):
+				(node as Lever).requires_deep = nodes[entry["requires_deep"]]
 		"drainage_station":
 			var station := node as DrainageStation
-			station.channel = nodes[entry["channel"]]
+			station.switch = nodes[entry["switch"]]
 			station.drained_zone = nodes[entry["drains"]]
+		"resident":
+			if entry.has("rescued_by"):
+				nodes[entry["rescued_by"]].connect("triggered", (node as Resident).rescue)

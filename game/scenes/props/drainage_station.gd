@@ -1,13 +1,16 @@
 @tool
 class_name DrainageStation
 extends Node2D
-## 废弃排水站：排水槽被雨水灌满（液态深水）后启动，把关联水域的污水排掉一级并净化。原点在地面中点。
+## 废弃排水站：开关（Lever）拉下后启动，把关联水域排掉一级并净化，完成后发出 triggered。原点在地面中点。
+
+signal triggered
 
 const BUILDING_SIZE := Vector2(300, 260)
 const OFF_COLOR := Color(0.35, 0.3, 0.3)
 const ON_COLOR := Color(0.55, 1.0, 0.7)
+const START_DELAY := 0.8
 
-@export var channel: WaterZone
+@export var switch: Lever
 @export var drained_zone: WaterZone
 @export var message: String = "排水站重新启动了！"
 
@@ -17,18 +20,19 @@ var _is_active: bool = false
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
-	channel.state_changed.connect(_on_channel_changed)
+	switch.triggered.connect(_activate)
 
 
-func _on_channel_changed(zone: WaterZone) -> void:
-	if _is_active or not zone.get_state().is_deep_liquid():
+func _activate() -> void:
+	if _is_active:
 		return
 	_is_active = true
 	queue_redraw()
 	GameState.post_message(message)
-	await get_tree().create_timer(0.8).timeout
+	await get_tree().create_timer(START_DELAY).timeout
 	var state := drained_zone.get_state()
-	drained_zone.transition_to(WaterState.new(maxi(state.level - 1, 0), state.is_frozen, false))
+	await drained_zone.transition_to(WaterState.new(maxi(state.level - 1, 0), state.is_frozen, false))
+	triggered.emit()
 
 
 func _draw() -> void:

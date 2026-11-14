@@ -6,13 +6,13 @@
 
     { "teleport": [2700, 0] },
     { "cast": "rain" },
-    { "cast": "rain", "wait": 0.6 },
+    { "cast": "rain" },
     { "expect_water": "channel", "level": 2 },
-    { "wait": 1.5 },
-    { "expect_water": "plaza", "level": 1, "polluted": false },
 
-    { "teleport": [4350, -40] },
+    { "teleport": [3550, 0] },
     { "interact": true },
+    { "wait": 1.8 },
+    { "expect_water": "plaza", "level": 1, "polluted": false },
     { "expect": { "rescued": 1 } },
 
     { "teleport": [5530, -60] },
@@ -26,10 +26,14 @@
     { "interact": true },
     { "expect": { "rescued": 2 } },
 
-    { "teleport": [8200, 0] },
-    { "cast": "snow" },
-    { "expect_water": "lowland", "frozen": true },
-    { "walk": 1, "seconds": 3.5 },
+    { "teleport": [8900, 220] },
+    { "interact": true },
+    { "interact": true },
+    { "interact": true },
+    { "interact": true },
+
+    { "teleport": [10450, -540] },
+    { "walk": 1, "seconds": 1.6 },
     { "expect": { "complete": true } }
   ]
 }

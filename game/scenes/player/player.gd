@@ -53,8 +53,8 @@ func _physics_process(delta: float) -> void:
 		return
 	_update_checkpoint()
 	var water := _find_water_under()
-	if water and water.get_state().is_deep_liquid() and global_position.y > water.get_surface_global_y() + DROWN_DEPTH:
-		drown("小猫被深水卷走了……")
+	if water and water.is_dangerous() and global_position.y > water.get_surface_global_y() + DROWN_DEPTH:
+		drown("小猫被急流冲走了……" if water.is_rapid else "小猫被深水卷走了……")
 		return
 	_apply_gravity(delta)
 	if _state == State.NORMAL and not is_input_locked:

@@ -185,3 +185,39 @@ func test_cart_ending_replaces_goal() -> void:
 	var level := _make(objects)
 	level.links.assign([{ "when": "cart", "event": "arrived", "do": "complete_level" }])
 	assert_eq(level.validate().size(), 0, str(level.validate()))
+
+
+func test_gondola_needs_to() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "gondola", "pos": [800, 0] })
+	_assert_has_error(_make(objects), "缺少字段 to")
+
+
+func test_evacuee_needs_name() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "evacuee", "pos": [800, 0] })
+	_assert_has_error(_make(objects), "缺少字段 name")
+
+
+func test_passage_path_needs_two_points() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "passage", "pos": [800, 0], "path": [[800, 0]] })
+	_assert_has_error(_make(objects), "path 至少要 2 个点")
+
+
+func test_weather_spot_accepts_must_be_weather() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "weather_spot", "pos": [800, 0], "size": [300, 200], "name": "雪线", "accepts": ["snow", "hail"] })
+	_assert_has_error(_make(objects), "不是天气")
+
+
+func test_gauge_must_reference_weir() -> void:
+	var objects := _base_objects()
+	objects.append({ "type": "water", "id": "w", "name": "水", "pos": [600, 0], "size": [300, 200] })
+	objects.append({ "type": "gauge", "pos": [900, 0], "weir": "w" })
+	_assert_has_error(_make(objects), "只能引用")
+
+
+func test_raft_ashore_is_a_water_event() -> void:
+	var level := _make_with_links([{ "when": "w", "event": "raft_ashore", "do": "message", "text": "上岸了" }])
+	assert_eq(level.validate().size(), 0, str(level.validate()))

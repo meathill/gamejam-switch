@@ -16,6 +16,8 @@ const TREE_HEIGHT := 220.0
 	set(value):
 		trash_count = value
 		queue_redraw()
+## 计入通关目标「种植」
+@export var is_objective: bool = false
 
 var _cleared: int = 0
 var _is_planted: bool = false
@@ -32,6 +34,8 @@ func _init() -> void:
 func _ready() -> void:
 	detect_size = Vector2(trash_count * TRASH_SPACING + 260.0, 260.0)
 	super()
+	if is_objective and not Engine.is_editor_hint():
+		GameState.register_objective("seed")
 
 
 func get_action_name() -> String:
@@ -51,6 +55,8 @@ func _interact() -> void:
 		return
 	_is_planted = true
 	level_event.emit("planted")
+	if is_objective:
+		GameState.complete_objective("seed")
 	create_tween().tween_property(self, "_growth", 1.0, 1.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 

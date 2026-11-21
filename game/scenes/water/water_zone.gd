@@ -40,6 +40,10 @@ const BASIN_COLOR := Color(0.15, 0.14, 0.24)
 @export var dock_positions: PackedFloat32Array = PackedFloat32Array()
 ## 只能冻结浅水（地下深水冻不住）
 @export var shallow_freeze_only: bool = false
+## 急流：浅水液态也会把小猫冲走
+@export var is_rapid: bool = false
+## 追加到状态文字末尾的说明（如「下雨会让水尺 +1」）
+@export var status_note: String = ""
 
 var _display_surface_y: float = 0.0:
 	set(value):
@@ -122,7 +126,16 @@ func get_status_text() -> String:
 	var rafts := get_rafts().size()
 	if rafts > 0:
 		parts.append("浮箱 ×%d" % rafts)
+	if not status_note.is_empty():
+		parts.append(status_note)
 	return " · ".join(parts)
+
+
+## 水面会吞掉小猫（落水回检查点）：深水液态，或急流且有液态水
+func is_dangerous() -> bool:
+	if is_frozen:
+		return false
+	return level >= WaterRules.MAX_LEVEL or (is_rapid and level > 0)
 
 
 func get_rafts() -> Array[Raft]:
@@ -286,6 +299,10 @@ func _animate_raft_moves(moves: Dictionary[Raft, int]) -> void:
 	await tween.finished
 	_is_busy = false
 	state_changed.emit(self)
+	# 有浮箱到达最后一个停靠点：可以踩着上岸了
+	var last_dock := dock_positions.size() - 1
+	if get_rafts().any(func(raft: Raft) -> bool: return raft.dock_index == last_dock):
+		level_event.emit("raft_ashore")
 
 
 func _build_bodies() -> void:

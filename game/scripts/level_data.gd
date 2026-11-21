@@ -23,6 +23,8 @@ var underground_y: float = INF
 var objects: Array[Dictionary] = []
 ## 对象间的联动，格式见 LevelSchema
 var links: Array[Dictionary] = []
+## 首次开场对白后镜头依次看过去的位置：[[x, y, 停留秒], ...]
+var intro_focus: Array = []
 
 
 static func get_path_for(level_id: String) -> String:
@@ -49,6 +51,7 @@ static func from_dict(level_id: String, data: Dictionary) -> LevelData:
 	level.underground_y = data.get("underground_y", INF)
 	level.objects.assign(data.get("objects", []))
 	level.links.assign(data.get("links", []))
+	level.intro_focus.assign(data.get("intro_focus", []))
 	return level
 
 
@@ -160,6 +163,13 @@ func _validate_object(entry: Dictionary, label: String, types_by_id: Dictionary[
 			for key: String in entry["disabled"]:
 				if not Weather.Type.has(key.to_upper()):
 					errors.append("%s：disabled 里的 \"%s\" 不是天气" % [label, key])
+		"passage":
+			if (entry.get("path", []) as Array).size() < 2:
+				errors.append("%s：path 至少要 2 个点" % label)
+		"weather_spot":
+			for key: String in entry.get("accepts", []):
+				if not Weather.Type.has(key.to_upper()):
+					errors.append("%s：accepts 里的 \"%s\" 不是天气" % [label, key])
 
 
 func _validate_water(entry: Dictionary, label: String, errors: PackedStringArray) -> void:

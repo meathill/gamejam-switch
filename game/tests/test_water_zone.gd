@@ -133,3 +133,35 @@ func test_unblock_action_allows_weather_again() -> void:
 	assert_false(plaza.cast_weather(Weather.Type.SNOW, 1).is_success)
 	plaza.do_unblock({ "weather": "snow" })
 	assert_true(plaza.cast_weather(Weather.Type.SNOW, 1).is_success)
+
+
+func test_is_dangerous() -> void:
+	var rapid_shallow := _make_zone(1)
+	rapid_shallow.is_rapid = true
+	add_child_autofree(rapid_shallow)
+	assert_true(rapid_shallow.is_dangerous(), "急流浅水也危险")
+	rapid_shallow.is_frozen = true
+	assert_false(rapid_shallow.is_dangerous(), "结冰的急流可以走")
+	rapid_shallow.is_frozen = false
+	rapid_shallow.level = 0
+	assert_false(rapid_shallow.is_dangerous(), "干涸的急流不危险")
+	var calm_shallow := _make_zone(1)
+	add_child_autofree(calm_shallow)
+	assert_false(calm_shallow.is_dangerous(), "普通浅水可以蹚")
+	calm_shallow.level = 2
+	assert_true(calm_shallow.is_dangerous(), "普通深水危险")
+	calm_shallow.is_frozen = true
+	assert_false(calm_shallow.is_dangerous(), "冰面不危险")
+
+
+func test_raft_ashore_event_when_raft_reaches_last_dock() -> void:
+	var zone := _make_zone(2, false, PackedFloat32Array([100, 500, 900]))
+	_add_raft(zone, 0)
+	add_child_autofree(zone)
+	watch_signals(zone)
+	zone.apply_weather(Weather.Type.WIND, 1)
+	await wait_for_signal(zone.state_changed, TIMEOUT)
+	assert_signal_not_emitted(zone, "level_event", "中途靠站不发 raft_ashore")
+	zone.apply_weather(Weather.Type.WIND, 1)
+	await wait_for_signal(zone.state_changed, TIMEOUT)
+	assert_signal_emitted_with_parameters(zone, "level_event", ["raft_ashore"])

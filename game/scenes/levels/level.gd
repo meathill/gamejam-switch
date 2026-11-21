@@ -12,6 +12,8 @@ const COMPLETE_DELAY := 1.2
 var data: LevelData
 var _rain: RainOverlay
 var _touch_controls: TouchControls
+var _focus_queue: Array = []
+var _is_focusing: bool = false
 
 
 func _enter_tree() -> void:
@@ -39,6 +41,7 @@ func _ready() -> void:
 	add_child(PauseMenu.new())
 	GameState.level_completed.connect(_on_level_completed)
 	GameState.dialogue_requested.connect(_on_dialogue_requested)
+	GameState.focus_requested.connect(_on_focus_requested)
 	if GameState.seen_intros.get(data.id, false):
 		return
 	GameState.seen_intros[data.id] = true
@@ -50,6 +53,8 @@ func _ready() -> void:
 		await card.play(true)
 	if data.intro_dialogue:
 		await _play_dialogue(data.intro_dialogue)
+	for entry: Array in data.intro_focus:
+		await _play_focus(Vector2(entry[0], entry[1]), entry[2])
 	_set_gameplay_active(true)
 
 
@@ -65,6 +70,35 @@ func _unhandled_input(event: InputEvent) -> void:
 func _set_gameplay_active(active: bool) -> void:
 	_player.is_input_locked = not active
 	_touch_controls.is_active = active
+
+
+func _on_focus_requested(focus_position: Vector2, seconds: float) -> void:
+	_focus_queue.append([focus_position, seconds])
+	if not _is_focusing:
+		_play_queued_focus()
+
+
+## 镜头短看某个位置：补间过去、停留、再补回来；多个请求排队依次播放
+func _play_queued_focus() -> void:
+	_is_focusing = true
+	_set_gameplay_active(false)
+	while not _focus_queue.is_empty():
+		var request: Array = _focus_queue.pop_front()
+		await _play_focus(request[0], request[1])
+	_is_focusing = false
+	_set_gameplay_active(true)
+
+
+func _play_focus(focus_position: Vector2, seconds: float) -> void:
+	var tween := create_tween()
+	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	tween.tween_property(_camera, "offset", focus_position - _player.global_position, 0.4).set_trans(Tween.TRANS_SINE)
+	await tween.finished
+	await get_tree().create_timer(seconds).timeout
+	var back := create_tween()
+	back.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	back.tween_property(_camera, "offset", Vector2.ZERO, 0.4).set_trans(Tween.TRANS_SINE)
+	await back.finished
 
 
 func _on_dialogue_requested(path: String) -> void:

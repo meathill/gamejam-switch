@@ -26,6 +26,25 @@ extends Node2D
 	set(value):
 		is_flipped = value
 		queue_redraw()
+## 运行时不可见，直到联动 reveal（编辑器里仍显示，方便摆位）
+@export var is_hidden: bool = false
+
+
+func _ready() -> void:
+	if is_hidden and not Engine.is_editor_hint():
+		visible = false
+
+
+func do_reveal(_params: Dictionary) -> void:
+	visible = true
+	modulate.a = 0.0
+	create_tween().tween_property(self, "modulate:a", 1.0, 0.6)
+
+
+func do_hide(_params: Dictionary) -> void:
+	var tween := create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(func() -> void: visible = false)
 
 
 func _draw() -> void:

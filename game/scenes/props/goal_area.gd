@@ -9,6 +9,7 @@ const AREA_SIZE := Vector2(360, 400)
 @export var is_house_drawn: bool = true
 
 var _has_warned: bool = false
+var _is_player_inside: bool = false
 
 
 func _ready() -> void:
@@ -23,17 +24,32 @@ func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 2
 	body_entered.connect(_on_body_entered)
-	body_exited.connect(func(_body: Node2D) -> void: _has_warned = false)
+	body_exited.connect(_on_body_exited)
+	GameState.objectives_changed.connect(_on_objectives_changed)
 
 
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
+	_is_player_inside = true
 	if GameState.is_all_objectives_done():
 		GameState.complete_level()
 	elif not _has_warned:
 		_has_warned = true
 		GameState.post_warning(GameState.get_remaining_text())
+
+
+func _on_body_exited(body: Node2D) -> void:
+	if not body.is_in_group("player"):
+		return
+	_is_player_inside = false
+	_has_warned = false
+
+
+## 小猫在终点里等着时完成最后一个目标，也直接结算
+func _on_objectives_changed() -> void:
+	if _is_player_inside and GameState.is_all_objectives_done():
+		GameState.complete_level()
 
 
 func _draw() -> void:

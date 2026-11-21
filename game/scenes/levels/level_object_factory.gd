@@ -32,6 +32,8 @@ static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node
 		"pump":
 			if entry.has("wheel"):
 				(node as Pump).wheel = nodes[entry["wheel"]]
+		"gauge":
+			(node as Gauge).weir = nodes[entry["weir"]]
 
 
 static func _create_by_type(entry: Dictionary) -> Node2D:
@@ -58,6 +60,7 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			if entry.has("color"):
 				decor.color = LevelData.to_color(entry["color"])
 			decor.is_flipped = entry.get("flip", false)
+			decor.is_hidden = entry.get("hidden", false)
 			return decor
 		"water":
 			var zone := WaterZone.new()
@@ -68,6 +71,8 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			zone.is_polluted = entry.get("polluted", false)
 			zone.dock_positions = PackedFloat32Array(entry.get("docks", []))
 			zone.shallow_freeze_only = entry.get("shallow_freeze_only", false)
+			zone.is_rapid = entry.get("rapid", false)
+			zone.status_note = entry.get("status_note", "")
 			zone.blocked_weathers.assign(entry.get("blocked_weathers", {}))
 			return zone
 		"raft":
@@ -105,6 +110,7 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 		"planting_spot":
 			var spot := PlantingSpot.new()
 			spot.trash_count = entry.get("trash", spot.trash_count)
+			spot.is_objective = entry.get("objective", false)
 			return spot
 		"waterwheel":
 			var wheel := Waterwheel.new()
@@ -163,6 +169,37 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			var cart := SeedCart.new()
 			cart.target_x = entry["to_x"]
 			return cart
+		"gondola":
+			var gondola := Gondola.new()
+			gondola.end = LevelData.to_vector(entry["to"])
+			return gondola
+		"evacuee":
+			var evacuee := Evacuee.new()
+			evacuee.evacuee_name = entry["name"]
+			if entry.has("texture"):
+				evacuee.texture = load(entry["texture"])
+			evacuee.display_height = entry.get("height", evacuee.display_height)
+			evacuee.rescue_path = _to_path(entry.get("rescue_path", []))
+			evacuee.evacuate_path = _to_path(entry.get("evacuate_path", []))
+			evacuee.is_escort = entry.get("escort", false)
+			evacuee.dialogue = entry.get("dialogue", "")
+			evacuee.is_flipped = entry.get("flip", false)
+			return evacuee
+		"passage":
+			var passage := Passage.new()
+			passage.is_enabled = entry.get("enabled", false)
+			passage.path = _to_path(entry["path"])
+			return passage
+		"weather_spot":
+			var spot := WeatherSpot.new()
+			spot.display_name = entry["name"]
+			spot.size = LevelData.to_vector(entry["size"])
+			spot.status = entry.get("status", "")
+			for key: String in entry["accepts"]:
+				spot.accepts.append(Weather.from_key(key))
+			return spot
+		"gauge":
+			return Gauge.new()
 		"goal":
 			var goal := GoalArea.new()
 			goal.is_house_drawn = entry.get("house", true)
@@ -175,3 +212,10 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 		"checkpoint":
 			return Checkpoint.new()
 	return null
+
+
+static func _to_path(points: Array) -> PackedVector2Array:
+	var path := PackedVector2Array()
+	for point: Array in points:
+		path.append(LevelData.to_vector(point))
+	return path

@@ -13,14 +13,25 @@ signal weather_rules_changed
 ## 关卡里的机关、人物请求播放对白，由 Level 锁定操作并播放
 signal dialogue_requested(path: String)
 signal dialogue_finished
+## 场景水尺（堰的压力）变化；maximum 为 0 表示本关没有水尺
+signal gauge_changed(value: int, maximum: int)
+## 请求镜头短暂看向某个世界坐标，由 Level 锁定操作并依次播放
+signal focus_requested(position: Vector2, seconds: float)
 
 const MESSAGE_COLOR := Color(0.95, 0.95, 0.9)
 const WARNING_COLOR := Color(1.0, 0.72, 0.55)
 ## 目标类别 → HUD 名称 / 未完成时的提示
-const OBJECTIVE_LABELS: Dictionary[String, String] = { "resident": "救援", "field": "农田" }
+const OBJECTIVE_LABELS: Dictionary[String, String] = {
+	"resident": "救援",
+	"field": "农田",
+	"evacuee": "撤离",
+	"seed": "种植",
+}
 const OBJECTIVE_REMAINING: Dictionary[String, String] = {
 	"resident": "还有 %d 位居民没有得救",
 	"field": "还有 %d 块田没有恢复",
+	"evacuee": "还有 %d 位没有撤到渡口",
+	"seed": "还有 %d 颗自然之种没有种下",
 }
 
 var current_weather: Weather.Type = Weather.Type.RAIN
@@ -32,6 +43,9 @@ var is_level_complete: bool = false
 ## 触屏模式：有触摸屏或发生过触摸时开启，显示虚拟按键和触屏版提示文案
 var is_touch_mode: bool = false
 var is_interact_available: bool = false
+var gauge_value: int = 0
+## 0 表示本关没有水尺
+var gauge_max: int = 0
 ## 类别 → [已完成, 总数]
 var _objectives: Dictionary[String, Vector2i] = {}
 var _interact_sources: Dictionary[Node, bool] = {}
@@ -95,6 +109,18 @@ func reset_level() -> void:
 	is_level_complete = false
 	is_interact_available = false
 	current_weather = Weather.Type.RAIN
+	gauge_value = 0
+	gauge_max = 0
+
+
+func set_gauge(value: int, maximum: int) -> void:
+	gauge_value = value
+	gauge_max = maximum
+	gauge_changed.emit(value, maximum)
+
+
+func request_focus(focus_position: Vector2, seconds: float) -> void:
+	focus_requested.emit(focus_position, seconds)
 
 
 func register_objective(kind: String) -> void:

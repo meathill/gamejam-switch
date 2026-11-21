@@ -7,6 +7,8 @@ const TOAST_SECONDS := 2.4
 var _weather_label: Label
 var _target_label: Label
 var _objective_label: Label
+var _gauge_label: Label
+var _gauge_tween: Tween
 var _toast_label: Label
 var _toast_tween: Tween
 var _target: WeatherTarget = null
@@ -21,9 +23,11 @@ func _ready() -> void:
 	GameState.weather_rules_changed.connect(_refresh_weather)
 	GameState.message_posted.connect(show_toast)
 	GameState.touch_mode_changed.connect(func(_enabled: bool) -> void: _refresh_weather())
+	GameState.gauge_changed.connect(func(_value: int, _maximum: int) -> void: _refresh_gauge())
 	_refresh_weather()
 	_on_target_changed(null)
 	_refresh_objectives()
+	_refresh_gauge()
 
 
 func show_toast(text: String, color: Color = GameState.MESSAGE_COLOR) -> void:
@@ -57,6 +61,25 @@ func _refresh_objectives() -> void:
 	_objective_label.text = "\n".join(parts)
 
 
+## 水尺：「水尺 ■■■□□」，快满时变红闪烁；本关没有水尺时隐藏
+func _refresh_gauge() -> void:
+	_gauge_label.visible = GameState.gauge_max > 0
+	if _gauge_tween:
+		_gauge_tween.kill()
+		_gauge_tween = null
+		_gauge_label.modulate.a = 1.0
+	if not _gauge_label.visible:
+		return
+	var filled := "■".repeat(mini(GameState.gauge_value, GameState.gauge_max))
+	_gauge_label.text = "水尺 %s%s" % [filled, "□".repeat(maxi(GameState.gauge_max - GameState.gauge_value, 0))]
+	var is_critical := GameState.gauge_value >= GameState.gauge_max - 1
+	_gauge_label.add_theme_color_override("font_color", Color(1, 0.45, 0.4) if is_critical else Color(0.95, 0.95, 0.9))
+	if is_critical:
+		_gauge_tween = create_tween().set_loops()
+		_gauge_tween.tween_property(_gauge_label, "modulate:a", 0.25, 0.5)
+		_gauge_tween.tween_property(_gauge_label, "modulate:a", 1.0, 0.5)
+
+
 func _refresh_weather() -> void:
 	var weather := GameState.current_weather
 	var is_disabled := GameState.is_weather_disabled(weather)
@@ -87,12 +110,18 @@ func _build() -> void:
 	_weather_label = _make_label(26, HORIZONTAL_ALIGNMENT_CENTER)
 	ring_box.add_child(_weather_label)
 
+	var status_box := VBoxContainer.new()
+	status_box.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	status_box.offset_left = -400
+	status_box.offset_right = -40
+	status_box.offset_top = 36
+	status_box.offset_bottom = 220
+	status_box.add_theme_constant_override("separation", 8)
+	root.add_child(status_box)
 	_objective_label = _make_label(32, HORIZONTAL_ALIGNMENT_RIGHT)
-	_objective_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	_objective_label.offset_left = -360
-	_objective_label.offset_right = -40
-	_objective_label.offset_top = 36
-	root.add_child(_objective_label)
+	status_box.add_child(_objective_label)
+	_gauge_label = _make_label(32, HORIZONTAL_ALIGNMENT_RIGHT)
+	status_box.add_child(_gauge_label)
 
 	_target_label = _make_label(28, HORIZONTAL_ALIGNMENT_CENTER)
 	_target_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)

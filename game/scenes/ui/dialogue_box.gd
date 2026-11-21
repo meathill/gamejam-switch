@@ -13,6 +13,8 @@ const SPEAKER_NAMES: Dictionary[String, String] = {
 	"system": "系统提示",
 	"farmer": "老农",
 	"family": "老农的家人",
+	"keeper": "守河人",
+	"villager": "村民",
 }
 ## 文字框/姓名框是浅色水彩纸，文字用深色
 const SPEAKER_COLORS: Dictionary[String, Color] = {
@@ -21,6 +23,8 @@ const SPEAKER_COLORS: Dictionary[String, Color] = {
 	"system": Color(0.25, 0.36, 0.5),
 	"farmer": Color(0.45, 0.32, 0.2),
 	"family": Color(0.4, 0.3, 0.35),
+	"keeper": Color(0.3, 0.4, 0.45),
+	"villager": Color(0.4, 0.35, 0.3),
 }
 const TEXT_COLOR := Color(0.23, 0.2, 0.16)
 const TEXT_BOX := preload("res://assets/ui/text_box.png")

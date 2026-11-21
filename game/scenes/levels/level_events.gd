@@ -41,3 +41,5 @@ func _run(link: Dictionary) -> void:
 			GameState.play_dialogue(link["path"])
 		"complete_level":
 			GameState.complete_level()
+		"focus":
+			GameState.request_focus(LevelData.to_vector(link["pos"]), link["seconds"])

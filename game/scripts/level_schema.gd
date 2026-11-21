@@ -24,17 +24,18 @@ const GLOBAL_ACTIONS: Dictionary[String, Array] = {
 	"warning": ["text"],
 	"dialogue": ["path"],
 	"complete_level": [],
+	"focus": ["pos", "seconds"],
 }
 
 const WATER_STATES: Array[String] = ["deep", "shallow", "dry", "frozen", "liquid", "clean", "polluted"]
 
 const TYPES: Dictionary[String, Dictionary] = {
 	"block": { "required": ["pos", "size"], "layer": "terrain", "actions": { "reveal": [], "hide": [] } },
-	"decor": { "required": ["pos"], "layer": "background" },
+	"decor": { "required": ["pos"], "layer": "background", "actions": { "reveal": [], "hide": [] } },
 	"water": {
 		"required": ["pos", "size", "name"],
 		"layer": "water",
-		"events": ["deep", "shallow", "dry", "frozen"],
+		"events": ["deep", "shallow", "dry", "frozen", "raft_ashore"],
 		"actions": { "unblock": ["weather"], "block": ["weather", "reason"], "lower": [], "set": [] },
 		"conditions": { "is": WATER_STATES },
 	},
@@ -84,13 +85,30 @@ const TYPES: Dictionary[String, Dictionary] = {
 		"actions": { "enable": [], "disable": [] },
 	},
 	"seed_cart": { "required": ["pos", "to_x"], "layer": "props", "events": ["departed", "arrived"], "requires": true },
+	"gondola": { "required": ["pos", "to"], "layer": "props", "events": ["departed", "arrived"] },
+	"evacuee": {
+		"required": ["pos", "name"],
+		"layer": "props",
+		"events": ["rescued", "arrived"],
+		"actions": { "rescue": [], "evacuate": [] },
+		"conditions": { "is": ["rescued", "arrived"] },
+		"requires": true,
+	},
+	"passage": {
+		"required": ["pos", "path"],
+		"layer": "props",
+		"actions": { "enable": [], "disable": [] },
+		"requires": true,
+	},
+	"weather_spot": { "required": ["pos", "size", "name", "accepts"], "layer": "props", "events": ["rain", "wind", "snow", "sun"] },
+	"gauge": { "required": ["pos", "weir"], "refs": { "weir": ["weir"] }, "layer": "props" },
 	"goal": { "required": ["pos"], "layer": "props" },
 	"sign": { "required": ["pos", "text"], "layer": "signs" },
 	"checkpoint": { "required": ["pos"], "layer": "checkpoints" },
 }
 
 ## 计入通关目标的类型
-const OBJECTIVE_TYPES: Array[String] = ["resident", "field"]
+const OBJECTIVE_TYPES: Array[String] = ["resident", "field", "evacuee"]
 
 
 static func get_refs(type: String) -> Dictionary:

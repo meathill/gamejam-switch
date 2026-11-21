@@ -1,0 +1,1483 @@
+{
+  "chapter": "第三关",
+  "title": "河谷",
+  "intro_dialogue": "res://data/dialogue/level_03_intro.json",
+  "outro_dialogue": "res://data/dialogue/level_03_outro.json",
+  "complete_text": "第三关完成\n\n河谷的积水安全泄走了，所有人都撤到了高地渡口。\n残缺的圆环，又亮起了一段。",
+  "camera_limits": [
+    -400,
+    -1600,
+    10400,
+    2400
+  ],
+  "player_start": [
+    150,
+    -700
+  ],
+  "intro_focus": [
+    [
+      7600,
+      -450,
+      2.0
+    ],
+    [
+      4500,
+      -450,
+      1.5
+    ],
+    [
+      5460,
+      250,
+      1.5
+    ]
+  ],
+  "backdrop": {
+    "manifest": "valley",
+    "horizon_offset": -400,
+    "layers": [
+      {
+        "name": "clouds",
+        "scroll": [
+          0.25,
+          1
+        ],
+        "tiled": true
+      },
+      {
+        "name": "mountains",
+        "scroll": [
+          0.08,
+          1
+        ],
+        "tiled": true
+      }
+    ]
+  },
+  "objects": [
+    {
+      "type": "decor",
+      "id": "corridor_1",
+      "pos": [
+        3950,
+        -540
+      ],
+      "size": [
+        1600,
+        16
+      ],
+      "color": "#a8c8e8"
+    },
+    {
+      "type": "decor",
+      "id": "corridor_2",
+      "pos": [
+        5450,
+        -710
+      ],
+      "size": [
+        1700,
+        16
+      ],
+      "color": "#a8c8e8"
+    },
+    {
+      "type": "decor",
+      "id": "corridor_3",
+      "pos": [
+        7100,
+        -880
+      ],
+      "size": [
+        1600,
+        16
+      ],
+      "color": "#a8c8e8"
+    },
+    {
+      "type": "decor",
+      "id": "corridor_4",
+      "pos": [
+        8700,
+        -1080
+      ],
+      "size": [
+        700,
+        16
+      ],
+      "color": "#a8c8e8"
+    },
+    {
+      "type": "decor",
+      "id": "foam_g",
+      "pos": [
+        6060,
+        55
+      ],
+      "size": [
+        280,
+        55
+      ],
+      "color": "#eef5f5",
+      "hidden": true
+    },
+    {
+      "type": "decor",
+      "id": "station",
+      "pos": [
+        7550,
+        -700
+      ],
+      "texture": "res://assets/sprites/valley/station.png",
+      "height": 700
+    },
+    {
+      "type": "decor",
+      "id": "lattice_tower",
+      "pos": [
+        7950,
+        -850
+      ],
+      "texture": "res://assets/sprites/valley/lattice_tower.png",
+      "height": 500
+    },
+    {
+      "type": "decor",
+      "id": "stilt_house",
+      "pos": [
+        9650,
+        -1150
+      ],
+      "texture": "res://assets/sprites/valley/stilt_house.png",
+      "height": 520
+    },
+    {
+      "type": "block",
+      "id": "wall_left",
+      "pos": [
+        -400,
+        -1600
+      ],
+      "size": [
+        200,
+        2600
+      ],
+      "texture": "res://assets/textures/valley/earth.png"
+    },
+    {
+      "type": "block",
+      "id": "ground_a",
+      "pos": [
+        -200,
+        -700
+      ],
+      "size": [
+        1000,
+        1600
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "ground_b",
+      "pos": [
+        800,
+        -600
+      ],
+      "size": [
+        800,
+        1600
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "island_c",
+      "pos": [
+        2300,
+        -250
+      ],
+      "size": [
+        400,
+        1150
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_c",
+      "pos": [
+        3100,
+        -350
+      ],
+      "size": [
+        140,
+        1050
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "platform_c",
+      "pos": [
+        3240,
+        -450
+      ],
+      "size": [
+        360,
+        1350
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "ground_e",
+      "pos": [
+        4200,
+        -450
+      ],
+      "size": [
+        600,
+        1350
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_h",
+      "pos": [
+        4560,
+        -620
+      ],
+      "size": [
+        140,
+        820
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "ledge_h",
+      "pos": [
+        4800,
+        -800
+      ],
+      "size": [
+        1600,
+        240
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891",
+      "hidden": true
+    },
+    {
+      "type": "block",
+      "id": "step_ef1",
+      "pos": [
+        4800,
+        -250
+      ],
+      "size": [
+        140,
+        900
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_ef2",
+      "pos": [
+        4940,
+        -50
+      ],
+      "size": [
+        140,
+        900
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "shore_f",
+      "pos": [
+        5080,
+        150
+      ],
+      "size": [
+        140,
+        650
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "jetty_f",
+      "pos": [
+        5400,
+        150
+      ],
+      "size": [
+        120,
+        650
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "bank_g",
+      "pos": [
+        5840,
+        150
+      ],
+      "size": [
+        160,
+        650
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_g1",
+      "pos": [
+        6060,
+        -50
+      ],
+      "size": [
+        140,
+        600
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_g2",
+      "pos": [
+        6200,
+        -200
+      ],
+      "size": [
+        140,
+        600
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_g3",
+      "pos": [
+        6340,
+        -350
+      ],
+      "size": [
+        140,
+        600
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "bank_j",
+      "pos": [
+        6480,
+        -450
+      ],
+      "size": [
+        420,
+        600
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_i1",
+      "pos": [
+        6980,
+        -200
+      ],
+      "size": [
+        130,
+        150
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_i2",
+      "pos": [
+        7110,
+        -370
+      ],
+      "size": [
+        130,
+        170
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_i3",
+      "pos": [
+        7240,
+        -540
+      ],
+      "size": [
+        130,
+        170
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "platform_i",
+      "pos": [
+        7380,
+        -700
+      ],
+      "size": [
+        320,
+        40
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "step_k1",
+      "pos": [
+        7780,
+        -760
+      ],
+      "size": [
+        220,
+        50
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "hill_k1",
+      "pos": [
+        8000,
+        -850
+      ],
+      "size": [
+        400,
+        1050
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "hill_k2",
+      "pos": [
+        8400,
+        -950
+      ],
+      "size": [
+        400,
+        1150
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "hill_k3",
+      "pos": [
+        8800,
+        -1050
+      ],
+      "size": [
+        300,
+        1250
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "plateau_l",
+      "pos": [
+        9100,
+        -1150
+      ],
+      "size": [
+        800,
+        1450
+      ],
+      "texture": "res://assets/textures/valley/earth.png",
+      "top_color": "#f1b891"
+    },
+    {
+      "type": "block",
+      "id": "wall_right",
+      "pos": [
+        9900,
+        -1600
+      ],
+      "size": [
+        200,
+        2600
+      ],
+      "texture": "res://assets/textures/valley/earth.png"
+    },
+    {
+      "type": "water",
+      "id": "river",
+      "name": "深水河",
+      "pos": [
+        1600,
+        0
+      ],
+      "size": [
+        700,
+        400
+      ],
+      "level": 2
+    },
+    {
+      "type": "water",
+      "id": "sandbar",
+      "name": "沙洲浅滩",
+      "pos": [
+        2700,
+        -250
+      ],
+      "size": [
+        400,
+        160
+      ],
+      "level": 1,
+      "rapid": true,
+      "docks": [
+        60,
+        330
+      ],
+      "status_note": "下雨会让水尺 +1"
+    },
+    {
+      "type": "raft",
+      "id": "raft",
+      "zone": "sandbar",
+      "dock": 0
+    },
+    {
+      "type": "water",
+      "id": "rapids",
+      "name": "急流",
+      "pos": [
+        3600,
+        -450
+      ],
+      "size": [
+        600,
+        60
+      ],
+      "level": 1,
+      "rapid": true,
+      "blocked_weathers": {
+        "snow": "沙洲上还有人，先把他们救上高台"
+      }
+    },
+    {
+      "type": "water",
+      "id": "bay",
+      "name": "下游河湾",
+      "pos": [
+        5360,
+        150
+      ],
+      "size": [
+        340,
+        200
+      ],
+      "level": 2,
+      "shallow_freeze_only": true
+    },
+    {
+      "type": "water",
+      "id": "dam",
+      "name": "浅滩",
+      "pos": [
+        5220,
+        150
+      ],
+      "size": [
+        140,
+        60
+      ],
+      "level": 1
+    },
+    {
+      "type": "water",
+      "id": "pool",
+      "name": "跌水潭",
+      "pos": [
+        6000,
+        100
+      ],
+      "size": [
+        400,
+        350
+      ],
+      "level": 2
+    },
+    {
+      "type": "water",
+      "id": "lake",
+      "name": "堰塞湖",
+      "pos": [
+        6900,
+        -450
+      ],
+      "size": [
+        1400,
+        400
+      ],
+      "level": 2,
+      "shallow_freeze_only": true
+    },
+    {
+      "type": "weather_spot",
+      "id": "lake_mouth",
+      "pos": [
+        -200,
+        -950
+      ],
+      "size": [
+        450,
+        350
+      ],
+      "name": "上游湖口",
+      "accepts": [
+        "rain"
+      ],
+      "status": "下雨会让上游涨水，水尺 +1"
+    },
+    {
+      "type": "weather_spot",
+      "id": "snowline",
+      "pos": [
+        400,
+        -950
+      ],
+      "size": [
+        400,
+        350
+      ],
+      "name": "上游雪线",
+      "accepts": [
+        "sun"
+      ],
+      "status": "日照融雪，水尺 +1"
+    },
+    {
+      "type": "gondola",
+      "id": "gondola",
+      "pos": [
+        1500,
+        -600
+      ],
+      "to": [
+        2500,
+        -250
+      ]
+    },
+    {
+      "type": "evacuee",
+      "id": "villager_1",
+      "pos": [
+        2380,
+        -250
+      ],
+      "name": "老渔夫",
+      "texture": "res://assets/sprites/npc/villager_1.png",
+      "rescue_path": [
+        [
+          2380,
+          -250
+        ],
+        [
+          2800,
+          -200
+        ],
+        [
+          3080,
+          -280
+        ],
+        [
+          3300,
+          -450
+        ]
+      ],
+      "evacuate_path": [
+        [
+          3300,
+          -450
+        ],
+        [
+          4300,
+          -560
+        ],
+        [
+          5800,
+          -720
+        ],
+        [
+          7300,
+          -900
+        ],
+        [
+          8600,
+          -1080
+        ],
+        [
+          9500,
+          -1150
+        ]
+      ]
+    },
+    {
+      "type": "evacuee",
+      "id": "villager_2",
+      "pos": [
+        2480,
+        -250
+      ],
+      "name": "提篮的姑娘",
+      "texture": "res://assets/sprites/npc/villager_2.png",
+      "rescue_path": [
+        [
+          2480,
+          -250
+        ],
+        [
+          2850,
+          -190
+        ],
+        [
+          3100,
+          -300
+        ],
+        [
+          3400,
+          -450
+        ]
+      ],
+      "evacuate_path": [
+        [
+          3400,
+          -450
+        ],
+        [
+          4350,
+          -570
+        ],
+        [
+          5850,
+          -730
+        ],
+        [
+          7350,
+          -910
+        ],
+        [
+          8650,
+          -1090
+        ],
+        [
+          9580,
+          -1150
+        ]
+      ]
+    },
+    {
+      "type": "evacuee",
+      "id": "villager_3",
+      "pos": [
+        2580,
+        -250
+      ],
+      "name": "背包的少年",
+      "texture": "res://assets/sprites/npc/villager_3.png",
+      "rescue_path": [
+        [
+          2580,
+          -250
+        ],
+        [
+          2900,
+          -180
+        ],
+        [
+          3120,
+          -310
+        ],
+        [
+          3500,
+          -450
+        ]
+      ],
+      "evacuate_path": [
+        [
+          3500,
+          -450
+        ],
+        [
+          4400,
+          -580
+        ],
+        [
+          5900,
+          -740
+        ],
+        [
+          7400,
+          -920
+        ],
+        [
+          8700,
+          -1100
+        ],
+        [
+          9660,
+          -1150
+        ]
+      ]
+    },
+    {
+      "type": "evacuee",
+      "id": "dog",
+      "pos": [
+        2430,
+        -250
+      ],
+      "name": "小狗",
+      "texture": "res://assets/sprites/npc/dog.png",
+      "height": 130,
+      "rescue_path": [
+        [
+          2430,
+          -250
+        ],
+        [
+          2820,
+          -195
+        ],
+        [
+          3050,
+          -285
+        ],
+        [
+          3330,
+          -450
+        ]
+      ],
+      "evacuate_path": [
+        [
+          3330,
+          -450
+        ],
+        [
+          4250,
+          -550
+        ],
+        [
+          5750,
+          -710
+        ],
+        [
+          7250,
+          -890
+        ],
+        [
+          8550,
+          -1070
+        ],
+        [
+          9450,
+          -1150
+        ]
+      ]
+    },
+    {
+      "type": "evacuee",
+      "id": "keeper",
+      "pos": [
+        7450,
+        -700
+      ],
+      "name": "守河人",
+      "texture": "res://assets/sprites/npc/keeper.png",
+      "escort": true,
+      "dialogue": "res://data/dialogue/level_03_keeper.json",
+      "evacuate_path": [
+        [
+          7450,
+          -700
+        ],
+        [
+          7820,
+          -760
+        ],
+        [
+          8150,
+          -850
+        ],
+        [
+          8550,
+          -950
+        ],
+        [
+          8950,
+          -1050
+        ],
+        [
+          9550,
+          -1150
+        ]
+      ],
+      "requires": [
+        {
+          "target": "weir",
+          "stage": 3,
+          "hint": "台阶还泡在水里……等湖水退了我再走"
+        }
+      ]
+    },
+    {
+      "type": "weir",
+      "id": "weir",
+      "pos": [
+        4500,
+        -450
+      ],
+      "boards": [
+        [
+          6130,
+          -50
+        ],
+        [
+          6270,
+          -200
+        ],
+        [
+          6410,
+          -350
+        ]
+      ],
+      "safe_points": [
+        {
+          "route": "passage_a",
+          "from_x": -10000
+        },
+        {
+          "route": "passage_c",
+          "from_x": 2300
+        },
+        {
+          "route": "passage_e",
+          "from_x": 4100
+        }
+      ]
+    },
+    {
+      "type": "gauge",
+      "id": "gauge_a",
+      "pos": [
+        700,
+        -700
+      ],
+      "weir": "weir"
+    },
+    {
+      "type": "gauge",
+      "id": "gauge_e",
+      "pos": [
+        4750,
+        -450
+      ],
+      "weir": "weir"
+    },
+    {
+      "type": "passage",
+      "id": "passage_a",
+      "pos": [
+        150,
+        -700
+      ],
+      "path": [
+        [
+          150,
+          -700
+        ],
+        [
+          1200,
+          -720
+        ],
+        [
+          2500,
+          -620
+        ],
+        [
+          3600,
+          -500
+        ],
+        [
+          4600,
+          -350
+        ],
+        [
+          5130,
+          150
+        ]
+      ]
+    },
+    {
+      "type": "passage",
+      "id": "passage_c",
+      "pos": [
+        3350,
+        -450
+      ],
+      "path": [
+        [
+          3350,
+          -450
+        ],
+        [
+          4000,
+          -420
+        ],
+        [
+          4600,
+          -300
+        ],
+        [
+          5130,
+          150
+        ]
+      ]
+    },
+    {
+      "type": "passage",
+      "id": "passage_e",
+      "pos": [
+        4480,
+        -450
+      ],
+      "path": [
+        [
+          4480,
+          -450
+        ],
+        [
+          4800,
+          -350
+        ],
+        [
+          5000,
+          -100
+        ],
+        [
+          5130,
+          150
+        ]
+      ]
+    },
+    {
+      "type": "planting_spot",
+      "id": "garden",
+      "pos": [
+        8900,
+        -1050
+      ],
+      "trash": 0,
+      "objective": true
+    },
+    {
+      "type": "goal",
+      "id": "ferry",
+      "pos": [
+        9600,
+        -1150
+      ],
+      "house": false
+    },
+    {
+      "type": "sign",
+      "pos": [
+        300,
+        -700
+      ],
+      "text": "旧水尺：下游先腾出地方，再放上游的水"
+    },
+    {
+      "type": "sign",
+      "pos": [
+        1100,
+        -600
+      ],
+      "text": "站进吊斗，用风推它过河"
+    },
+    {
+      "type": "sign",
+      "pos": [
+        4300,
+        -450
+      ],
+      "text": "风转动绞盘选堰板（下 → 中 → 上）\n在操作台按 E 放倒",
+      "touch_text": "风转动绞盘选堰板（下 → 中 → 上）\n在操作台点互动按钮放倒"
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        150,
+        -700
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        1200,
+        -600
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        2500,
+        -250
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        3350,
+        -450
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        4400,
+        -450
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        5130,
+        150
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        5000,
+        -800
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        7450,
+        -700
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        8900,
+        -1050
+      ]
+    },
+    {
+      "type": "checkpoint",
+      "pos": [
+        9500,
+        -1150
+      ]
+    }
+  ],
+  "links": [
+    {
+      "when": "lake_mouth",
+      "event": "rain",
+      "do": "add_pressure",
+      "target": "weir"
+    },
+    {
+      "when": "snowline",
+      "event": "sun",
+      "do": "add_pressure",
+      "target": "weir"
+    },
+    {
+      "when": "sandbar",
+      "event": "deep",
+      "do": "add_pressure",
+      "target": "weir"
+    },
+    {
+      "when": "sandbar",
+      "event": "frozen",
+      "do": "rescue",
+      "target": "villager_1"
+    },
+    {
+      "when": "sandbar",
+      "event": "frozen",
+      "do": "rescue",
+      "target": "villager_2",
+      "delay": 0.4
+    },
+    {
+      "when": "sandbar",
+      "event": "frozen",
+      "do": "rescue",
+      "target": "villager_3",
+      "delay": 0.8
+    },
+    {
+      "when": "sandbar",
+      "event": "frozen",
+      "do": "rescue",
+      "target": "dog",
+      "delay": 1.2
+    },
+    {
+      "when": "sandbar",
+      "event": "raft_ashore",
+      "do": "rescue",
+      "target": "villager_1"
+    },
+    {
+      "when": "sandbar",
+      "event": "raft_ashore",
+      "do": "rescue",
+      "target": "villager_2",
+      "delay": 0.4
+    },
+    {
+      "when": "sandbar",
+      "event": "raft_ashore",
+      "do": "rescue",
+      "target": "villager_3",
+      "delay": 0.8
+    },
+    {
+      "when": "sandbar",
+      "event": "raft_ashore",
+      "do": "rescue",
+      "target": "dog",
+      "delay": 1.2
+    },
+    {
+      "when": "villager_1",
+      "event": "rescued",
+      "do": "unblock",
+      "target": "rapids",
+      "weather": "snow"
+    },
+    {
+      "when": "villager_1",
+      "event": "rescued",
+      "do": "message",
+      "text": "村民们和小狗走上了 C 高台，冰桥入口亮起来了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_1",
+      "do": "set",
+      "target": "bay",
+      "level": 1,
+      "delay": 1.5
+    },
+    {
+      "when": "weir",
+      "event": "stage_1",
+      "do": "focus",
+      "pos": [
+        5530,
+        250
+      ],
+      "seconds": 1.5,
+      "delay": 1.5
+    },
+    {
+      "when": "weir",
+      "event": "stage_1",
+      "do": "message",
+      "text": "下游河湾的水退到警戒线以下，浅滩露出来了",
+      "delay": 1.5
+    },
+    {
+      "when": "weir",
+      "event": "stage_2",
+      "do": "reveal",
+      "target": "foam_g"
+    },
+    {
+      "when": "weir",
+      "event": "stage_2",
+      "do": "reveal",
+      "target": "ledge_h"
+    },
+    {
+      "when": "weir",
+      "event": "stage_2",
+      "do": "focus",
+      "pos": [
+        6200,
+        100
+      ],
+      "seconds": 1.5
+    },
+    {
+      "when": "weir",
+      "event": "stage_2",
+      "do": "message",
+      "text": "跌水潭翻起白沫，水势缓下来了，上层岩架露了出来"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "set",
+      "target": "lake",
+      "level": 0,
+      "delay": 1.0
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "focus",
+      "pos": [
+        7600,
+        -450
+      ],
+      "seconds": 1.5,
+      "delay": 1.0
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "message",
+      "text": "三级阶梯过水，堰塞湖退下去了，通往水文站的台阶露出来了",
+      "delay": 1.0
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "evacuate",
+      "target": "villager_1"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "evacuate",
+      "target": "villager_2",
+      "delay": 0.5
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "evacuate",
+      "target": "villager_3",
+      "delay": 1.0
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "evacuate",
+      "target": "dog",
+      "delay": 1.5
+    },
+    {
+      "when": "weir",
+      "event": "collapsed",
+      "do": "set",
+      "target": "bay",
+      "level": 2
+    },
+    {
+      "when": "weir",
+      "event": "collapsed",
+      "do": "set",
+      "target": "dam",
+      "frozen": false
+    },
+    {
+      "when": "weir",
+      "event": "collapsed",
+      "do": "block",
+      "target": "bay",
+      "weather": "sun",
+      "reason": "先用雪在浅滩筑一道冰堰，不然水退了又会涨回来"
+    },
+    {
+      "when": "weir",
+      "event": "collapsed",
+      "do": "focus",
+      "pos": [
+        5530,
+        250
+      ],
+      "seconds": 1.2
+    },
+    {
+      "when": "bay",
+      "event": "shallow",
+      "do": "recover",
+      "target": "weir"
+    },
+    {
+      "when": "dam",
+      "event": "frozen",
+      "do": "unblock",
+      "target": "bay",
+      "weather": "sun"
+    },
+    {
+      "when": "dam",
+      "event": "frozen",
+      "do": "message",
+      "text": "冰堰筑好了，可以用日照退水了"
+    },
+    {
+      "when": "dam",
+      "event": "shallow",
+      "do": "block",
+      "target": "bay",
+      "weather": "sun",
+      "reason": "先用雪在浅滩筑一道冰堰，不然水退了又会涨回来"
+    },
+    {
+      "when": "weir",
+      "event": "recovered",
+      "do": "set",
+      "target": "dam",
+      "frozen": false
+    }
+  ]
+}

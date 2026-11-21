@@ -15,7 +15,7 @@ const BOARD_SIZE := Vector2(50, 200)
 const BOARD_COLORS: Array[Color] = [Color("3fa69a"), Color("e0a030"), Color("c8c8c0")]
 const TURN_SECONDS := 0.5
 const LOWER_SECONDS := 3.0
-const COLLAPSE_DELAY := 1.5
+const COLLAPSE_DELAY := 2.2
 const TARGET_HALF_WIDTH := 400.0
 const TARGET_HEIGHT_ABOVE := 600.0
 

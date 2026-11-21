@@ -81,7 +81,7 @@ func test_wrong_order_collapses_and_enables_passage() -> void:
 	weir.cast_weather(Weather.Type.WIND, 1)
 	weir.confirm()
 	assert_signal_emitted_with_parameters(weir, "level_event", ["collapsed"])
-	await wait_seconds(2.0)
+	await wait_seconds(2.6)
 	# 小猫到过 x=200，最远安全点是 from_x=100 的第二条便道
 	assert_true(passages[1].is_enabled)
 	assert_false(passages[0].is_enabled)
@@ -102,7 +102,7 @@ func test_recover_keeps_stage_and_restores_pressure() -> void:
 	weir.cast_weather(Weather.Type.WIND, 1)
 	weir.confirm()
 	assert_true(weir.state.is_collapsed)
-	await wait_seconds(2.0)
+	await wait_seconds(2.6)
 	watch_signals(weir)
 	weir.do_recover({})
 	assert_signal_emitted_with_parameters(weir, "level_event", ["recovered"])

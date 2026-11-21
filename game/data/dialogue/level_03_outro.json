@@ -1,0 +1,8 @@
+{
+  "id": "level_03_outro",
+  "lines": [
+    { "type": "narration", "text": "高地渡口上，村民、小狗和守河人都到齐了。源头的山坡上，自然之种冒出了新芽。" },
+    { "type": "line", "speaker": "keeper", "text": "等水稳下来，我们把旧河湾挖开。河有地方弯，水就有地方去。" },
+    { "type": "line", "speaker": "ilda", "text": "圆环又亮起了一段。下一程，是冰山。" }
+  ]
+}

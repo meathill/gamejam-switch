@@ -1,0 +1,10 @@
+{
+  "id": "level_03_intro",
+  "lines": [
+    { "type": "narration", "text": "种子车停在了高地粮仓前。小猫沿着旧河道一路向北，走进了河谷。" },
+    { "type": "narration", "text": "山上的树被砍光，河道被拉直，滩地筑起了堤。雨水和雪水没处可去，在上游堵成了一片堰塞湖。" },
+    { "type": "line", "speaker": "ilda", "text": "河谷里有一座三级活动堰。要先放下游那一段，给水腾出地方，再一段一段往上放。" },
+    { "type": "line", "speaker": "ilda", "text": "顺序错了，或者上游的水涨满了，洪水会一口气冲下来。" },
+    { "type": "line", "speaker": "cat", "text": "……喵。" }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "level_03_keeper",
+  "lines": [
+    { "type": "line", "speaker": "keeper", "text": "你是……伊尔妲派来的那只猫？" },
+    { "type": "line", "speaker": "keeper", "text": "我守了这条河一辈子。以前它会在弯道和滩地上散开，洪水来了也有地方去。" },
+    { "type": "line", "speaker": "keeper", "text": "台阶露出来了，湖水总算退了。走吧，我跟你去高地渡口。" }
+  ]
+}

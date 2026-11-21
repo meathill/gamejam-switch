@@ -186,7 +186,7 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 ### 5.5 关卡数据（`game/data/levels/`）
 
-- `levels.json` 列出关卡顺序；`<id>.json` = 元数据（`chapter`、`title`、`intro_dialogue`、`outro_dialogue`、`complete_text`、`camera_limits`、`player_start`、`underground_y`、`backdrop`）+ `objects[]`。
+- `levels.json` 列出关卡顺序；`<id>.json` = 元数据（`chapter`、`title`、`intro_dialogue`、`outro_dialogue`、`complete_text`、`camera_limits`、`player_start`、`underground_y`、`backdrop`、`intro_focus`）+ `objects[]`。`intro_focus` 形如 `[[x, y, seconds], ...]`，开场对白结束后让镜头依次停留看这些位置。
 - 每个对象有 `type`，可选 `id`，坐标都是 `[x, y]`，颜色是 `[r, g, b]` 或 `"#rrggbb"`。各类型的必填字段、引用字段、所在图层见 `scripts/level_schema.gd`，字段到节点属性的映射见 `level_object_factory.gd`。
 - `LevelMap` 先在场景树外生成所有节点并连接引用（浮箱挂到水域下），再整层加入场景树，保证各节点 `_ready` 时引用已就绪。
 - 新增类型：`LevelSchema.TYPES` 登记 → 工厂加 `create`/`link` 分支 → 需要时在 `LevelData._validate_object` 加专属校验。
@@ -201,26 +201,45 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 { "when": "cart", "event": "arrived", "do": "complete_level" }
 ```
 
-- 对象发出 `level_event(event)` 信号，`LevelEvents` 按表调用目标的 `do_<动作>(link)`；没有 `target` 的是全局动作：`message`（text）、`warning`（text）、`dialogue`（path）、`complete_level`。
+- 对象发出 `level_event(event)` 信号，`LevelEvents` 按表调用目标的 `do_<动作>(link)`；没有 `target` 的是全局动作：`message`（text）、`warning`（text）、`dialogue`（path）、`focus`（pos、seconds）、`complete_level`。
 - 每种对象的事件、动作见 `LevelSchema.TYPES`（`events`、`actions`），常用的：
 
-| 类型                                     | 事件                                           | 动作                                                               | 条件                                                          |
-| ---------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
-| water                                    | deep / shallow / dry / frozen                  | unblock、block、lower（by、clean）、set（level、frozen、polluted） | is: deep / shallow / dry / frozen / liquid / clean / polluted |
-| lever                                    | pulled                                         | —                                                                  | is: pulled                                                    |
-| drainage_station / pump                  | started                                        | —                                                                  | is: started                                                   |
-| resident                                 | rescued                                        | rescue                                                             | is: rescued                                                   |
-| waterwheel                               | gear_1 / gear_2 / gear_3                       | —                                                                  | gear: 1~3                                                     |
-| field                                    | restored / flooded                             | irrigate                                                           | is: restored / dry / waterlogged                              |
-| fan / dark_zone                          | started / lit                                  | —                                                                  | is: running / lit                                             |
-| block / fog / ladder / weather_rule_area | —                                              | reveal、hide / clear / enable / enable、disable                    | —                                                             |
-| elevator / seed_cart / planting_spot     | powered / departed、arrived / cleared、planted | —                                                                  | —                                                             |
+| 类型                                     | 事件                                                                   | 动作                                                               | 条件                                                          |
+| ---------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| water                                    | deep / shallow / dry / frozen / raft_ashore                            | unblock、block、lower（by、clean）、set（level、frozen、polluted） | is: deep / shallow / dry / frozen / liquid / clean / polluted |
+| lever                                    | pulled                                                                 | —                                                                  | is: pulled                                                    |
+| drainage_station / pump                  | started                                                                | —                                                                  | is: started                                                   |
+| resident                                 | rescued                                                                | rescue                                                             | is: rescued                                                   |
+| waterwheel                               | gear_1 / gear_2 / gear_3                                               | —                                                                  | gear: 1~3                                                     |
+| field                                    | restored / flooded                                                     | irrigate                                                           | is: restored / dry / waterlogged                              |
+| fan / dark_zone                          | started / lit                                                          | —                                                                  | is: running / lit                                             |
+| block / fog / ladder / weather_rule_area | —                                                                      | reveal、hide / clear / enable / enable、disable                    | —                                                             |
+| decor                                    | —                                                                      | reveal、hide                                                       | —                                                             |
+| elevator / seed_cart / planting_spot     | powered / departed、arrived / cleared、planted                         | —                                                                  | —                                                             |
+| gondola                                  | departed / arrived                                                     | —                                                                  | —                                                             |
+| evacuee                                  | rescued / arrived                                                      | rescue、evacuate                                                   | is: rescued / arrived                                         |
+| passage                                  | —                                                                      | enable、disable                                                    | —                                                             |
+| weather_spot                             | rain / wind / snow / sun                                               | —                                                                  | —                                                             |
+| gauge                                    | —                                                                      | —                                                                  | —                                                             |
+| weir                                     | stage_1 / stage_2 / stage_3 / pressure_warning / collapsed / recovered | add_pressure、recover                                              | stage: 1~3、is: collapsed / stable                            |
+
+其他常用可选字段：water 的 `rapid`（急流，浅水也危险）、`status_note`（状态栏附加说明）、`basin`（为 false 时不画池底深色底板，地形直接托底的关卡用）；decor 的 `hidden`（初始隐藏，reveal 显现）；planting_spot 的 `objective: true`（种下计入「种植」目标）。
 
 #### 前置条件 `requires`
 
-`[{ "target": id, 条件: 取值, "hint": 可选 }]`，全部满足才算满足。支持的对象：lever、elevator、ladder、seed_cart（按 E 时检查）、drainage_station、pump（满足后自动启动）。没满足时按目标对象的状态自动生成提示（如“排水槽里的水还不够，再下一场雨”），`hint` 可覆盖。
+`[{ "target": id, 条件: 取值, "hint": 可选 }]`，全部满足才算满足。支持的对象：lever、elevator、ladder、seed_cart、evacuee、passage（按 E 时检查）、drainage_station、pump（满足后自动启动）。没满足时按目标对象的状态自动生成提示（如“排水槽里的水还不够，再下一场雨”），`hint` 可覆盖。
 
 所有联动和条件都在 `LevelData.validate()` 里校验：引用、事件名、动作名、必填参数、条件取值。
+
+### 5.6 三级活动堰与溃泄（第三关）
+
+规则在 `scripts/weir_rules.gd`（`WeirRules`，纯函数），节点在 `scenes/props/weir.gd`：
+
+- 三块堰板必须按下 → 中 → 上的顺序在操作台放倒；风转动绞盘循环选择。
+- `confirm`：选中已放倒的 → ALREADY_LOWERED；选中当前段 → LOWERED（stage+1，stage 3 时压力清零，否则 −1，并记入 `stable_pressure`）；选中更上游的 → COLLAPSE。
+- `add_pressure`（联动下雨、融雪、深水事件）：+1；到 4 格 WARNING，到 5 格 COLLAPSE；溃泄中或 stage 3 后 IGNORED。
+- 溃泄后按小猫**到过的最大 x** 选最远的安全点（`safe_points[].from_x`），把小猫送过去、设为检查点并启用对应应急便道（`passage`，单向去下游 F）。
+- 恢复：F 河湾变浅（`shallow`）联动 `recover`，压力回到 `stable_pressure`、已放倒的保留，便道关闭并把小猫送回起点。冰堰的实现是 collapse 时 block 河湾日照、冻住小坝后 unblock，逼玩家先筑冰堰再退水。
 
 ## 6. 对白数据
 
@@ -256,6 +275,8 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 图标用 Phosphor（fill 风格）SVG，`currentColor` 替换为白色后由代码着色。
 
+`pnpm run backgrounds` → `tools/src/build-backgrounds.ts`：把 `art/backgrounds/<name>/` 的分层原画裁切拼成贴图并生成 `game/data/backdrops/<name>.json`（画布尺寸、horizonY、各层图）。关卡 `backdrop.layers[]` 每层可配 `scroll`（跟随镜头比例）、`tiled`（横向平铺）、`modulate`（叠色，远山用淡色半透明避免和地形同色）。
+
 ## 8. 测试
 
 | 范围                                        | 工具         | 命令                                                                                |
@@ -278,7 +299,7 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 godot --path game --always-on-top --resolution 1280x720 -s res://tests/capture.gd -- res://scenes/levels/level.tscn /tmp/cap level [level_id]
 ```
 
-场景：`level`（第一关主流程）、`finale`（救援与通关）、`stairs` / `garden`（第一关台阶与支路的真实跳跃）、`farm`（第二关各区域）、`farm_moves`（第二关关键跳跃）、`prologue`（序章）。
+场景：`level`（第一关主流程）、`finale`（救援与通关）、`stairs` / `garden`（第一关台阶与支路的真实跳跃）、`farm`（第二关各区域）、`farm_moves`（第二关关键跳跃）、`valley`（第三关各区域）、`valley_moves`（第三关关键跳跃）、`prologue`（序章）。
 
 ## 9. 代码规范补充（GDScript）
 

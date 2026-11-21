@@ -72,6 +72,12 @@ func _run(step: Dictionary) -> void:
 			touch.position = root.get_final_transform() * Vector2(step["at"])
 			touch.pressed = step.get("pressed", true)
 			Input.parse_input_event(touch)
+		"call":
+			var obj: Node = current_scene.get("map").get_object(step["id"])
+			obj.callv(step["method"], step.get("args", []))
+		"prop":
+			var obj2: Node = current_scene.get("map").get_object(step["id"])
+			obj2.set(step["prop"], step["value"])
 		"log":
 			var state: Node = root.get_node("GameState")
 			print("[capture] %s pos=%s locked=%s weather=%s rescued=%d touch=%s paused=%s" % [
@@ -215,6 +221,105 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 560, "do": "release", "action": "move_left" },
 				{ "frame": 580, "do": "log", "name": "on_ledge" },
 				{ "frame": 581, "do": "shot", "name": "on_ledge" },
+			]
+		"valley":
+			var steps: Array[Dictionary] = []
+			var stops: Array[Dictionary] = [
+				{ "name": "a", "at": Vector2(400, -700) },
+				{ "name": "b", "at": Vector2(1200, -600) },
+				{ "name": "c", "at": Vector2(2500, -250) },
+				{ "name": "d", "at": Vector2(3550, -450) },
+				{ "name": "e", "at": Vector2(4500, -450) },
+				{ "name": "f", "at": Vector2(5150, 150) },
+				{ "name": "g", "at": Vector2(6150, -300) },
+				{ "name": "i", "at": Vector2(7500, -700) },
+				{ "name": "k", "at": Vector2(8900, -1050) },
+				{ "name": "l", "at": Vector2(9550, -1150) },
+			]
+			for index in stops.size():
+				steps.append({ "frame": 60 + index * 40, "do": "teleport", "to": stops[index]["at"] })
+				steps.append({ "frame": 95 + index * 40, "do": "shot", "name": "valley_%s" % stops[index]["name"] })
+			# 吊斗滑行中途
+			steps.append({ "frame": 470, "do": "teleport", "to": Vector2(1500, -600) })
+			steps.append({ "frame": 475, "do": "weather", "weather": Weather.Type.WIND })
+			steps.append({ "frame": 480, "do": "cast" })
+			steps.append({ "frame": 560, "do": "shot", "name": "valley_gondola_mid" })
+			# stage_2 后：H 岩架出现、G 翻白沫
+			steps.append({ "frame": 620, "do": "call", "id": "weir", "method": "confirm" })
+			steps.append({ "frame": 810, "do": "prop", "id": "weir", "prop": "selection", "value": 1 })
+			steps.append({ "frame": 812, "do": "call", "id": "weir", "method": "confirm" })
+			steps.append({ "frame": 1000, "do": "teleport", "to": Vector2(5150, 150) })
+			steps.append({ "frame": 1040, "do": "shot", "name": "valley_f_after_stage2" })
+			steps.append({ "frame": 1045, "do": "teleport", "to": Vector2(5600, -800) })
+			steps.append({ "frame": 1085, "do": "shot", "name": "valley_h" })
+			return steps
+		"valley_moves":
+			# 真实按键验证关键跳跃：沙洲冰面 → C 高台；E ↔ F 台阶；H 岩架；K 山坡到渡口
+			# 每段落水后给够 respawn 时间再 teleport，避免挂起的重生把猫拽回检查点
+			return [
+				{ "frame": 50, "do": "teleport", "to": Vector2(2760, -160) },
+				{ "frame": 55, "do": "weather", "weather": Weather.Type.SNOW },
+				{ "frame": 60, "do": "cast" },
+				{ "frame": 100, "do": "teleport", "to": Vector2(2950, -250) },
+				{ "frame": 110, "do": "press", "action": "move_right" },
+				{ "frame": 118, "do": "press", "action": "jump" },
+				{ "frame": 140, "do": "release", "action": "jump" },
+				{ "frame": 150, "do": "release", "action": "move_right" },
+				{ "frame": 180, "do": "log", "name": "sandbar_to_step" },
+				{ "frame": 185, "do": "shot", "name": "moves_step_c" },
+				# step_c → C 高台
+				{ "frame": 210, "do": "teleport", "to": Vector2(3150, -350) },
+				{ "frame": 220, "do": "press", "action": "move_right" },
+				{ "frame": 228, "do": "press", "action": "jump" },
+				{ "frame": 250, "do": "release", "action": "jump" },
+				{ "frame": 260, "do": "release", "action": "move_right" },
+				{ "frame": 280, "do": "log", "name": "step_to_platform" },
+				{ "frame": 285, "do": "shot", "name": "moves_platform_c" },
+				# E → F 下台阶（走着下去，在岸边停，不进深水）
+				{ "frame": 310, "do": "teleport", "to": Vector2(4750, -450) },
+				{ "frame": 320, "do": "press", "action": "move_right" },
+				{ "frame": 370, "do": "release", "action": "move_right" },
+				{ "frame": 390, "do": "log", "name": "e_to_f_down" },
+				{ "frame": 395, "do": "shot", "name": "moves_f_shore" },
+				# F → E 跳回三级台阶
+				{ "frame": 420, "do": "press", "action": "move_left" },
+				{ "frame": 435, "do": "press", "action": "jump" },
+				{ "frame": 475, "do": "release", "action": "jump" },
+				{ "frame": 490, "do": "press", "action": "jump" },
+				{ "frame": 530, "do": "release", "action": "jump" },
+				{ "frame": 550, "do": "press", "action": "jump" },
+				{ "frame": 590, "do": "release", "action": "jump" },
+				{ "frame": 610, "do": "press", "action": "jump" },
+				{ "frame": 650, "do": "release", "action": "jump" },
+				{ "frame": 660, "do": "release", "action": "move_left" },
+				{ "frame": 675, "do": "log", "name": "f_to_e_up" },
+				{ "frame": 680, "do": "shot", "name": "moves_back_on_e" },
+				# 推进到 stage_2 显示 H 岩架，再跳上去
+				{ "frame": 720, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 920, "do": "prop", "id": "weir", "prop": "selection", "value": 1 },
+				{ "frame": 922, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 1070, "do": "teleport", "to": Vector2(4600, -620) },
+				{ "frame": 1080, "do": "press", "action": "move_right" },
+				{ "frame": 1090, "do": "press", "action": "jump" },
+				{ "frame": 1130, "do": "release", "action": "jump" },
+				{ "frame": 1160, "do": "release", "action": "move_right" },
+				{ "frame": 1170, "do": "log", "name": "on_ledge_h" },
+				{ "frame": 1175, "do": "shot", "name": "moves_ledge_h" },
+				# K 山坡：从水文站平台一路跳到渡口
+				{ "frame": 1220, "do": "teleport", "to": Vector2(7600, -700) },
+				{ "frame": 1230, "do": "log", "name": "on_platform_i" },
+				{ "frame": 1240, "do": "press", "action": "move_right" },
+				{ "frame": 1280, "do": "press", "action": "jump" },
+				{ "frame": 1320, "do": "release", "action": "jump" },
+				{ "frame": 1345, "do": "press", "action": "jump" },
+				{ "frame": 1385, "do": "release", "action": "jump" },
+				{ "frame": 1410, "do": "press", "action": "jump" },
+				{ "frame": 1450, "do": "release", "action": "jump" },
+				{ "frame": 1475, "do": "press", "action": "jump" },
+				{ "frame": 1515, "do": "release", "action": "jump" },
+				{ "frame": 1550, "do": "release", "action": "move_right" },
+				{ "frame": 1570, "do": "log", "name": "k_to_l" },
+				{ "frame": 1575, "do": "shot", "name": "moves_ferry" },
 			]
 		"standing":
 			return [

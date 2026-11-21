@@ -1,0 +1,23 @@
+{
+  "complete": false,
+  "steps": [
+    { "teleport": [1500, -600] },
+    { "cast": "wind", "wait": 3.5 },
+
+    { "teleport": [3100, -350] },
+    { "cast": "snow", "wait": 1.0 },
+    { "wait": 8.0 },
+    { "expect_prop": "villager_1", "_is_rescued": true },
+
+    { "teleport": [4500, -450] },
+    { "interact": true },
+    { "wait": 4.0 },
+    { "expect_prop": "weir", "stage": 1 },
+
+    { "teleport": [3900, -450] },
+    { "wait": 3.0 },
+    { "expect_player": [4400, -450] },
+    { "expect_prop": "weir", "stage": 1 },
+    { "expect_prop": "villager_1", "_is_rescued": true }
+  ]
+}

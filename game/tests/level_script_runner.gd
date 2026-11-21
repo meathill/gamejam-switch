@@ -111,6 +111,10 @@ func _expect_water(step: Dictionary, label: String) -> void:
 func _expect(expected: Dictionary, label: String) -> void:
 	if expected.has("rescued"):
 		_test.assert_eq(GameState.get_objective("resident").x, int(expected["rescued"]), "%s：救出人数" % label)
+	if expected.has("evacuated"):
+		_test.assert_eq(GameState.get_objective("evacuee").x, int(expected["evacuated"]), "%s：撤离人数" % label)
+	if expected.has("seeds"):
+		_test.assert_eq(GameState.get_objective("seed").x, int(expected["seeds"]), "%s：种下的种子" % label)
 	if expected.has("fields"):
 		_test.assert_eq(GameState.get_objective("field").x, int(expected["fields"]), "%s：恢复的田" % label)
 	if expected.has("complete"):

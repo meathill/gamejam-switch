@@ -1,0 +1,68 @@
+{
+  "steps": [
+    { "teleport": [1500, -600] },
+    { "cast": "wind", "wait": 3.5 },
+    { "expect_player": [2500, -250] },
+
+    { "teleport": [3100, -350] },
+    { "cast": "snow", "wait": 1.0 },
+    { "expect_water": "sandbar", "frozen": true },
+    { "wait": 8.0 },
+    { "expect_prop": "villager_1", "_is_rescued": true },
+    { "expect_prop": "villager_2", "_is_rescued": true },
+    { "expect_prop": "villager_3", "_is_rescued": true },
+    { "expect_prop": "dog", "_is_rescued": true },
+
+    { "teleport": [3550, -450] },
+    { "cast": "snow", "wait": 1.0 },
+    { "expect_water": "rapids", "frozen": true },
+
+    { "teleport": [4500, -450] },
+    { "interact": true },
+    { "wait": 4.0 },
+    { "expect_prop": "weir", "stage": 1 },
+    { "expect_prop": "weir", "pressure": 2 },
+    { "expect_water": "bay", "level": 1 },
+
+    { "cast": "wind", "wait": 0.8 },
+    { "interact": true },
+    { "wait": 4.0 },
+    { "expect_prop": "weir", "stage": 2 },
+    { "expect_prop": "weir", "pressure": 1 },
+
+    { "cast": "wind", "wait": 0.8 },
+    { "interact": true },
+    { "wait": 2.5 },
+    { "expect_prop": "weir", "stage": 3 },
+    { "expect_prop": "weir", "pressure": 0 },
+    { "expect_water": "lake", "level": 0 },
+
+    { "teleport": [7450, -700] },
+    { "interact": true },
+    { "advance": 8 },
+    { "wait": 2.0 },
+    { "teleport": [7820, -760] },
+    { "wait": 3.0 },
+    { "teleport": [8150, -850] },
+    { "wait": 3.0 },
+    { "teleport": [8550, -950] },
+    { "wait": 3.0 },
+    { "teleport": [8950, -1050] },
+    { "wait": 3.0 },
+    { "teleport": [9200, -1150] },
+    { "wait": 4.0 },
+
+    { "teleport": [9600, -1150] },
+    { "wait": 20.0 },
+    { "expect": { "complete": false, "evacuated": 5, "seeds": 0 } },
+
+    { "teleport": [8900, -1050] },
+    { "interact": true },
+    { "wait": 1.0 },
+    { "expect": { "seeds": 1 } },
+
+    { "teleport": [9600, -1150] },
+    { "wait": 1.0 },
+    { "expect": { "complete": true, "evacuated": 5, "seeds": 1 } }
+  ]
+}

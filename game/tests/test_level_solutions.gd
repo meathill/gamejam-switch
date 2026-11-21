@@ -12,6 +12,18 @@ func test_every_level_is_solvable() -> void:
 		assert_true(FileAccess.file_exists(path), "%s 没有解法文件" % level_id)
 		if FileAccess.file_exists(path):
 			await _play(level_id, JSON.parse_string(FileAccess.get_file_as_string(path)))
+		# <id>_*.json 是场景解法（溃泄、浮箱等支线），不要求通关
+		for extra in _scenario_paths(level_id):
+			await _play(level_id, JSON.parse_string(FileAccess.get_file_as_string(extra)))
+
+
+func _scenario_paths(level_id: String) -> Array[String]:
+	var paths: Array[String] = []
+	for file: String in DirAccess.get_files_at(SOLUTION_DIR):
+		if file.begins_with(level_id + "_") and file.ends_with(".json"):
+			paths.append(SOLUTION_DIR + file)
+	paths.sort()
+	return paths
 
 
 func _play(level_id: String, solution: Dictionary) -> void:
@@ -21,6 +33,7 @@ func _play(level_id: String, solution: Dictionary) -> void:
 	add_child(level)
 	await wait_physics_frames(4)
 	await Runner.new(self, level).run(solution["steps"])
-	assert_true(GameState.is_level_complete, "%s 按解法没能通关" % level_id)
+	if solution.get("complete", true):
+		assert_true(GameState.is_level_complete, "%s 按解法没能通关" % level_id)
 	level.queue_free()
 	await wait_physics_frames(2)

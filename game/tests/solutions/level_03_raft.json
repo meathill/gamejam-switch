@@ -1,0 +1,20 @@
+{
+  "complete": false,
+  "steps": [
+    { "teleport": [1500, -600] },
+    { "cast": "wind", "wait": 3.5 },
+
+    { "teleport": [3100, -350] },
+    { "cast": "rain", "wait": 1.0 },
+    { "expect_water": "sandbar", "level": 2 },
+    { "expect_prop": "weir", "pressure": 4 },
+
+    { "cast": "wind", "wait": 2.5 },
+    { "expect_water": "sandbar", "raft_dock": 1 },
+    { "wait": 8.0 },
+    { "expect_prop": "villager_1", "_is_rescued": true },
+    { "expect_prop": "villager_2", "_is_rescued": true },
+    { "expect_prop": "villager_3", "_is_rescued": true },
+    { "expect_prop": "dog", "_is_rescued": true }
+  ]
+}

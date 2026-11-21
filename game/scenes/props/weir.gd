@@ -30,6 +30,12 @@ var selection: int = 0
 var pressure: int:
 	get:
 		return state.pressure
+var stage: int:
+	get:
+		return state.stage
+var is_collapsed: bool:
+	get:
+		return state.is_collapsed
 
 var _max_x: float = -INF
 var _is_busy: bool = false

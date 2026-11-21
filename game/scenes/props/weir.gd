@@ -33,6 +33,7 @@ var pressure: int:
 
 var _max_x: float = -INF
 var _is_busy: bool = false
+var _is_turning: bool = false
 var _pending_pressure: int = 0
 var _collapse_timer: float = -1.0
 ## 被冲开的堰板序号（-1 没有，如满压溃泄）
@@ -110,7 +111,7 @@ func get_unmet_reason(condition: Dictionary) -> String:
 
 
 func _cast(weather: Weather.Type, _direction: int) -> CastResult:
-	if _is_busy:
+	if _is_busy or _is_turning:
 		return CastResult.busy()
 	if state.is_collapsed:
 		return CastResult.fail("溃泄中，绞盘被锁住了")
@@ -118,12 +119,19 @@ func _cast(weather: Weather.Type, _direction: int) -> CastResult:
 		return CastResult.fail("只有风能转动绞盘")
 	selection = WeirRules.next_selection(selection)
 	GameState.post_message("绞盘指向：%s" % WeirRules.BOARD_NAMES[selection])
+	_turn_winch()
+	return CastResult.ok()
+
+
+## 绞盘贴图转向选中段；转完前拒绝再次施放，防止连点
+func _turn_winch() -> void:
+	_is_turning = true
 	var tween := create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.tween_property(self, "_winch_angle", selection * TAU / 3.0, TURN_SECONDS)
 	await tween.finished
+	_is_turning = false
 	state_changed.emit(self)
-	return CastResult.ok()
 
 
 ## 操作台确认放倒选中的堰板

@@ -18,6 +18,20 @@ var accepts: Array[Weather.Type] = []
 var _highlight_color: Color = Color.TRANSPARENT
 
 
+func _ready() -> void:
+	# 名字用 Label 画（draw_string 的 fallback 字体在 Web 上没有中文字形）
+	var label := Label.new()
+	label.text = display_name
+	label.add_theme_font_size_override("font_size", 30)
+	label.add_theme_color_override("font_color", FLAG_COLOR.lightened(0.3))
+	label.add_theme_constant_override("outline_size", 8)
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.size = Vector2(400, 40)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.position = Vector2(size.x / 2.0 - 200, -140)
+	add_child(label)
+
+
 func get_display_name() -> String:
 	return display_name if display_name else "天气点"
 
@@ -60,10 +74,6 @@ func _draw() -> void:
 	draw_colored_polygon(PackedVector2Array([
 		top + Vector2(0, -90), top + Vector2(56, -78), top + Vector2(0, -64),
 	]), FLAG_COLOR)
-	var font := ThemeDB.fallback_font
-	var font_size := 30
-	var text_width := font.get_string_size(display_name, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x
-	draw_string(font, top + Vector2(-text_width / 2.0, -104), display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, FLAG_COLOR.lightened(0.3))
 	if _highlight_color.a > 0.0:
 		var corners := [Vector2.ZERO, Vector2(size.x, 0), size, Vector2(0, size.y)]
 		for index in 4:

@@ -11,7 +11,7 @@ const LIT_COLOR := Color(0.45, 0.75, 1.0)
 const DANGER_COLOR := Color(1.0, 0.45, 0.4)
 const OFF_COLOR := Color(0.2, 0.22, 0.28)
 
-var weir: WeatherTarget
+var weir: Weir
 var _pressure: int = 0:
 	set(value):
 		_pressure = value
@@ -21,10 +21,8 @@ var _pressure: int = 0:
 func _ready() -> void:
 	if Engine.is_editor_hint() or not weir:
 		return
-	weir.connect("pressure_changed", _on_pressure_changed)
-	var value: Variant = weir.get("pressure")
-	if value != null:
-		_pressure = value
+	weir.pressure_changed.connect(_on_pressure_changed)
+	_pressure = weir.pressure
 
 
 func _on_pressure_changed(value: int) -> void:

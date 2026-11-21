@@ -70,6 +70,18 @@ const BACKDROPS: Backdrop[] = [
       { name: 'clouds', layers: ['10_cloud_right.png', '09_cloud_big.png', '07_cloud_left.png'], isMirrored: true },
     ],
   },
+  // 第三关河谷：远山底边约 2400（右山 2473，地面图层从 1618 起盖住山底），瀑布/台阶由地形块绘制
+  {
+    name: 'valley',
+    sourceDir: 'art/backgrounds/valley_front',
+    canvas: { width: 5120, height: 2880 },
+    horizonY: 2400,
+    groups: [
+      { name: 'sky', layers: ['01_sky.png'], isMirrored: false },
+      { name: 'clouds', layers: ['02_cloud.png'], isMirrored: true },
+      { name: 'mountains', layers: ['03_mountain_left.png', '04_mountain_right.png'], isMirrored: true },
+    ],
+  },
 ];
 
 async function buildGroup(backdrop: Backdrop, group: LayerGroup, outputDir: string): Promise<ManifestLayer> {

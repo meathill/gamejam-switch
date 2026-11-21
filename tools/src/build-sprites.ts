@@ -48,7 +48,13 @@ const SINGLE_IMAGES: SingleImage[] = [
   { source: 'art/npc/大叔.png', output: 'game/assets/sprites/npc/uncle.png', maxSize: 360 },
   { source: 'art/npc/老奶奶.png', output: 'game/assets/sprites/npc/granny.png', maxSize: 360 },
   { source: 'art/npc/农民.png', output: 'game/assets/sprites/npc/farmer.png', maxSize: 360 },
-  { source: 'art/npc/一家人.png', output: 'game/assets/sprites/npc/family.png', maxSize: 360 },
+  { source: 'art/npc/家人.png', output: 'game/assets/sprites/npc/family.png', maxSize: 360 },
+  // 第三关 NPC：村民与守河人显示约 240px 高，狗约 160px
+  { source: 'art/npc/守河人.png', output: 'game/assets/sprites/npc/keeper.png', maxSize: 360 },
+  { source: 'art/npc/村民1.png', output: 'game/assets/sprites/npc/villager_1.png', maxSize: 360 },
+  { source: 'art/npc/村民2.png', output: 'game/assets/sprites/npc/villager_2.png', maxSize: 360 },
+  { source: 'art/npc/村民3.png', output: 'game/assets/sprites/npc/villager_3.png', maxSize: 360 },
+  { source: 'art/npc/狗.png', output: 'game/assets/sprites/npc/dog.png', maxSize: 240 },
   // 第二关机关（art/backgrounds/farm_surface、farm_underground、farm_end 的分层，按游戏内显示尺寸 1.5 倍出图）
   // 水车轮显示直径约 400px，支架与轮子同比例（400 / 1473）
   {
@@ -136,6 +142,49 @@ const SINGLE_IMAGES: SingleImage[] = [
   {
     source: 'art/backgrounds/farm_underground/25_room_wall.png',
     output: 'game/assets/textures/farm/room_wall.png',
+    maxSize: 1920,
+  },
+  // 第三关河谷：吊斗显示约 260px 宽、吊塔约 520px 高、绞盘直径约 360px
+  {
+    source: 'art/backgrounds/valley_front/17_gondola.png',
+    output: 'game/assets/sprites/valley/gondola.png',
+    maxSize: 390,
+  },
+  {
+    source: 'art/backgrounds/valley_front/19_tower_pole.png',
+    output: 'game/assets/sprites/valley/tower.png',
+    maxSize: 780,
+  },
+  {
+    source: 'art/backgrounds/valley_front/18_winch_wheel.png',
+    output: 'game/assets/sprites/valley/winch.png',
+    maxSize: 540,
+  },
+  // 水文站约 700px 高、铁塔约 600px 高、高脚屋约 520px 高、水尺杆约 300px 高
+  {
+    source: 'art/backgrounds/valley_back/15_station.png',
+    output: 'game/assets/sprites/valley/station.png',
+    maxSize: 1050,
+  },
+  {
+    source: 'art/backgrounds/valley_back/16_lattice_tower.png',
+    output: 'game/assets/sprites/valley/lattice_tower.png',
+    maxSize: 900,
+  },
+  {
+    source: 'art/backgrounds/valley_back/17_stilt_house.png',
+    output: 'game/assets/sprites/valley/stilt_house.png',
+    maxSize: 780,
+  },
+  {
+    source: 'art/backgrounds/valley_back/08_gauge_pole.png',
+    output: 'game/assets/sprites/valley/gauge_pole.png',
+    maxSize: 450,
+  },
+  // 河谷地形纹理：按背景同样的 0.375 缩放
+  {
+    source: 'art/backgrounds/valley_back/01_earth.png',
+    output: 'game/assets/textures/valley/earth.png',
     maxSize: 1920,
   },
   // 第二关近景（原画是 5120×2880 的整幅分层，裁掉透明边后单独摆放）：粮仓显示约 560px 高

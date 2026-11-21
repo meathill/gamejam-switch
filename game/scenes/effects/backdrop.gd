@@ -33,6 +33,8 @@ func _add_layer(manifest: BackdropManifest, layer: Dictionary, origin_y: float) 
 	parallax.scroll_scale = LevelData.to_vector(layer["scroll"])
 	var sprite := manifest.make_sprite(layer["name"])
 	sprite.position.y += origin_y
+	if layer.has("modulate"):
+		sprite.modulate = LevelData.to_color(layer["modulate"])
 	parallax.add_child(sprite)
 	if layer.get("tiled", false):
 		parallax.repeat_size = Vector2(sprite.texture.get_width(), 0)

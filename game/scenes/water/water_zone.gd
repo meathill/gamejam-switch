@@ -44,6 +44,11 @@ const BASIN_COLOR := Color(0.15, 0.14, 0.24)
 @export var is_rapid: bool = false
 ## 追加到状态文字末尾的说明（如「下雨会让水尺 +1」）
 @export var status_note: String = ""
+## 池底是否画深色底板；地形块直接托底的关卡设为 false
+@export var draw_basin: bool = true:
+	set(value):
+		draw_basin = value
+		queue_redraw()
 
 var _display_surface_y: float = 0.0:
 	set(value):
@@ -354,7 +359,8 @@ func _refresh() -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(0, size.y, size.x, FLOOR_THICKNESS), BASIN_COLOR)
+	if draw_basin:
+		draw_rect(Rect2(0, size.y, size.x, FLOOR_THICKNESS), BASIN_COLOR)
 	var water_height := size.y - _display_surface_y
 	if water_height > 0.5:
 		var water_rect := Rect2(0, _display_surface_y, size.x, water_height)
@@ -363,31 +369,8 @@ func _draw() -> void:
 		var surface_color := Color.WHITE if is_frozen else color.lightened(0.35)
 		draw_line(Vector2(0, _display_surface_y), Vector2(size.x, _display_surface_y), surface_color, 4.0)
 		if is_frozen:
-			_draw_ice_cracks()
+			WaterDrawing.draw_ice_cracks(self, size.x, _display_surface_y)
 		elif is_polluted:
-			_draw_pollution_specks()
+			WaterDrawing.draw_pollution_specks(self, size.x, _display_surface_y)
 	if _highlight_color.a > 0.0:
 		draw_rect(Rect2(-6, -6, size.x + 12, size.y + 12), _highlight_color, false, 4.0)
-
-
-func _draw_ice_cracks() -> void:
-	var crack_color := Color(0.55, 0.75, 0.95, 0.9)
-	var step := 140.0
-	var x := 40.0
-	while x < size.x - 40.0:
-		var top := _display_surface_y + 6.0
-		draw_polyline(PackedVector2Array([
-			Vector2(x, top), Vector2(x + 18, top + 22), Vector2(x + 6, top + 40), Vector2(x + 26, top + 64),
-		]), crack_color, 2.0)
-		x += step
-
-
-func _draw_pollution_specks() -> void:
-	var speck_color := Color(0.25, 0.2, 0.25, 0.8)
-	var x := 30.0
-	var index := 0
-	while x < size.x - 30.0:
-		var offset := float((index * 37) % 23)
-		draw_rect(Rect2(x, _display_surface_y + 4.0 + offset * 0.3, 26.0 - offset * 0.5, 8.0), speck_color)
-		x += 90.0 + offset * 2.0
-		index += 1

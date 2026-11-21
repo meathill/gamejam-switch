@@ -79,6 +79,7 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			zone.shallow_freeze_only = entry.get("shallow_freeze_only", false)
 			zone.is_rapid = entry.get("rapid", false)
 			zone.status_note = entry.get("status_note", "")
+			zone.draw_basin = entry.get("basin", true)
 			zone.blocked_weathers.assign(entry.get("blocked_weathers", {}))
 			return zone
 		"raft":

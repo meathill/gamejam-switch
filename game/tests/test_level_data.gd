@@ -221,3 +221,55 @@ func test_gauge_must_reference_weir() -> void:
 func test_raft_ashore_is_a_water_event() -> void:
 	var level := _make_with_links([{ "when": "w", "event": "raft_ashore", "do": "message", "text": "上岸了" }])
 	assert_eq(level.validate().size(), 0, str(level.validate()))
+
+
+func _weir_objects(safe_points: Array = []) -> Array:
+	var objects := _base_objects()
+	var index := 0
+	for route: String in ["pa", "pb", "pc"]:
+		objects.append({ "type": "passage", "id": route, "pos": [index * 100, 0], "path": [[index * 100, 0], [index * 100 + 200, 0]] })
+		index += 1
+	var weir := {
+		"type": "weir", "id": "weir", "pos": [1000, 0],
+		"boards": [[1100, 0], [1200, 0], [1300, 0]],
+		"safe_points": [
+			{ "route": "pa", "from_x": 0 }, { "route": "pb", "from_x": 100 }, { "route": "pc", "from_x": 200 },
+		],
+	}
+	if not safe_points.is_empty():
+		weir["safe_points"] = safe_points
+	objects.append(weir)
+	return objects
+
+
+func test_weir_is_valid() -> void:
+	var level := _make(_weir_objects())
+	assert_eq(level.validate().size(), 0, str(level.validate()))
+
+
+func test_weir_needs_three_boards() -> void:
+	var objects := _weir_objects()
+	objects[-1]["boards"] = [[1100, 0], [1200, 0]]
+	_assert_has_error(_make(objects), "boards 必须恰好")
+
+
+func test_weir_safe_point_route_must_exist() -> void:
+	var objects := _weir_objects([{ "route": "nowhere", "from_x": 0 }])
+	_assert_has_error(_make(objects), "不存在")
+
+
+func test_weir_safe_point_route_must_be_passage() -> void:
+	var objects := _weir_objects([{ "route": "weir", "from_x": 0 }])
+	_assert_has_error(_make(objects), "必须是 passage")
+
+
+func test_weir_requires_stage_range() -> void:
+	var objects := _weir_objects()
+	objects.append({ "type": "lever", "pos": [1500, 0], "requires": [{ "target": "weir", "stage": 4 }] })
+	_assert_has_error(_make(objects), "堰板段数必须在")
+
+
+func test_weir_pressure_range() -> void:
+	var objects := _weir_objects()
+	objects[-1]["pressure"] = 6
+	_assert_has_error(_make(objects), "pressure 必须在")

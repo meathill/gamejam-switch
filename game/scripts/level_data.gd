@@ -170,6 +170,8 @@ func _validate_object(entry: Dictionary, label: String, types_by_id: Dictionary[
 			for key: String in entry.get("accepts", []):
 				if not Weather.Type.has(key.to_upper()):
 					errors.append("%s：accepts 里的 \"%s\" 不是天气" % [label, key])
+		"weir":
+			_validate_weir(entry, label, types_by_id, errors)
 
 
 func _validate_water(entry: Dictionary, label: String, errors: PackedStringArray) -> void:
@@ -201,6 +203,27 @@ func _validate_raft(entry: Dictionary, label: String, errors: PackedStringArray)
 	)
 	if same_dock.size() > 1:
 		errors.append("%s：和其他浮箱停在同一个停靠点" % label)
+
+
+func _validate_weir(entry: Dictionary, label: String, types_by_id: Dictionary[String, String], errors: PackedStringArray) -> void:
+	if (entry.get("boards", []) as Array).size() != WeirRules.BOARD_COUNT:
+		errors.append("%s：boards 必须恰好 %d 个点" % [label, WeirRules.BOARD_COUNT])
+	var safe_points: Array = entry.get("safe_points", [])
+	if safe_points.size() != WeirRules.BOARD_COUNT:
+		errors.append("%s：safe_points 必须恰好 %d 项" % [label, WeirRules.BOARD_COUNT])
+	for point: Variant in safe_points:
+		if not point is Dictionary or not (point as Dictionary).has("from_x"):
+			errors.append("%s：safe_points 每项要有 from_x" % label)
+			continue
+		var route: String = point.get("route", "")
+		if not types_by_id.has(route):
+			errors.append("%s：safe_points 的 route \"%s\" 不存在" % [label, route])
+		elif types_by_id[route] != "passage":
+			errors.append("%s：safe_points 的 route \"%s\" 必须是 passage" % [label, route])
+	if entry.has("pressure"):
+		var pressure := int(entry["pressure"])
+		if pressure < 0 or pressure > WeirRules.MAX_PRESSURE:
+			errors.append("%s：pressure 必须在 0~%d" % [label, WeirRules.MAX_PRESSURE])
 
 
 func _validate_link(link: Dictionary, label: String, types_by_id: Dictionary[String, String], errors: PackedStringArray) -> void:
@@ -249,6 +272,9 @@ func _validate_condition(condition: Dictionary, label: String, types_by_id: Dict
 	if keys[0] == "gear":
 		if int(value) < 1 or int(value) > FarmRules.GEAR_COUNT:
 			errors.append("%s：档位必须在 1~%d" % [label, FarmRules.GEAR_COUNT])
+	elif keys[0] == "stage":
+		if int(value) < 1 or int(value) > WeirRules.BOARD_COUNT:
+			errors.append("%s：堰板段数必须在 1~%d" % [label, WeirRules.BOARD_COUNT])
 	elif not allowed.has(value):
 		errors.append("%s：requires 里 %s 只能是 %s" % [label, keys[0], allowed])
 

@@ -34,6 +34,12 @@ static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node
 				(node as Pump).wheel = nodes[entry["wheel"]]
 		"gauge":
 			(node as Gauge).weir = nodes[entry["weir"]]
+		"weir":
+			var weir := node as Weir
+			var safe_points: Array[Dictionary] = []
+			for point: Dictionary in entry["safe_points"]:
+				safe_points.append({ "route": nodes[point["route"]], "from_x": point["from_x"] })
+			weir.safe_points = safe_points
 
 
 static func _create_by_type(entry: Dictionary) -> Node2D:
@@ -200,6 +206,11 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			return spot
 		"gauge":
 			return Gauge.new()
+		"weir":
+			var weir := Weir.new()
+			weir.boards = _to_path(entry["boards"])
+			weir.initial_pressure = entry.get("pressure", weir.initial_pressure)
+			return weir
 		"goal":
 			var goal := GoalArea.new()
 			goal.is_house_drawn = entry.get("house", true)

@@ -102,6 +102,13 @@ const TYPES: Dictionary[String, Dictionary] = {
 	},
 	"weather_spot": { "required": ["pos", "size", "name", "accepts"], "layer": "props", "events": ["rain", "wind", "snow", "sun"] },
 	"gauge": { "required": ["pos", "weir"], "refs": { "weir": ["weir"] }, "layer": "props" },
+	"weir": {
+		"required": ["pos", "boards", "safe_points"],
+		"layer": "props",
+		"events": ["stage_1", "stage_2", "stage_3", "pressure_warning", "collapsed", "recovered"],
+		"actions": { "add_pressure": [], "recover": [] },
+		"conditions": { "stage": [], "is": ["collapsed", "stable"] },
+	},
 	"goal": { "required": ["pos"], "layer": "props" },
 	"sign": { "required": ["pos", "text"], "layer": "signs" },
 	"checkpoint": { "required": ["pos"], "layer": "checkpoints" },

@@ -319,7 +319,7 @@ GDScript 遵循 [官方风格指南](https://docs.godotengine.org/en/stable/tuto
 | macOS   | `macOS`           | `build/macos/`（未签名，jam 可接受） |
 
 - `pnpm run export:web` 导出 Web；`pnpm run serve:web` 在 <http://localhost:8060> 本地试玩（单线程导出，不需要 COOP/COEP 头）。
-- 当前体积（gzip 后实际传输）：`index.pck` ≈ 0.58MB（其中字体约 200KB、全部贴图约 240KB），`index.wasm` ≈ 10MB（原始 39MB，引擎本体）。Pages 和 itch.io 都会 gzip。
+- 当前体积（三关，2026-11-22）：`index.pck` ≈ 3.2MB（贴图约 3MB，已是 WebP，gzip 基本压不动；字体约 420KB），`index.wasm` ≈ 10MB（原始 39MB，引擎本体）。Pages 和 itch.io 都会 gzip。
 - GitHub Pages：`.github/workflows/deploy-pages.yml`，push 到 master 时安装 Godot → 跑 GUT → 导出 Web → 部署到 <https://meathill.github.io/gamejam-switch/>。导出模板只解压 Web 两个文件并用 actions/cache 缓存；`index.pck` 改名为 `index-<sha>.pck` 防缓存；checkout 不拉 LFS（CI 不需要原画）。
 - itch.io：`butler push build/web <user>/<game>:html5`。
 - Linux 预设尚未添加，需要时在编辑器里加。

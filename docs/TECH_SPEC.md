@@ -241,6 +241,13 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 - 溃泄后按小猫**到过的最大 x** 选最远的安全点（`safe_points[].from_x`），把小猫送过去、设为检查点并启用对应应急便道（`passage`，单向去下游 F）。
 - 恢复：F 河湾变浅（`shallow`）联动 `recover`，压力回到 `stable_pressure`、已放倒的保留，便道关闭并把小猫送回起点。冰堰的实现是 collapse 时 block 河湾日照、冻住小坝后 unblock，逼玩家先筑冰堰再退水。
 
+### 5.7 存档（`scripts/save_game.gd`）
+
+只存下次该从哪一关开始，不存关内进度。`ConfigFile` 写 `user://save.cfg`（section `progress` / key `level_id`）；Web 版 `user://` 由引擎落在 IndexedDB，写完不需要额外处理。
+
+- 写入：进关卡 `Level._ready` 存当前 id；通关 `_on_level_completed` 存下一关 id，最后一关通关则删除存档。
+- 读取：标题页 `load_level_id()` 非空时显示「继续游戏 · <chapter>」（id 不在目录里视同无存档）；测试可把 `SaveGame.path` 指到别的文件，避免碰真实存档。
+
 ## 6. 对白数据
 
 `game/data/dialogue/*.json`，由 `DialogueBox` 播放：

@@ -377,17 +377,28 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 240, "do": "shot", "name": "touch_03_paused" },
 				{ "frame": 241, "do": "log", "name": "after_pause" },
 			]
+		"continue":
+			# 预写存档再进标题页：「继续游戏 · 第二关」在最上方带焦点，回车进入第二关
+			SaveGame.save_level_id("level_02")
+			return [
+				{ "frame": 60, "do": "shot", "name": "title_continue" },
+				{ "frame": 90, "do": "press", "action": "ui_accept" },
+				{ "frame": 92, "do": "release", "action": "ui_accept" },
+				{ "frame": 240, "do": "shot", "name": "continue_level" },
+			]
 		"level_select":
-			# 标题页 → 键盘下移两次到「选关」→ 回车打开弹层
+			# 标题页 → 下移进次要按钮行，再左→右归位到「选关」→ 回车打开弹层
 			return [
 				{ "frame": 60, "do": "shot", "name": "title" },
 				{ "frame": 80, "do": "press", "action": "ui_down" },
 				{ "frame": 82, "do": "release", "action": "ui_down" },
-				{ "frame": 100, "do": "press", "action": "ui_down" },
-				{ "frame": 102, "do": "release", "action": "ui_down" },
-				{ "frame": 130, "do": "press", "action": "ui_accept" },
-				{ "frame": 132, "do": "release", "action": "ui_accept" },
-				{ "frame": 200, "do": "shot", "name": "level_select" },
+				{ "frame": 100, "do": "press", "action": "ui_left" },
+				{ "frame": 102, "do": "release", "action": "ui_left" },
+				{ "frame": 120, "do": "press", "action": "ui_right" },
+				{ "frame": 122, "do": "release", "action": "ui_right" },
+				{ "frame": 150, "do": "press", "action": "ui_accept" },
+				{ "frame": 152, "do": "release", "action": "ui_accept" },
+				{ "frame": 220, "do": "shot", "name": "level_select" },
 			]
 		"prologue":
 			var steps: Array[Dictionary] = []

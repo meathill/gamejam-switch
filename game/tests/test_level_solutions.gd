@@ -6,6 +6,17 @@ const LEVEL_SCENE := preload("res://scenes/levels/level.tscn")
 const SOLUTION_DIR := "res://tests/solutions/"
 
 
+func before_all() -> void:
+	# 关卡实例化会写存档，指到测试文件避免覆盖本地真实进度
+	SaveGame.path = "user://test_save.cfg"
+	SaveGame.clear()
+
+
+func after_all() -> void:
+	SaveGame.clear()
+	SaveGame.path = SaveGame.SAVE_PATH
+
+
 func test_every_level_is_solvable() -> void:
 	for level_id in LevelCatalog.get_ids():
 		var path := SOLUTION_DIR + level_id + ".json"

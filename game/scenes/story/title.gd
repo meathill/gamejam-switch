@@ -37,27 +37,39 @@ func _build_menu() -> void:
 	column.add_child(title)
 	column.add_child(_make_label("雨 · 风 · 雪 · 日照", 36))
 	column.add_child(Control.new())
-	var start := _make_button("开始游戏")
+	var start := _make_button("开始游戏", 72, 34)
 	start.pressed.connect(func() -> void: SceneRouter.go_to(PROLOGUE_SCENE))
+	# 有通关进度时提供「继续游戏」，刷新网页后直接从上次没打完的关进入
+	var focus_button := start
+	var continue_id := SaveGame.load_level_id()
+	if not continue_id.is_empty():
+		var continue_button := _make_button("继续游戏 · %s" % LevelData.load_level(continue_id).chapter, 72, 34)
+		continue_button.pressed.connect(func() -> void: SceneRouter.go_to_level(continue_id))
+		column.add_child(continue_button)
+		focus_button = continue_button
 	column.add_child(start)
-	var skip := _make_button("跳过序章")
+	# 次要操作收进同一行，避免按钮多了挤出屏幕、压到右下角 footer
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	column.add_child(row)
+	var skip := _make_button("跳过序章", 56, 26)
 	skip.pressed.connect(func() -> void:
 		GameState.seen_intros.clear()
 		SceneRouter.go_to_level(LevelCatalog.first())
 	)
-	column.add_child(skip)
+	row.add_child(skip)
 	if BuildFlags.is_level_select_enabled():
-		var select := _make_button("选关")
+		var select := _make_button("选关", 56, 26)
 		select.pressed.connect(func() -> void: _open_level_select(select))
-		column.add_child(select)
+		row.add_child(select)
 	# 手机浏览器的地址栏会占掉不少高度，Web 版提供全屏入口（浏览器要求由用户点击触发）
 	if OS.has_feature("web"):
-		var fullscreen := _make_button("全屏")
+		var fullscreen := _make_button("全屏", 56, 26)
 		fullscreen.pressed.connect(func() -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		)
-		column.add_child(fullscreen)
-	start.grab_focus.call_deferred()
+		row.add_child(fullscreen)
+	focus_button.grab_focus.call_deferred()
 
 	var footer := _make_label("GitHub Game Off 2026 · SHIFT", 22)
 	footer.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -86,9 +98,10 @@ func _make_label(text: String, font_size: int) -> Label:
 	return label
 
 
-func _make_button(text: String) -> Button:
+func _make_button(text: String, height: float, font_size: int) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(0, 72)
-	button.add_theme_font_size_override("font_size", 34)
+	button.custom_minimum_size = Vector2(0, height)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.add_theme_font_size_override("font_size", font_size)
 	return button

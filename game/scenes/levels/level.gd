@@ -26,6 +26,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	SaveGame.save_level_id(data.id)
 	_player.global_position = data.player_start
 	GameState.checkpoint_position = _player.global_position
 	_camera.limit_left = data.camera_limits.position.x
@@ -116,6 +117,12 @@ func _play_dialogue(path: String) -> void:
 
 
 func _on_level_completed() -> void:
+	# 通关后存档指向下一关；打完最后一关清掉存档，标题页不再显示「继续游戏」
+	var next_id := LevelCatalog.get_next(data.id)
+	if next_id:
+		SaveGame.save_level_id(next_id)
+	else:
+		SaveGame.clear()
 	_set_gameplay_active(false)
 	_rain.fade_to(0.15, 3.0)
 	await get_tree().create_timer(COMPLETE_DELAY).timeout
@@ -125,7 +132,6 @@ func _on_level_completed() -> void:
 		"rescued": GameState.get_objective("resident").x,
 		"fields": GameState.get_objective("field").x,
 	}), 30)
-	var next_id := LevelCatalog.get_next(data.id)
 	if next_id:
 		menu.add_button("下一关", SceneRouter.go_to_level.bind(next_id))
 	menu.add_button("再玩一次", SceneRouter.reload)

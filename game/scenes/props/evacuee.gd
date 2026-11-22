@@ -2,15 +2,20 @@
 class_name Evacuee
 extends Interactable
 ## 撤离对象（村民、狗、守河人），计入通关目标。原点在脚底。
-## rescue：沿 rescue_path 走（不走物理），走完发 rescued；evacuate：沿 evacuate_path 走到渡口，
-## 完成一个 evacuee 目标并发 arrived。未获救就收到 evacuate 时先记下，获救后接着走。
+## rescue：沿 rescue_path 走（不走物理），走完发 rescued；evacuate：沿 evacuate_path 走到画面边缘，
+## 淡出后经过“画面外路程”，再从 arrive_path 起点淡入走到渡口，发 arrived。
+## 未获救就收到 evacuate 时先记下，获救后接着走。
 ## escort（守河人）：按 E 后开始跟随，每段路出发前等小猫跟上来。
 
 signal level_event(event: String)
 
-const WALK_SPEED := 220.0
 const ESCORT_RANGE := 600.0
 const BOB_HEIGHT := 4.0
+const SWAY_RADIANS := 0.087
+const SWAY_OMEGA := 15.7
+const FADE_SECONDS := 0.4
+## 画面外路程按步行耗时算，封顶这么多秒
+const OFFSCREEN_WALK_MAX := 12.0
 
 @export var evacuee_name: String = "撤离对象"
 @export var texture: Texture2D:
@@ -18,9 +23,16 @@ const BOB_HEIGHT := 4.0
 		texture = value
 		queue_redraw()
 @export var display_height: float = 220.0
-## 获救路线 / 撤离路线（世界坐标点列）
+## 获救路线 / 木排解法获救路线 / 撤离路线（离开画面的一段）/ 走进画面的路线（世界坐标点列）
+## 各自的 *_jumps 记录「跳到该下标点」的下标，即同高也强制跳
 @export var rescue_path: PackedVector2Array = PackedVector2Array()
+@export var raft_rescue_path: PackedVector2Array = PackedVector2Array()
 @export var evacuate_path: PackedVector2Array = PackedVector2Array()
+@export var arrive_path: PackedVector2Array = PackedVector2Array()
+@export var rescue_jumps: PackedInt32Array = PackedInt32Array()
+@export var raft_rescue_jumps: PackedInt32Array = PackedInt32Array()
+@export var evacuate_jumps: PackedInt32Array = PackedInt32Array()
+@export var arrive_jumps: PackedInt32Array = PackedInt32Array()
 ## 护送模式：按 E 后跟随小猫走撤离路线
 @export var is_escort: bool = false
 @export_file("*.json") var dialogue: String = ""
@@ -33,6 +45,7 @@ var _evacuate_pending: bool = false
 var _has_arrived: bool = false
 var _is_following: bool = false
 var _is_walking: bool = false
+var _is_hopping: bool = false
 var _walk_dir: int = 1
 var _walk_time: float = 0.0
 
@@ -69,12 +82,18 @@ func get_unmet_reason(condition: Dictionary) -> String:
 	return ""
 
 
-func do_rescue(_params: Dictionary) -> void:
+func do_rescue(params: Dictionary) -> void:
 	if _rescue_started:
 		return
 	_rescue_started = true
-	if not rescue_path.is_empty():
-		await _walk_path(rescue_path)
+	# links 里 route 选路线：木排解法走 raft_rescue_path，默认（冰路）走 rescue_path
+	var path := rescue_path
+	var jumps := rescue_jumps
+	if params.get("route") == "raft" and not raft_rescue_path.is_empty():
+		path = raft_rescue_path
+		jumps = raft_rescue_jumps
+	if not path.is_empty():
+		await _walk_points(path, jumps)
 	_is_rescued = true
 	refresh_prompt()
 	level_event.emit("rescued")
@@ -102,24 +121,31 @@ func _interact() -> void:
 	_follow_path()
 
 
-## 沿点列逐段补间行走，不走物理
-func _walk_path(points: PackedVector2Array) -> void:
+## 沿点列逐段补间行走；相邻两点有落差或该点在 jumps 里就走 WalkPath 的抛物线跳跃，不走物理
+func _walk_points(points: PackedVector2Array, jumps: PackedInt32Array = PackedInt32Array()) -> void:
 	_is_walking = true
-	for point in points:
-		await _walk_to(point)
+	for index in points.size():
+		await _walk_to(points[index], jumps.has(index))
 	_is_walking = false
 	_walk_time = 0.0
 
 
-func _walk_to(point: Vector2) -> void:
-	var distance := global_position.distance_to(point)
-	if distance < 1.0:
+func _walk_to(point: Vector2, force_hop := false) -> void:
+	var start := global_position
+	var duration := WalkPath.get_duration(start, point, force_hop)
+	if duration < 0.01:
 		return
 	_walk_dir = -1 if point.x < global_position.x else 1
+	_is_hopping = WalkPath.is_hop(start, point, force_hop)
 	var tween := create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	tween.tween_property(self, "global_position", point, distance / WALK_SPEED)
+	tween.tween_method(_apply_walk_sample.bind(start, point, force_hop), 0.0, 1.0, duration)
 	await tween.finished
+	_is_hopping = false
+
+
+func _apply_walk_sample(t: float, start: Vector2, point: Vector2, force_hop: bool) -> void:
+	global_position = WalkPath.sample(start, point, t, force_hop)
 
 
 ## 护送：每段出发前等小猫进入跟随范围，第一次等待时提示一次
@@ -127,7 +153,7 @@ func _follow_path() -> void:
 	var player := get_player()
 	var has_prompted := false
 	_is_walking = true
-	for point in evacuate_path:
+	for index in evacuate_path.size():
 		while player.global_position.distance_to(global_position) > ESCORT_RANGE:
 			_is_walking = false
 			if not has_prompted:
@@ -137,7 +163,7 @@ func _follow_path() -> void:
 			if not is_instance_valid(player):
 				return
 		_is_walking = true
-		await _walk_to(point)
+		await _walk_to(evacuate_path[index], evacuate_jumps.has(index))
 	_is_walking = false
 	_walk_time = 0.0
 	_arrive()
@@ -146,8 +172,25 @@ func _follow_path() -> void:
 func _start_evacuate() -> void:
 	_evacuate_started = true
 	_evacuate_pending = false
-	await _walk_path(evacuate_path)
+	await _walk_points(evacuate_path, evacuate_jumps)
+	if arrive_path.is_empty():
+		_arrive()
+		return
+	# 画面外那段路：淡出 → 按步行耗时等待 → 瞬移到 arrive_path 起点，淡入后走完
+	await _fade_to(0.0)
+	var offscreen := evacuate_path[evacuate_path.size() - 1].distance_to(arrive_path[0]) / WalkPath.WALK_SPEED
+	await get_tree().create_timer(minf(offscreen, OFFSCREEN_WALK_MAX)).timeout
+	global_position = arrive_path[0]
+	_walk_dir = -1 if arrive_path.size() > 1 and arrive_path[1].x < arrive_path[0].x else 1
+	await _fade_to(1.0)
+	await _walk_points(arrive_path, arrive_jumps)
 	_arrive()
+
+
+func _fade_to(alpha: float) -> void:
+	var tween := create_tween()
+	tween.tween_property(self, "modulate:a", alpha, FADE_SECONDS)
+	await tween.finished
 
 
 func _arrive() -> void:
@@ -161,13 +204,15 @@ func _arrive() -> void:
 
 func _draw() -> void:
 	var bob := sin(_walk_time * 10.0) * BOB_HEIGHT if _is_walking else 0.0
+	# 平走时绕脚底左右摇摆，跳跃时不摇
+	var sway := 0.0
+	if _is_walking and not _is_hopping:
+		sway = sin(_walk_time * SWAY_OMEGA) * SWAY_RADIANS
 	if not texture:
 		draw_rect(Rect2(-30, -display_height + bob, 60, display_height), Color(0.6, 0.55, 0.5))
 		return
 	var size := texture.get_size() * display_height / texture.get_height()
-	if is_flipped != (_walk_dir < 0):
-		draw_set_transform(Vector2(0, bob), 0.0, Vector2(-1, 1))
-	else:
-		draw_set_transform(Vector2(0, bob))
+	var flip := Vector2(-1, 1) if is_flipped != (_walk_dir < 0) else Vector2.ONE
+	draw_set_transform(Vector2(0, bob), sway, flip)
 	draw_texture_rect(texture, Rect2(Vector2(-size.x / 2.0, -size.y), size), false)
 	draw_set_transform(Vector2.ZERO)

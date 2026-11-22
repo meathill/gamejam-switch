@@ -188,8 +188,10 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			if entry.has("texture"):
 				evacuee.texture = load(entry["texture"])
 			evacuee.display_height = entry.get("height", evacuee.display_height)
-			evacuee.rescue_path = _to_path(entry.get("rescue_path", []))
-			evacuee.evacuate_path = _to_path(entry.get("evacuate_path", []))
+			for key in [&"rescue", &"raft_rescue", &"evacuate", &"arrive"]:
+				var route := _to_route(entry.get(String(key) + "_path", []))
+				evacuee.set(StringName(key) + "_path", route["path"])
+				evacuee.set(StringName(key) + "_jumps", route["jumps"])
 			evacuee.is_escort = entry.get("escort", false)
 			evacuee.dialogue = entry.get("dialogue", "")
 			evacuee.is_flipped = entry.get("flip", false)
@@ -243,3 +245,14 @@ static func _to_path(points: Array) -> PackedVector2Array:
 	for point: Array in points:
 		path.append(LevelData.to_vector(point))
 	return path
+
+
+## NPC 路线：点是 [x, y]，写 [x, y, "jump"] 表示从上一个点跳到这个点（同高也跳）
+static func _to_route(points: Array) -> Dictionary:
+	var path := PackedVector2Array()
+	var jumps := PackedInt32Array()
+	for index in points.size():
+		path.append(LevelData.to_vector(points[index]))
+		if points[index].size() > 2 and points[index][2] == "jump":
+			jumps.append(index)
+	return { "path": path, "jumps": jumps }

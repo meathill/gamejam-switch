@@ -226,6 +226,8 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 其他常用可选字段：water 的 `rapid`（急流，浅水也危险）、`status_note`（状态栏附加说明）、`basin`（为 false 时不画池底深色底板，地形直接托底的关卡用）；decor 的 `hidden`（初始隐藏，reveal 显现）；planting_spot 的 `objective: true`（种下计入「种植」目标）。
 
+`evacuee` 的路线字段 `rescue_path` / `raft_rescue_path` / `evacuate_path` / `arrive_path` 都是世界坐标点列，两点间平走（匀速 220），有落差自动按抛物线跳（`WalkPath`）；某个点写成 `[x, y, "jump"]` 表示同高也强制跳（比如跳过一段水面）。`raft_rescue_path` 是木排解法的获救路线，由 rescue 联动写 `"route": "raft"` 选用（木排甲板高度与冰面不同，要分开写）。每个点都必须落在实际表面上（地形顶面、冰面或木排）。
+
 `weather_spot` 是远程天气目标：选中范围（`pos`/`size`）本身不画任何东西，真实地点由必填的 `view: [x, y, w, h]` 指定——特效落在 view 顶边，施放成功镜头切到 view 中心停 3 秒再回来（特效等镜头补间 `Level.FOCUS_PAN_SECONDS` 到位后才生成；view 焦点先于联动入队，涨到 5 格时先看原因再看溃泄）。`telescope` 是望远镜（必填 `spot` 引用 weather_spot）：按 E 镜头切到该 spot 的 view 中心一直看、再按 E 返回，看的时候小猫锁输入不能动也不能施放（`GameState.lookout_started/ended`，Level 把镜头锁在世界坐标上）。`ridge` 是无碰撞的远山剪影（background 层）：必填 `points` 多边形，可选 `color` 和 `snow_y`（该 y 以上用 `Geometry2D.intersect_polygons` 截出积雪带）。
 
 #### 前置条件 `requires`
@@ -281,7 +283,7 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 纹理导入默认用 **Lossy（WebP，质量 0.8）**（`project.godot` 的 `importer_defaults`），水彩画风看不出差别，体积约为无损的 1/7。代码里按“显示尺寸 / 贴图尺寸”计算缩放，不写死缩放系数，换分辨率不影响画面。
 
-`pnpm run fonts` → `tools/src/build-font.ts`：扫描 `game/` 下 `.gd`/`.tscn`/`.json` 用到的字符，从 `art/fonts/LXGWWenKai-Medium.ttf`（霞鹜文楷，OFL）生成子集 `game/assets/fonts/ui_font.ttf`（约 380KB），并设为项目默认字体。Godot 默认字体没有 CJK，Web 上也没有系统字体可回退。
+`pnpm run fonts` → `tools/src/build-font.ts`：扫描 `game/` 下 `.gd`/`.tscn`/`.json` 用到的字符（`characters.ts` 的 `collectProjectCharacters`），从 `art/fonts/LXGWWenKai-Medium.ttf`（霞鹜文楷，OFL）生成子集 `game/assets/fonts/ui_font.ttf`（约 380KB），并设为项目默认字体。Godot 默认字体没有 CJK，Web 上也没有系统字体可回退。字符清单同时写到 `ui_font_chars.txt`，`font-coverage.test.ts` 断言项目字符全在清单里——忘跑 fonts 会直接在测试里报出来。
 
 图标用 Phosphor（fill 风格）SVG，`currentColor` 替换为白色后由代码着色。
 

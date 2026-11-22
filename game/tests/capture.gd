@@ -440,6 +440,53 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 600, "do": "shot", "name": "over_collapse" },
 				{ "frame": 720, "do": "shot", "name": "over_safe" },
 			]
+		"npc":
+			# NPC 贴地走：守河人跳 K 台阶（护送跟随，绕过堰板前置直接启动）；村民救援跳 step_c；撤离在 platform_c 边缘淡出、从 L 右侧淡入
+			return [
+				{ "frame": 40, "do": "teleport", "to": Vector2(7450, -700) },
+				{ "frame": 50, "do": "prop", "id": "keeper", "prop": "_is_following", "value": true },
+				{ "frame": 52, "do": "call", "id": "keeper", "method": "_follow_path" },
+				{ "frame": 120, "do": "teleport", "to": Vector2(8010, -850) },
+				{ "frame": 133, "do": "shot", "name": "keeper_hop_gap" },
+				{ "frame": 215, "do": "shot", "name": "keeper_hop_k1" },
+				{ "frame": 346, "do": "shot", "name": "keeper_hop_k2" },
+				{ "frame": 450, "do": "teleport", "to": Vector2(3100, -350) },
+				{ "frame": 430, "do": "call", "id": "sandbar", "method": "do_set", "args": [{ "frozen": true }] },
+				{ "frame": 460, "do": "call", "id": "villager_1", "method": "do_rescue", "args": [{}] },
+				{ "frame": 484, "do": "call", "id": "villager_2", "method": "do_rescue", "args": [{}] },
+				{ "frame": 508, "do": "call", "id": "villager_3", "method": "do_rescue", "args": [{}] },
+				{ "frame": 532, "do": "call", "id": "dog", "method": "do_rescue", "args": [{}] },
+				{ "frame": 662, "do": "shot", "name": "rescue_hop_step" },
+				{ "frame": 718, "do": "shot", "name": "rescue_hop_platform" },
+				{ "frame": 780, "do": "teleport", "to": Vector2(3450, -450) },
+				{ "frame": 800, "do": "call", "id": "villager_1", "method": "do_evacuate", "args": [{}] },
+				{ "frame": 830, "do": "call", "id": "villager_2", "method": "do_evacuate", "args": [{}] },
+				{ "frame": 860, "do": "call", "id": "villager_3", "method": "do_evacuate", "args": [{}] },
+				{ "frame": 890, "do": "call", "id": "dog", "method": "do_evacuate", "args": [{}] },
+				{ "frame": 885, "do": "shot", "name": "evacuee_fade" },
+				{ "frame": 1560, "do": "teleport", "to": Vector2(9600, -1150) },
+				{ "frame": 1660, "do": "shot", "name": "arrive_fadein" },
+				{ "frame": 1900, "do": "shot", "name": "all_arrived" },
+			]
+		"npc2_ice":
+			# 冰路救援：冻住沙洲（L1 冰面 -150），村民跳下岛缘、翻越冻住的木排、走上冰面、跳上 step_c
+			return [
+				{ "frame": 30, "do": "teleport", "to": Vector2(3150, -350) },
+				{ "frame": 30, "do": "call", "id": "sandbar", "method": "do_set", "args": [{ "frozen": true }] },
+				{ "frame": 157, "do": "shot", "name": "ice_hop_raft" },
+				{ "frame": 240, "do": "shot", "name": "ice_walk" },
+				{ "frame": 279, "do": "shot", "name": "ice_hop_step" },
+			]
+		"npc2_raft":
+			# 木排救援：沙洲升到 L2 再吹风把木排推到靠岸（dock_1，甲板 -300），村民跳过水面落在木排上
+			return [
+				{ "frame": 30, "do": "teleport", "to": Vector2(3150, -350) },
+				{ "frame": 30, "do": "call", "id": "sandbar", "method": "do_set", "args": [{ "level": 2 }] },
+				{ "frame": 90, "do": "call", "id": "sandbar", "method": "_blow_rafts", "args": [1] },
+				{ "frame": 242, "do": "shot", "name": "raft_hop_water" },
+				{ "frame": 290, "do": "shot", "name": "raft_on_deck" },
+				{ "frame": 324, "do": "shot", "name": "raft_hop_step" },
+			]
 		"continue":
 			# 预写存档再进标题页：「继续游戏 · 第二关」在最上方带焦点，回车进入第二关
 			SaveGame.save_level_id("level_02")

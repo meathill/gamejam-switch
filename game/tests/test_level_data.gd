@@ -207,7 +207,7 @@ func test_passage_path_needs_two_points() -> void:
 
 func test_weather_spot_accepts_must_be_weather() -> void:
 	var objects := _base_objects()
-	objects.append({ "type": "weather_spot", "pos": [800, 0], "size": [300, 200], "name": "雪线", "accepts": ["snow", "hail"] })
+	objects.append({ "type": "weather_spot", "pos": [800, 0], "size": [300, 200], "name": "雪线", "accepts": ["snow", "hail"], "view": [900, 0, 100, 1] })
 	_assert_has_error(_make(objects), "不是天气")
 
 

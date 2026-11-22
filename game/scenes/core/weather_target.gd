@@ -40,6 +40,11 @@ func get_effect_rect() -> Rect2:
 	return Rect2(global_position, Vector2(200, 1))
 
 
+## 施放成功后特效延迟这么久才生成（比如远程目标等镜头先切过去）
+func get_effect_delay() -> float:
+	return 0.0
+
+
 func get_display_name() -> String:
 	return display_name if display_name else name
 

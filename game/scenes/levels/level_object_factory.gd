@@ -202,9 +202,18 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			spot.display_name = entry["name"]
 			spot.size = LevelData.to_vector(entry["size"])
 			spot.status = entry.get("status", "")
+			spot.note = entry.get("note", "")
+			spot.view = LevelData.to_rect(entry["view"])
 			for key: String in entry["accepts"]:
 				spot.accepts.append(Weather.from_key(key))
 			return spot
+		"ridge":
+			var ridge := Ridge.new()
+			ridge.points = _to_path(entry["points"])
+			if entry.has("color"):
+				ridge.color = LevelData.to_color(entry["color"])
+			ridge.snow_y = entry.get("snow_y", ridge.snow_y)
+			return ridge
 		"gauge":
 			return Gauge.new()
 		"weir":

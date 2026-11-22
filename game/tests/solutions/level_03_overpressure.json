@@ -6,7 +6,7 @@
     { "expect_prop": "weir", "pressure": 4 },
     { "cast": "rain", "wait": 1.0 },
     { "expect_prop": "weir", "is_collapsed": true },
-    { "wait": 3.0 },
+    { "wait": 9.0 },
     { "expect_player": [150, -700] },
     { "expect_prop": "passage_a", "is_enabled": true },
 

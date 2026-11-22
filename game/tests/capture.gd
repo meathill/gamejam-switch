@@ -377,6 +377,45 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 240, "do": "shot", "name": "touch_03_paused" },
 				{ "frame": 241, "do": "log", "name": "after_pause" },
 			]
+		"spots":
+			# 远程天气目标：A 区无可见框、HUD 行高亮；施放后镜头切到真实地点看特效再回来；点 HUD 行预览
+			# 只施放一次（水尺 3→4），避免第二次施放触发溃泄抢走镜头焦点
+			return [
+				{ "frame": 40, "do": "teleport", "to": Vector2(0, -700) },
+				{ "frame": 90, "do": "shot", "name": "spots_a" },
+				{ "frame": 100, "do": "weather", "weather": Weather.Type.RAIN },
+				{ "frame": 105, "do": "cast" },
+				{ "frame": 170, "do": "shot", "name": "lake_rain" },
+				{ "frame": 400, "do": "shot", "name": "spots_back" },
+				{ "frame": 740, "do": "touch", "at": Vector2(1700, 226) },
+				{ "frame": 742, "do": "touch", "at": Vector2(1700, 226), "pressed": false },
+				{ "frame": 800, "do": "shot", "name": "snowline_preview" },
+			]
+		"spots_sun":
+			# 雪线日照单独一轮：水尺 3→4 不触发溃泄，镜头能停在雪坡看日照粒子
+			return [
+				{ "frame": 40, "do": "teleport", "to": Vector2(600, -700) },
+				{ "frame": 90, "do": "shot", "name": "snowline_a" },
+				{ "frame": 100, "do": "weather", "weather": Weather.Type.SUN },
+				{ "frame": 105, "do": "cast" },
+				{ "frame": 170, "do": "shot", "name": "snowline_sun" },
+				{ "frame": 400, "do": "shot", "name": "snowline_back" },
+				{ "frame": 450, "do": "teleport", "to": Vector2(8900, -1050) },
+				{ "frame": 500, "do": "shot", "name": "ridge_from_k" },
+			]
+		"spots_over":
+			# 在 A 连放两场雨把水尺推到 5：先看湖口（view 焦点先入队），溃泄传送期间镜头锁在湖面不跳，再看 F，最后回安全点
+			return [
+				{ "frame": 40, "do": "teleport", "to": Vector2(0, -700) },
+				{ "frame": 100, "do": "weather", "weather": Weather.Type.RAIN },
+				{ "frame": 105, "do": "cast" },
+				{ "frame": 335, "do": "weather", "weather": Weather.Type.RAIN },
+				{ "frame": 340, "do": "cast" },
+				{ "frame": 420, "do": "shot", "name": "over_lake" },
+				{ "frame": 510, "do": "shot", "name": "over_lake_after_respawn" },
+				{ "frame": 600, "do": "shot", "name": "over_collapse" },
+				{ "frame": 720, "do": "shot", "name": "over_safe" },
+			]
 		"continue":
 			# 预写存档再进标题页：「继续游戏 · 第二关」在最上方带焦点，回车进入第二关
 			SaveGame.save_level_id("level_02")

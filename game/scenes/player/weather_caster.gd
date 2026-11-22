@@ -29,10 +29,19 @@ func cast(weather: Weather.Type, direction: int) -> void:
 		return
 	var result := target.cast_weather(weather, direction)
 	if result.is_success:
-		WeatherEffect.spawn_on_target(target.get_parent(), weather, target, direction)
+		_spawn_effect(target, weather, direction)
 		GameState.weather_cast.emit(target, weather)
 	elif not result.is_busy:
 		GameState.post_warning(result.reason_text)
+
+
+## 特效可能延迟到镜头就位才生成；延迟的 spawn 放进独立协程发射后不管，保住 cast 的同步语义
+func _spawn_effect(target: WeatherTarget, weather: Weather.Type, direction: int) -> void:
+	var delay := target.get_effect_delay()
+	if delay > 0.0:
+		await get_tree().create_timer(delay).timeout
+	if is_instance_valid(target):
+		WeatherEffect.spawn_on_target(target.get_parent(), weather, target, direction)
 
 
 func _find_target() -> WeatherTarget:

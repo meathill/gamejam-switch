@@ -225,6 +225,8 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 
 其他常用可选字段：water 的 `rapid`（急流，浅水也危险）、`status_note`（状态栏附加说明）、`basin`（为 false 时不画池底深色底板，地形直接托底的关卡用）；decor 的 `hidden`（初始隐藏，reveal 显现）；planting_spot 的 `objective: true`（种下计入「种植」目标）。
 
+`weather_spot` 是远程天气目标：选中范围（`pos`/`size`）本身不画任何东西，真实地点由必填的 `view: [x, y, w, h]` 指定——特效落在 view 顶边，施放成功或点击 HUD 行时镜头切到 view 中心停 3 秒再回来（特效等镜头补间 `Level.FOCUS_PAN_SECONDS` 到位后才生成）。可选 `note` 是 HUD 行尾部说明。HUD 右上角每个 spot 一行 `name · 天气 → note`，选中的行按天气色高亮。`ridge` 是无碰撞的远山剪影（background 层）：必填 `points` 多边形，可选 `color` 和 `snow_y`（该 y 以上用 `Geometry2D.intersect_polygons` 截出积雪带）。
+
 #### 前置条件 `requires`
 
 `[{ "target": id, 条件: 取值, "hint": 可选 }]`，全部满足才算满足。支持的对象：lever、elevator、ladder、seed_cart、evacuee、passage（按 E 时检查）、drainage_station、pump（满足后自动启动）。没满足时按目标对象的状态自动生成提示（如“排水槽里的水还不够，再下一场雨”），`hint` 可覆盖。

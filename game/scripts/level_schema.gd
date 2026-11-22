@@ -32,6 +32,7 @@ const WATER_STATES: Array[String] = ["deep", "shallow", "dry", "frozen", "liquid
 const TYPES: Dictionary[String, Dictionary] = {
 	"block": { "required": ["pos", "size"], "layer": "terrain", "actions": { "reveal": [], "hide": [] } },
 	"decor": { "required": ["pos"], "layer": "background", "actions": { "reveal": [], "hide": [] } },
+	"ridge": { "required": ["points"], "layer": "background" },
 	"water": {
 		"required": ["pos", "size", "name"],
 		"layer": "water",
@@ -100,7 +101,7 @@ const TYPES: Dictionary[String, Dictionary] = {
 		"actions": { "enable": [], "disable": [] },
 		"requires": true,
 	},
-	"weather_spot": { "required": ["pos", "size", "name", "accepts"], "layer": "props", "events": ["rain", "wind", "snow", "sun"] },
+	"weather_spot": { "required": ["pos", "size", "name", "accepts", "view"], "layer": "props", "events": ["rain", "wind", "snow", "sun"] },
 	"gauge": { "required": ["pos", "weir"], "refs": { "weir": ["weir"] }, "layer": "props" },
 	"weir": {
 		"required": ["pos", "boards", "safe_points"],

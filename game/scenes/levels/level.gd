@@ -4,6 +4,8 @@ extends Node2D
 
 const TITLE_SCENE := "res://scenes/story/title.tscn"
 const COMPLETE_DELAY := 1.2
+## 镜头短看别处时补间过去的时长；远程天气目标的特效延迟引用这个值
+const FOCUS_PAN_SECONDS := 0.4
 
 @onready var map: LevelMap = $LevelMap
 @onready var _player: Player = $Player
@@ -14,6 +16,9 @@ var _rain: RainOverlay
 var _touch_controls: TouchControls
 var _focus_queue: Array = []
 var _is_focusing: bool = false
+## focus 停留期间锁定的世界坐标；小猫在此期间被传送（如溃泄送安全点）时 offset 跟着补偿，镜头不跳
+var _focus_world: Vector2 = Vector2.ZERO
+var _focus_held: bool = false
 
 
 func _enter_tree() -> void:
@@ -62,6 +67,8 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if _focus_held:
+		_camera.offset = _focus_world - _player.global_position
 	_rain.visible = _player.global_position.y < data.underground_y
 
 
@@ -88,8 +95,11 @@ func _play_queued_focus() -> void:
 	while not _focus_queue.is_empty():
 		var request: Array = _focus_queue.pop_front()
 		var focus_position: Vector2 = request[0]
+		_focus_world = focus_position
 		await _pan_camera(focus_position - _player.global_position)
+		_focus_held = true
 		await get_tree().create_timer(request[1]).timeout
+		_focus_held = false
 	await _pan_camera(Vector2.ZERO)
 	_is_focusing = false
 	_set_gameplay_active(true)
@@ -98,7 +108,7 @@ func _play_queued_focus() -> void:
 func _pan_camera(offset: Vector2) -> void:
 	var tween := create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	tween.tween_property(_camera, "offset", offset, 0.4).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_camera, "offset", offset, FOCUS_PAN_SECONDS).set_trans(Tween.TRANS_SINE)
 	await tween.finished
 
 

@@ -101,7 +101,12 @@ const TYPES: Dictionary[String, Dictionary] = {
 		"actions": { "enable": [], "disable": [] },
 		"requires": true,
 	},
-	"weather_spot": { "required": ["pos", "size", "name", "accepts", "view"], "layer": "props", "events": ["rain", "wind", "snow", "sun"] },
+	"weather_spot": {
+		"required": ["pos", "size", "name", "accepts", "view"],
+		"layer": "props",
+		"events": ["rain", "wind", "snow", "sun"],
+		"actions": { "unblock": ["weather"], "block": ["weather", "reason"] },
+	},
 	"gauge": { "required": ["pos", "weir"], "refs": { "weir": ["weir"] }, "layer": "props" },
 	"telescope": { "required": ["pos", "spot"], "refs": { "spot": ["weather_spot"] }, "layer": "props" },
 	"weir": {
@@ -113,7 +118,7 @@ const TYPES: Dictionary[String, Dictionary] = {
 	},
 	"goal": { "required": ["pos"], "layer": "props" },
 	"sign": { "required": ["pos", "text"], "layer": "signs" },
-	"checkpoint": { "required": ["pos"], "layer": "checkpoints" },
+	"checkpoint": { "required": ["pos"], "layer": "checkpoints", "events": ["reached"] },
 }
 
 ## 计入通关目标的类型

@@ -8,6 +8,13 @@ func _init() -> void:
 	prompt_height = 340.0
 
 
+func _ready() -> void:
+	super()
+	# 风转绞盘、放倒演出结束时选中段和可否互动都会变，提示要跟着刷新
+	if not Engine.is_editor_hint():
+		_weir().state_changed.connect(func(_target: WeatherTarget) -> void: refresh_prompt())
+
+
 func _weir() -> Weir:
 	return get_parent() as Weir
 

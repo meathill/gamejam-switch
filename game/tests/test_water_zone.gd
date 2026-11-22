@@ -19,6 +19,21 @@ func _add_raft(zone: WaterZone, dock_index: int) -> Raft:
 	return raft
 
 
+func test_do_set_seconds_controls_tween_duration() -> void:
+	var zone := _make_zone(2)
+	add_child_autofree(zone)
+	var start_y := zone._display_surface_y
+	zone.do_set({ "level": 0, "seconds": 5.0 })
+	assert_eq(zone.level, 0, "level 立即更新")
+	await wait_seconds(1.0)
+	assert_true(zone._is_busy, "长补间还没结束，水域仍忙")
+	assert_gt(absf(zone.get_surface_y_for(0) - zone._display_surface_y), 10.0, "1 秒时水面离目标还远")
+	await wait_seconds(4.5)
+	assert_false(zone._is_busy)
+	assert_almost_eq(zone._display_surface_y, zone.get_surface_y_for(0), 1.0)
+	assert_ne(zone._display_surface_y, start_y)
+
+
 func test_rain_raises_level_and_floats_raft() -> void:
 	var zone := _make_zone(1, false, PackedFloat32Array([100, 500, 900]))
 	var raft := _add_raft(zone, 0)

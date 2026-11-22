@@ -1431,6 +1431,7 @@
     },
     {
       "type": "checkpoint",
+      "id": "checkpoint_e",
       "pos": [
         4400,
         -450
@@ -1680,7 +1681,8 @@
       "do": "set",
       "target": "bay",
       "level": 1,
-      "delay": 1.5
+      "seconds": 2,
+      "delay": 3.8
     },
     {
       "when": "weir",
@@ -1690,43 +1692,47 @@
         5530,
         250
       ],
-      "seconds": 1.5,
-      "delay": 1.5
+      "seconds": 2.5,
+      "delay": 3.4
     },
     {
       "when": "weir",
       "event": "stage_1",
       "do": "message",
       "text": "下游河湾的水退到警戒线以下，浅滩露出来了",
-      "delay": 1.5
+      "delay": 3.9
     },
     {
       "when": "weir",
       "event": "stage_2",
       "do": "reveal",
-      "target": "foam_g"
+      "target": "foam_g",
+      "delay": 2.0
     },
     {
       "when": "weir",
       "event": "stage_2",
       "do": "reveal",
-      "target": "ledge_h"
+      "target": "ledge_h",
+      "delay": 3.8
     },
     {
       "when": "weir",
       "event": "stage_2",
       "do": "focus",
       "pos": [
-        6200,
-        100
+        5600,
+        -800
       ],
-      "seconds": 1.5
+      "seconds": 1.5,
+      "delay": 3.4
     },
     {
       "when": "weir",
       "event": "stage_2",
       "do": "message",
-      "text": "跌水潭翻起白沫，水势缓下来了，上层岩架露了出来"
+      "text": "跌水潭翻起白沫，水势缓下来了，上层岩架露了出来",
+      "delay": 2.0
     },
     {
       "when": "weir",
@@ -1734,7 +1740,8 @@
       "do": "set",
       "target": "lake",
       "level": 0,
-      "delay": 1.0
+      "seconds": 2.5,
+      "delay": 3.8
     },
     {
       "when": "weir",
@@ -1744,15 +1751,15 @@
         7600,
         -450
       ],
-      "seconds": 1.5,
-      "delay": 1.0
+      "seconds": 3.0,
+      "delay": 3.4
     },
     {
       "when": "weir",
       "event": "stage_3",
       "do": "message",
       "text": "三级阶梯过水，堰塞湖退下去了，通往水文站的台阶露出来了",
-      "delay": 1.0
+      "delay": 3.9
     },
     {
       "when": "weir",
@@ -1780,6 +1787,95 @@
       "do": "evacuate",
       "target": "dog",
       "delay": 1.5
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "river",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "sandbar",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "rapids",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "bay",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "dam",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "pool",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "lake",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "lake_mouth",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "snowline",
+      "weather": "sun",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "checkpoint_e",
+      "event": "reached",
+      "do": "focus",
+      "pos": [
+        6270,
+        -200
+      ],
+      "seconds": 3.0
+    },
+    {
+      "when": "checkpoint_e",
+      "event": "reached",
+      "do": "dialogue",
+      "path": "res://data/dialogue/level_03_weir.json",
+      "delay": 4.0
     },
     {
       "when": "weir",

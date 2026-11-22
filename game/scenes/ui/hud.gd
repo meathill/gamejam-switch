@@ -11,6 +11,7 @@ var _gauge_label: Label
 var _gauge_tween: Tween
 var _toast_label: Label
 var _toast_tween: Tween
+var _weir_panel: WeirPanel
 var _target: WeatherTarget = null
 ## 望远镜看的期间常驻底部状态栏的提示；为空表示没在看
 var _lookout_hint: String = ""
@@ -56,6 +57,7 @@ func _on_target_changed(target: WeatherTarget) -> void:
 	_target = target
 	if _target:
 		_target.state_changed.connect(_on_target_state_changed)
+	_weir_panel.set_weir(_target as Weir)
 	_refresh_target()
 
 
@@ -135,6 +137,8 @@ func _build() -> void:
 	status_box.add_child(_objective_label)
 	_gauge_label = _make_label(32, HORIZONTAL_ALIGNMENT_RIGHT)
 	status_box.add_child(_gauge_label)
+	_weir_panel = WeirPanel.new()
+	status_box.add_child(_weir_panel)
 
 	_target_label = _make_label(28, HORIZONTAL_ALIGNMENT_CENTER)
 	_target_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)

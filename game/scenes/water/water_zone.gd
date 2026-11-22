@@ -185,29 +185,6 @@ func _cast(weather: Weather.Type, direction: int) -> CastResult:
 	return CastResult.fail(WaterRules.get_reason_text(result.reason))
 
 
-## 外部机关（如排水站）也通过这里改变水域状态
-func transition_to(next: WaterState) -> void:
-	var was_frozen := is_frozen
-	level = next.level
-	is_frozen = next.is_frozen
-	is_polluted = next.is_polluted
-	_ice_shape.set_deferred("disabled", not is_frozen)
-	if is_frozen and not was_frozen:
-		_lift_bodies_onto_ice()
-	_is_busy = true
-	var target_y := get_surface_y_for(level)
-	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
-	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	tween.tween_property(self, "_display_surface_y", target_y, TWEEN_SECONDS)
-	for raft in get_rafts():
-		raft.set_frozen(is_frozen)
-		tween.tween_property(raft, "position:y", get_raft_y_for(target_y), TWEEN_SECONDS)
-	await tween.finished
-	_is_busy = false
-	state_changed.emit(self)
-	_emit_state_event()
-
-
 func get_state_event() -> String:
 	if is_frozen:
 		return "frozen"
@@ -248,15 +225,6 @@ func get_unmet_reason(condition: Dictionary) -> String:
 	return ""
 
 
-## 联动：解除 / 设置某种天气的禁用
-func do_unblock(params: Dictionary) -> void:
-	blocked_weathers.erase(params["weather"])
-
-
-func do_block(params: Dictionary) -> void:
-	blocked_weathers[params["weather"]] = params["reason"]
-
-
 ## 联动：水位下降 by 级（默认 1），clean 为真时同时净化
 func do_lower(params: Dictionary) -> void:
 	var state := get_state()
@@ -264,9 +232,34 @@ func do_lower(params: Dictionary) -> void:
 	transition_to(WaterState.new(maxi(state.level - int(params.get("by", 1)), 0), state.is_frozen, polluted))
 
 
-## 联动：直接设置状态，没写的字段保持不变
+## 联动：直接设置状态，没写的字段保持不变；seconds 指定水位补间时长（默认 TWEEN_SECONDS）
 func do_set(params: Dictionary) -> void:
-	transition_to(WaterState.new(int(params.get("level", level)), params.get("frozen", is_frozen), params.get("polluted", is_polluted)))
+	transition_to(
+		WaterState.new(int(params.get("level", level)), params.get("frozen", is_frozen), params.get("polluted", is_polluted)),
+		float(params.get("seconds", TWEEN_SECONDS)))
+
+
+## 外部机关（如排水站）也通过这里改变水域状态；seconds 是水面和浮箱补间的时长
+func transition_to(next: WaterState, seconds := TWEEN_SECONDS) -> void:
+	var was_frozen := is_frozen
+	level = next.level
+	is_frozen = next.is_frozen
+	is_polluted = next.is_polluted
+	_ice_shape.set_deferred("disabled", not is_frozen)
+	if is_frozen and not was_frozen:
+		_lift_bodies_onto_ice()
+	_is_busy = true
+	var target_y := get_surface_y_for(level)
+	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	tween.tween_property(self, "_display_surface_y", target_y, seconds)
+	for raft in get_rafts():
+		raft.set_frozen(is_frozen)
+		tween.tween_property(raft, "position:y", get_raft_y_for(target_y), seconds)
+	await tween.finished
+	_is_busy = false
+	state_changed.emit(self)
+	_emit_state_event()
 
 
 func _emit_state_event() -> void:

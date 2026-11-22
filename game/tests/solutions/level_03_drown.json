@@ -10,8 +10,11 @@
     { "expect_prop": "villager_1", "_is_rescued": true },
 
     { "teleport": [4500, -450] },
+    { "wait": 4.5 },
+    { "advance": 8 },
+    { "wait": 0.5 },
     { "interact": true },
-    { "wait": 4.0 },
+    { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 1 },
 
     { "teleport": [3900, -450] },

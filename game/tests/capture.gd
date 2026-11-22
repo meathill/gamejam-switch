@@ -1,6 +1,7 @@
 extends SceneTree
 ## 开发用截图脚本：加载场景、执行脚本化步骤、按帧截图。
-## godot --path game -s res://tests/capture.gd -- <scene> <output_dir> <scenario> [level_id]
+## godot --path game --always-on-top -s res://tests/capture.gd -- <scene> <output_dir> <scenario> [level_id]
+## macOS 上必须加 --always-on-top：窗口被遮住就停止渲染，截出来的全是同一帧
 
 var _scene_path: String
 var _output_dir: String
@@ -80,9 +81,12 @@ func _run(step: Dictionary) -> void:
 			obj2.set(step["prop"], step["value"])
 		"log":
 			var state: Node = root.get_node("GameState")
-			print("[capture] %s pos=%s locked=%s weather=%s rescued=%d touch=%s paused=%s" % [
-				step["name"], player.get("global_position"), player.get("is_input_locked"), state.get("current_weather"),
-				state.call("get_objective", "resident").x, state.get("is_touch_mode"), paused,
+			var cam: Camera2D = player.get_node("Camera2D")
+			var weir: Node = current_scene.get("map").get_object("weir")
+			print("[capture] %s pos=%s cam=%s locked=%s stage=%d focusing=%s q=%d paused=%s" % [
+				step["name"], player.get("global_position"), player.get("global_position") + cam.get("offset"),
+				player.get("is_input_locked"), weir.get("state").stage,
+				current_scene.get("_is_focusing"), (current_scene.get("_focus_queue") as Array).size(), paused,
 			])
 
 
@@ -255,7 +259,8 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "name": "b", "at": Vector2(1200, -600) },
 				{ "name": "c", "at": Vector2(2500, -250) },
 				{ "name": "d", "at": Vector2(3550, -450) },
-				{ "name": "e", "at": Vector2(4500, -450) },
+				# 4620 在 checkpoint_e 的 reached 判定之外，不触发首到对白；场景里另有 weir 专项
+				{ "name": "e", "at": Vector2(4620, -450) },
 				{ "name": "f", "at": Vector2(5150, 150) },
 				{ "name": "g", "at": Vector2(6150, -300) },
 				{ "name": "i", "at": Vector2(7500, -700) },
@@ -376,6 +381,60 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 212, "do": "touch", "at": Vector2(1855, 150), "pressed": false },
 				{ "frame": 240, "do": "shot", "name": "touch_03_paused" },
 				{ "frame": 241, "do": "log", "name": "after_pause" },
+			]
+		"weir":
+			# 活动堰演出：首到 E 看三块板+对白 → HUD 示意图 → 逐段放倒的水帘和水位
+			var steps: Array[Dictionary] = [
+				{ "frame": 50, "do": "teleport", "to": Vector2(4500, -450) },
+				# reached：镜头 0.4s 补间到堰板停 3s → 对白 delay 4.0
+				{ "frame": 110, "do": "shot", "name": "weir_arrive_boards" },
+				{ "frame": 330, "do": "shot", "name": "weir_dialogue" },
+			]
+			for index in 8:
+				steps.append({ "frame": 340 + index * 8, "do": "press", "action": "advance" })
+				steps.append({ "frame": 342 + index * 8, "do": "release", "action": "advance" })
+			steps.append({ "frame": 420, "do": "log", "name": "before_panels" })
+			steps.append({ "frame": 430, "do": "shot", "name": "weir_panel_low" })
+			# 绞盘指向上段：白框移到上段板
+			steps.append({ "frame": 440, "do": "prop", "id": "weir", "prop": "selection", "value": 2 })
+			steps.append({ "frame": 442, "do": "call", "id": "weir", "method": "_turn_winch" })
+			steps.append({ "frame": 490, "do": "shot", "name": "weir_panel_top" })
+			# 放回下段再确认：板角 0.8s 补间（f514-562）→ 水帘淡入（f562-592）
+			steps.append({ "frame": 500, "do": "prop", "id": "weir", "prop": "selection", "value": 0 })
+			steps.append({ "frame": 502, "do": "call", "id": "weir", "method": "confirm" })
+			steps.append({ "frame": 540, "do": "shot", "name": "weir_lower_mid" })
+			steps.append({ "frame": 541, "do": "log", "name": "lower_mid" })
+			steps.append({ "frame": 620, "do": "shot", "name": "weir_cascade_low" })
+			# 后果镜头 f706 补间到 F，bay set 开始补间 2s → 中点 ~f766
+			steps.append({ "frame": 780, "do": "shot", "name": "weir_bay_falling" })
+			# 中段：f926-974 倒板，f974-1004 水帘淡入 → 两级水帘+泡沫
+			steps.append({ "frame": 900, "do": "log", "name": "pre_mid" })
+			steps.append({ "frame": 920, "do": "prop", "id": "weir", "prop": "selection", "value": 1 })
+			steps.append({ "frame": 922, "do": "call", "id": "weir", "method": "confirm" })
+			steps.append({ "frame": 1030, "do": "shot", "name": "weir_cascade_mid" })
+			steps.append({ "frame": 1031, "do": "log", "name": "cascade_mid" })
+			# ledge_h 镜头 f1130 到位停 1.5s
+			steps.append({ "frame": 1170, "do": "shot", "name": "weir_ledge" })
+			# 上段：整条阶梯水帘 f1400；湖镜头 f1508 到位，湖水 2.5s 补间中点 ~f1583
+			steps.append({ "frame": 1290, "do": "prop", "id": "weir", "prop": "selection", "value": 2 })
+			steps.append({ "frame": 1292, "do": "call", "id": "weir", "method": "confirm" })
+			steps.append({ "frame": 1400, "do": "shot", "name": "weir_cascade_full" })
+			steps.append({ "frame": 1401, "do": "log", "name": "cascade_full" })
+			steps.append({ "frame": 1600, "do": "shot", "name": "weir_lake_falling" })
+			steps.append({ "frame": 1601, "do": "log", "name": "lake_falling" })
+			# stage_3 后对湖下雨被拒（站在 step_i1 顶面——湖床本身被台阶占满、竖井太窄站不住）
+			steps.append({ "frame": 1760, "do": "teleport", "to": Vector2(7050, -200) })
+			steps.append({ "frame": 1800, "do": "weather", "weather": Weather.Type.RAIN })
+			steps.append({ "frame": 1806, "do": "cast" })
+			steps.append({ "frame": 1850, "do": "shot", "name": "weir_blocked_rain" })
+			return steps
+		"weir_wrong":
+			# 错序放倒：中段先放 → 被冲开的板保持 -60° 半透明画法，示意图红闪
+			return [
+				{ "frame": 40, "do": "teleport", "to": Vector2(4500, -450) },
+				{ "frame": 90, "do": "prop", "id": "weir", "prop": "selection", "value": 1 },
+				{ "frame": 92, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 140, "do": "shot", "name": "weir_collapse" },
 			]
 		"spots":
 			# 远程天气目标：A 区无可见框；施放后镜头切到真实地点看特效再回来

@@ -59,7 +59,7 @@ func test_confirm_in_order_emits_stage_events() -> void:
 	weir.confirm()
 	assert_signal_emitted_with_parameters(weir, "level_event", ["stage_1"])
 	assert_true(weir.cast_weather(Weather.Type.WIND, 1).is_busy, "放倒结算期间风返回 busy")
-	await wait_seconds(3.2)
+	await wait_seconds(Weir.LOWER_SECONDS + 0.3)
 	weir.cast_weather(Weather.Type.WIND, 1)
 	weir.confirm()
 	assert_signal_emitted_with_parameters(weir, "level_event", ["stage_2"])
@@ -96,7 +96,7 @@ func test_recover_keeps_stage_and_restores_pressure() -> void:
 	var passages := setup["passages"] as Array[Passage]
 	await wait_physics_frames(3)
 	weir.confirm()
-	await wait_seconds(3.2)
+	await wait_seconds(Weir.LOWER_SECONDS + 0.3)
 	weir.cast_weather(Weather.Type.WIND, 1)
 	await wait_seconds(0.7)
 	weir.cast_weather(Weather.Type.WIND, 1)
@@ -124,3 +124,14 @@ func test_add_pressure_events() -> void:
 	assert_true(weir.state.is_collapsed)
 	weir.do_add_pressure({})
 	assert_eq(weir.state.pressure, 5, "溃泄中涨压被忽略")
+
+
+func test_console_prompt_follows_selection() -> void:
+	var setup := _make_setup(0.0)
+	var weir: Weir = setup["weir"]
+	var console := weir.get_children().filter(func(node: Node) -> bool: return node is WeirConsole)[0] as WeirConsole
+	console.is_player_near = true
+	console.refresh_prompt()
+	weir.cast_weather(Weather.Type.WIND, 1)
+	await wait_seconds(Weir.TURN_SECONDS + 0.2)
+	assert_eq(console._prompt.text, GameState.pick_hint("E 放倒中段堰板", "放倒中段堰板"))

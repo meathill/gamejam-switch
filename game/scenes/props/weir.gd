@@ -2,7 +2,9 @@
 class_name Weir
 extends WeatherTarget
 ## 三级活动堰：风转动绞盘循环选中下/中/上段，操作台（WeirConsole 子节点）按 E 确认放倒。
-## 放倒顺序错了或压力涨到 5 格 → 溃泄：小猫送回最远安全点并启用对应的应急便道；
+## 放倒一块板时镜头先补间到堰板（request_focus 排在联动镜头之前），板角度 0→-80° 补间、
+## 随后水帘淡入；三段都放倒后湖面到跌水潭连成一整条阶梯水帘。
+## 顺序错了或压力涨到 5 格 → 溃泄：小猫送回最远安全点并启用对应的应急便道；
 ## 下游河湾变回浅水时 do_recover 恢复。原点在绞盘风车地面中点。
 
 signal pressure_changed(value: int)
@@ -11,13 +13,19 @@ const WINCH_TEXTURE := preload("res://assets/sprites/valley/winch.png")
 const WINCH_DIAMETER := 360.0
 ## 绞盘中心在原点上方的高度
 const WINCH_HEIGHT := 300.0
-const BOARD_SIZE := Vector2(50, 200)
 const BOARD_COLORS: Array[Color] = [Color("3fa69a"), Color("e0a030"), Color("c8c8c0")]
 const TURN_SECONDS := 0.5
-const LOWER_SECONDS := 3.0
+## 放倒一块板的整段演出时长：镜头补间 0.4 + 看板 BOARD_FOCUS_SECONDS + 后果镜头补间 0.4 + 停留 ≤3.0
+const LOWER_SECONDS := 7.0
+## 放倒一块板时，镜头停在堰板上的时长
+const BOARD_FOCUS_SECONDS := 3.0
+## 板角度补间和之后水帘淡入的时长
+const BOARD_LOWER_SECONDS := 0.8
+const CASCADE_FADE_SECONDS := 0.5
 const COLLAPSE_DELAY := 2.2
 const TARGET_HALF_WIDTH := 400.0
 const TARGET_HEIGHT_ABOVE := 600.0
+const LABEL_FONT_SIZE := 22
 
 ## 三块堰板的位置（世界坐标，板的底边中点）
 var boards: PackedVector2Array = PackedVector2Array()
@@ -45,6 +53,12 @@ var _collapse_timer: float = -1.0
 ## 被冲开的堰板序号（-1 没有，如满压溃泄）
 var _blown_board: int = -1
 var _active_route: Passage = null
+## 每块板自己的显示角度（度），放倒动画补间它
+var _board_angles: Array[float] = [0.0, 0.0, 0.0]
+## 每块板水帘的透明度；湖口水帘单独一个
+var _cascade_alphas: Array[float] = [0.0, 0.0, 0.0]
+var _lake_cascade_alpha: float = 0.0
+var _cascade_time: float = 0.0
 var _winch_angle: float = 0.0:
 	set(value):
 		_winch_angle = value
@@ -58,7 +72,16 @@ func _ready() -> void:
 	state.pressure = initial_pressure
 	state.stable_pressure = initial_pressure
 	add_child(WeirConsole.new())
+	for index in boards.size():
+		add_child(_make_board_label(index))
 	_update_gauge()
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint() or not _has_flow():
+		return
+	_cascade_time += delta
+	queue_redraw()
 
 
 func _physics_process(delta: float) -> void:
@@ -73,6 +96,10 @@ func _physics_process(delta: float) -> void:
 
 func _get_player() -> Player:
 	return get_tree().get_first_node_in_group("player") as Player
+
+
+func _has_flow() -> bool:
+	return _lake_cascade_alpha > 0.0 or _cascade_alphas.any(func(alpha: float) -> bool: return alpha > 0.0)
 
 
 func is_busy() -> bool:
@@ -96,6 +123,13 @@ func get_target_rect() -> Rect2:
 
 func get_effect_rect() -> Rect2:
 	return Rect2(global_position.x - WINCH_DIAMETER / 2.0, global_position.y - WINCH_HEIGHT, WINCH_DIAMETER, 1.0)
+
+
+## 三块板都能入画的镜头焦点（中段板的底边）
+func get_boards_focus() -> Vector2:
+	if boards.size() < WeirRules.BOARD_COUNT:
+		return global_position
+	return Vector2((boards[0].x + boards[WeirRules.BOARD_COUNT - 1].x) * 0.5, boards[1].y)
 
 
 func set_highlight(color: Color) -> void:
@@ -140,15 +174,19 @@ func _turn_winch() -> void:
 	state_changed.emit(self)
 
 
-## 操作台确认放倒选中的堰板
+## 操作台确认放倒选中的堰板。先把看堰板的镜头排进队列，再发 stage 事件，
+## 联动里「后果」的 focus / 水位变化就排在这之后依次播放
 func confirm() -> void:
 	var result := WeirRules.confirm(state, selection)
 	match result.outcome:
 		WeirRules.Outcome.LOWERED:
 			state = result.state
 			GameState.post_message("%s堰板放倒了" % WeirRules.BOARD_NAMES[selection])
+			GameState.request_focus(get_boards_focus(), BOARD_FOCUS_SECONDS)
 			level_event.emit("stage_%d" % state.stage)
+			_lower_board(selection)
 			_update_gauge()
+			state_changed.emit(self)
 			_hold_busy()
 		WeirRules.Outcome.ALREADY_LOWERED:
 			GameState.post_warning("这一段已经放下")
@@ -160,7 +198,30 @@ func confirm() -> void:
 			pass
 
 
-## 放倒堰板后结算 3 秒：期间风和确认都忙，涨压先记下再补结算
+## 放倒动画：等镜头补间到位（FOCUS_PAN_SECONDS），板角 0 → -80°，水帘随后淡入
+func _lower_board(index: int) -> void:
+	await get_tree().create_timer(Level.FOCUS_PAN_SECONDS, false).timeout
+	var tween := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	tween.tween_method(_set_board_angle.bind(index), 0.0, WeirDrawing.LOWERED_ANGLE, BOARD_LOWER_SECONDS)
+	tween.tween_method(_set_cascade_alpha.bind(index), 0.0, 1.0, CASCADE_FADE_SECONDS)
+	if index == WeirRules.BOARD_COUNT - 1:
+		tween.parallel().tween_method(_set_lake_cascade_alpha, 0.0, 1.0, CASCADE_FADE_SECONDS)
+
+
+func _set_board_angle(angle: float, index: int) -> void:
+	_board_angles[index] = angle
+	queue_redraw()
+
+
+func _set_cascade_alpha(alpha: float, index: int) -> void:
+	_cascade_alphas[index] = alpha
+
+
+func _set_lake_cascade_alpha(alpha: float) -> void:
+	_lake_cascade_alpha = alpha
+
+
+## 放倒堰板后的忙碌期覆盖整段演出：期间风和确认都忙，涨压先记下再补结算
 func _hold_busy() -> void:
 	_is_busy = true
 	await get_tree().create_timer(LOWER_SECONDS, false).timeout
@@ -170,6 +231,7 @@ func _hold_busy() -> void:
 	for index in count:
 		_apply_pressure()
 	queue_redraw()
+	state_changed.emit(self)
 
 
 func do_add_pressure(_params: Dictionary) -> void:
@@ -249,26 +311,35 @@ func _update_gauge() -> void:
 	pressure_changed.emit(state.pressure)
 
 
+## 堰板上方的段名标签。Web 上 draw_string 没有中文字形，必须用 Label
+func _make_board_label(index: int) -> Label:
+	var label := Label.new()
+	label.text = WeirRules.BOARD_NAMES[index]
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", LABEL_FONT_SIZE)
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override("outline_size", 6)
+	label.size = Vector2(90, 30)
+	label.position = boards[index] - global_position + Vector2(-45, -WeirDrawing.BOARD_SIZE.y - 42)
+	return label
+
+
 func _draw() -> void:
-	# 三块堰板：底边在 boards 给的世界坐标上
+	# 三块堰板：底边在 boards 给的世界坐标上，各自按 _board_angles 显示
 	for index in boards.size():
 		var base := boards[index] - global_position
-		var color := BOARD_COLORS[index]
-		var rect := Rect2(-BOARD_SIZE.x / 2.0, -BOARD_SIZE.y, BOARD_SIZE.x, BOARD_SIZE.y)
-		if index == _blown_board:
-			# 被冲开：斜倒约 60°、半透明
-			draw_set_transform(base, deg_to_rad(-60.0))
-			draw_rect(rect, Color(color, 0.45))
-		elif index < state.stage:
-			# 已放倒：绕底边转平、压暗
-			draw_set_transform(base, deg_to_rad(-80.0))
-			draw_rect(rect, color.darkened(0.45))
-		else:
-			draw_set_transform(base)
-			draw_rect(rect, color)
-			if index == selection and not state.is_collapsed:
-				draw_rect(rect, Color.WHITE, false, 4.0)
-		draw_set_transform(Vector2.ZERO)
+		var is_selected := index == selection and not state.is_collapsed
+		var is_blown := index == _blown_board
+		var angle := _board_angles[index] if index < state.stage else 0.0
+		WeirDrawing.draw_board(self, base, angle, BOARD_COLORS[index], is_selected and not is_blown, is_blown)
+	# 水帘：每块放倒的板一道（被冲开的那块没有）；stage 3 后湖口再接一段
+	for index in boards.size():
+		if index < state.stage and index != _blown_board and _cascade_alphas[index] > 0.0:
+			var path := WeirDrawing.cascade_path(boards, index, global_position)
+			WeirDrawing.draw_cascade(self, path[0], path[1], path[2], _cascade_alphas[index], _cascade_time)
+	if _lake_cascade_alpha > 0.0:
+		var path := WeirDrawing.lake_cascade_path(boards, global_position)
+		WeirDrawing.draw_cascade(self, path[0], path[1], path[2], _lake_cascade_alpha, _cascade_time)
 	# 绞盘风车，按选中角度旋转
 	var winch_size := WINCH_TEXTURE.get_size() * WINCH_DIAMETER / WINCH_TEXTURE.get_width()
 	draw_set_transform(Vector2(0, -WINCH_HEIGHT), _winch_angle)

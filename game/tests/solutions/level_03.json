@@ -18,23 +18,30 @@
     { "expect_water": "rapids", "frozen": true },
 
     { "teleport": [4500, -450] },
+    { "wait": 4.5 },
+    { "advance": 8 },
+    { "wait": 0.5 },
     { "interact": true },
-    { "wait": 4.0 },
+    { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 1 },
     { "expect_prop": "weir", "pressure": 2 },
     { "expect_water": "bay", "level": 1 },
 
     { "cast": "wind", "wait": 0.8 },
     { "interact": true },
-    { "wait": 4.0 },
+    { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 2 },
     { "expect_prop": "weir", "pressure": 1 },
 
     { "cast": "wind", "wait": 0.8 },
     { "interact": true },
-    { "wait": 2.5 },
+    { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 3 },
     { "expect_prop": "weir", "pressure": 0 },
+    { "expect_water": "lake", "level": 0 },
+
+    { "teleport": [7050, -200] },
+    { "cast": "rain", "wait": 1.0 },
     { "expect_water": "lake", "level": 0 },
 
     { "teleport": [7450, -700] },

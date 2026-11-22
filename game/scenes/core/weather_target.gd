@@ -59,3 +59,12 @@ func set_highlight(_color: Color) -> void:
 
 func _cast(_weather: Weather.Type, _direction: int) -> CastResult:
 	return CastResult.fail("这里施放不了天气")
+
+
+## 联动：解除 / 设置某种天气的禁用，reason 是施放被拒时的提示
+func do_unblock(params: Dictionary) -> void:
+	blocked_weathers.erase(params["weather"])
+
+
+func do_block(params: Dictionary) -> void:
+	blocked_weathers[params["weather"]] = params["reason"]

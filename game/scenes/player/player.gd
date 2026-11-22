@@ -178,6 +178,7 @@ func _update_checkpoint() -> void:
 		var offset := ((node as Node2D).global_position - global_position).abs()
 		if offset.x <= CHECKPOINT_REACH.x and offset.y <= CHECKPOINT_REACH.y:
 			GameState.checkpoint_position = (node as Node2D).global_position
+			(node as Checkpoint).notify_reached()
 
 
 func _update_animation(delta: float) -> void:

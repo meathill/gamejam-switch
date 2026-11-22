@@ -54,7 +54,9 @@ func _ready() -> void:
 	if data.intro_dialogue:
 		await _play_dialogue(data.intro_dialogue)
 	for entry: Array in data.intro_focus:
-		await _play_focus(Vector2(entry[0], entry[1]), entry[2])
+		_focus_queue.append([Vector2(entry[0], entry[1]), entry[2]])
+	if not _focus_queue.is_empty():
+		await _play_queued_focus()
 	_set_gameplay_active(true)
 
 
@@ -78,27 +80,25 @@ func _on_focus_requested(focus_position: Vector2, seconds: float) -> void:
 		_play_queued_focus()
 
 
-## 镜头短看某个位置：补间过去、停留、再补回来；多个请求排队依次播放
+## 镜头短看某些位置：排队的请求依次补间过去并停留，全部看完才补回小猫
 func _play_queued_focus() -> void:
 	_is_focusing = true
 	_set_gameplay_active(false)
 	while not _focus_queue.is_empty():
 		var request: Array = _focus_queue.pop_front()
-		await _play_focus(request[0], request[1])
+		var focus_position: Vector2 = request[0]
+		await _pan_camera(focus_position - _player.global_position)
+		await get_tree().create_timer(request[1]).timeout
+	await _pan_camera(Vector2.ZERO)
 	_is_focusing = false
 	_set_gameplay_active(true)
 
 
-func _play_focus(focus_position: Vector2, seconds: float) -> void:
+func _pan_camera(offset: Vector2) -> void:
 	var tween := create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	tween.tween_property(_camera, "offset", focus_position - _player.global_position, 0.4).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_camera, "offset", offset, 0.4).set_trans(Tween.TRANS_SINE)
 	await tween.finished
-	await get_tree().create_timer(seconds).timeout
-	var back := create_tween()
-	back.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	back.tween_property(_camera, "offset", Vector2.ZERO, 0.4).set_trans(Tween.TRANS_SINE)
-	await back.finished
 
 
 func _on_dialogue_requested(path: String) -> void:

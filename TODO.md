@@ -4,6 +4,7 @@
 
 - [ ] 确认游戏名（暂定 Weather Shift）
 - [ ] itch.io 建页、`butler` 上传 Web 版
+- [ ] 正式发布前把仓库变量 `WEATHER_SHIFT_LEVEL_SELECT` 设为 `0`（关掉标题页选关入口）
 
 ## 美术
 

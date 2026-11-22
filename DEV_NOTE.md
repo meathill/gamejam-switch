@@ -21,6 +21,7 @@
 - **溃泄恢复用 F 河湾 shallow 联动 recover**：修堰动作=“去下游退水”，用现有水位事件而不是新机制；冰堰用 block/unblock 河湾日照实现，冻住小坝才允许日照。
 - **NPC 沿固定点列补间行走，不走物理**：撤离路线穿过水域和台阶，物理寻路的成本远超收益。
 - **water `basin: false` 用于地形块直接托底的关卡**（第三关）：默认画的深色底板是给没有地形托底的池子用的，和土层重叠时会露出一截悬空深色块。
+- **发布开关用导出插件注入 custom feature，不用运行时环境变量**：Web 运行时读不到环境变量，所以 `addons/build_flags` 在导出这一刻把 `WEATHER_SHIFT_LEVEL_SELECT` 固化成 `level_select` feature。默认开启（内部调试方便），发布时用仓库变量显式设 `0` 关掉。
 
 ## Godot 踩坑
 

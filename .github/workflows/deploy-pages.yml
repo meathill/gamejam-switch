@@ -54,6 +54,8 @@ jobs:
         run: godot --headless --path game -s addons/gut/gut_cmdln.gd -gexit
 
       - name: Export Web
+        env:
+          WEATHER_SHIFT_LEVEL_SELECT: ${{ vars.WEATHER_SHIFT_LEVEL_SELECT }}
         run: |
           mkdir -p build/web
           godot --headless --path game --export-release Web ../build/web/index.html

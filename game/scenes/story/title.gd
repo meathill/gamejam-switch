@@ -46,6 +46,10 @@ func _build_menu() -> void:
 		SceneRouter.go_to_level(LevelCatalog.first())
 	)
 	column.add_child(skip)
+	if BuildFlags.is_level_select_enabled():
+		var select := _make_button("选关")
+		select.pressed.connect(func() -> void: _open_level_select(select))
+		column.add_child(select)
 	# 手机浏览器的地址栏会占掉不少高度，Web 版提供全屏入口（浏览器要求由用户点击触发）
 	if OS.has_feature("web"):
 		var fullscreen := _make_button("全屏")
@@ -63,6 +67,13 @@ func _build_menu() -> void:
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	footer.modulate.a = 0.6
 	layer.add_child(footer)
+
+
+func _open_level_select(button: Button) -> void:
+	var menu := LevelSelectMenu.new()
+	menu.closed.connect(func() -> void: button.grab_focus.call_deferred())
+	add_child(menu)
+	menu.focus_first()
 
 
 func _make_label(text: String, font_size: int) -> Label:

@@ -319,6 +319,7 @@ GDScript 遵循 [官方风格指南](https://docs.godotengine.org/en/stable/tuto
 | macOS   | `macOS`           | `build/macos/`（未签名，jam 可接受） |
 
 - `pnpm run export:web` 导出 Web；`pnpm run serve:web` 在 <http://localhost:8060> 本地试玩（单线程导出，不需要 COOP/COEP 头）。
+- **导出开关（`addons/build_flags/`）**：编辑器插件在导出时读环境变量注入 custom feature，运行时用 `BuildFlags`（`scripts/build_flags.gd`）判断。`WEATHER_SHIFT_LEVEL_SELECT` 为 `0`/`false` 时不带 `level_select` feature（标题页「选关」隐藏），否则默认带上；编辑器里运行始终视为开启。发布用的 CI 导出步骤透传仓库变量 `vars.WEATHER_SHIFT_LEVEL_SELECT`，正式发布前在仓库 Settings → Variables 里设为 `0`。编辑器脚本不打包，已加进各 preset 的 `exclude_filter`。
 - 当前体积（三关，2026-11-22）：`index.pck` ≈ 3.2MB（贴图约 3MB，已是 WebP，gzip 基本压不动；字体约 420KB），`index.wasm` ≈ 10MB（原始 39MB，引擎本体）。Pages 和 itch.io 都会 gzip。
 - GitHub Pages：`.github/workflows/deploy-pages.yml`，push 到 master 时安装 Godot → 跑 GUT → 导出 Web → 部署到 <https://meathill.github.io/gamejam-switch/>。导出模板只解压 Web 两个文件并用 actions/cache 缓存；`index.pck` 改名为 `index-<sha>.pck` 防缓存；checkout 不拉 LFS（CI 不需要原画）。
 - itch.io：`butler push build/web <user>/<game>:html5`。

@@ -4,13 +4,10 @@ extends WeatherTarget
 ## 远程天气目标：对远处某个区域施放限定的天气，成功后镜头切到真实地点（view）看效果再回来。
 ## 原点是矩形左上角（pos），size 是选中范围，不可见；status 显示在状态栏，HUD 右上角列出行供点击预览。
 
-const SPOTS_GROUP := "weather_spots"
 const FOCUS_SECONDS := 3.0
 
 @export var size: Vector2 = Vector2(400, 200)
 @export var status: String = ""
-## HUD 行里的附加说明（如「水尺 +1」），留空则省掉箭头后缀
-var note: String = ""
 ## 接受的天气
 var accepts: Array[Weather.Type] = []
 ## 真实地点（世界坐标矩形）：特效落在顶边，镜头对准中心
@@ -18,9 +15,8 @@ var view: Rect2 = Rect2()
 
 
 func _init() -> void:
-	# _init 不自动链调父类，WeatherTarget 的 weather_targets 组也要在这里加上
+	# _init 不自动链调父类，WeatherTarget 的 weather_targets 组要在这里加上
 	add_to_group(GROUP)
-	add_to_group(SPOTS_GROUP)
 
 
 func get_display_name() -> String:

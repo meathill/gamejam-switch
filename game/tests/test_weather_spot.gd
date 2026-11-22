@@ -26,6 +26,6 @@ func test_target_rect_is_selection_area() -> void:
 
 func test_spot_is_in_group_and_delays_effect() -> void:
 	var spot := _make_spot()
-	assert_true(spot.is_in_group(WeatherSpot.SPOTS_GROUP))
+	assert_true(spot.is_in_group(WeatherTarget.GROUP))
 	assert_eq(spot.get_effect_delay(), Level.FOCUS_PAN_SECONDS)
 	spot.free()

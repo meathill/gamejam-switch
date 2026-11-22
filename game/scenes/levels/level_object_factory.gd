@@ -34,6 +34,8 @@ static func link(node: Node2D, entry: Dictionary, nodes: Dictionary[String, Node
 				(node as Pump).wheel = nodes[entry["wheel"]]
 		"gauge":
 			(node as Gauge).weir = nodes[entry["weir"]]
+		"telescope":
+			(node as Telescope).spot = nodes[entry["spot"]]
 		"weir":
 			var weir := node as Weir
 			var safe_points: Array[Dictionary] = []
@@ -202,7 +204,6 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			spot.display_name = entry["name"]
 			spot.size = LevelData.to_vector(entry["size"])
 			spot.status = entry.get("status", "")
-			spot.note = entry.get("note", "")
 			spot.view = LevelData.to_rect(entry["view"])
 			for key: String in entry["accepts"]:
 				spot.accepts.append(Weather.from_key(key))
@@ -216,6 +217,8 @@ static func _create_by_type(entry: Dictionary) -> Node2D:
 			return ridge
 		"gauge":
 			return Gauge.new()
+		"telescope":
+			return Telescope.new()
 		"weir":
 			var weir := Weir.new()
 			weir.boards = _to_path(entry["boards"])

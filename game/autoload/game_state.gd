@@ -17,6 +17,9 @@ signal dialogue_finished
 signal gauge_changed(value: int, maximum: int)
 ## 请求镜头短暂看向某个世界坐标，由 Level 锁定操作并依次播放
 signal focus_requested(position: Vector2, seconds: float)
+## 望远镜开始看向某个世界坐标 / 结束看（镜头切回小猫、解锁输入）；hint 在看的期间常驻底部状态栏
+signal lookout_started(position: Vector2, hint: String)
+signal lookout_ended
 
 const MESSAGE_COLOR := Color(0.95, 0.95, 0.9)
 const WARNING_COLOR := Color(1.0, 0.72, 0.55)

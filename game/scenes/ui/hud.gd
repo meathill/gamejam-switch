@@ -12,8 +12,8 @@ var _gauge_tween: Tween
 var _toast_label: Label
 var _toast_tween: Tween
 var _target: WeatherTarget = null
-## 远程天气目标的 HUD 行（spot → 按钮）
-var _spot_buttons: Dictionary[WeatherSpot, Button] = {}
+## 望远镜看的期间常驻底部状态栏的提示；为空表示没在看
+var _lookout_hint: String = ""
 
 
 func _ready() -> void:
@@ -21,6 +21,14 @@ func _ready() -> void:
 	_build()
 	GameState.weather_changed.connect(func(_weather: Weather.Type) -> void: _refresh_weather())
 	GameState.target_changed.connect(_on_target_changed)
+	GameState.lookout_started.connect(func(_position: Vector2, hint: String) -> void:
+		_lookout_hint = hint
+		_refresh_target()
+	)
+	GameState.lookout_ended.connect(func() -> void:
+		_lookout_hint = ""
+		_refresh_target()
+	)
 	GameState.objectives_changed.connect(_refresh_objectives)
 	GameState.weather_rules_changed.connect(_refresh_weather)
 	GameState.message_posted.connect(show_toast)
@@ -88,49 +96,17 @@ func _refresh_weather() -> void:
 	var hint := "\n这里不能用" if is_disabled else GameState.pick_hint("\nShift 切换 · F 施放", "")
 	_weather_label.text = Weather.get_display_name(weather) + hint
 	_weather_label.modulate = Color(0.6, 0.6, 0.6) if is_disabled else Weather.get_color(weather).lightened(0.3)
-	_refresh_spot_rows()
-
-
-func _make_spot_row(spot: WeatherSpot) -> Button:
-	var row := Button.new()
-	row.flat = true
-	row.text = _spot_row_text(spot)
-	row.alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	row.focus_mode = Control.FOCUS_NONE
-	row.mouse_filter = Control.MOUSE_FILTER_STOP
-	row.add_theme_font_size_override("font_size", 26)
-	row.add_theme_constant_override("outline_size", 8)
-	row.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	row.pressed.connect(func() -> void:
-		GameState.focus_requested.emit(spot.get_view_center(), WeatherSpot.FOCUS_SECONDS)
-	)
-	return row
-
-
-func _spot_row_text(spot: WeatherSpot) -> String:
-	var names: Array[String] = []
-	for weather in spot.accepts:
-		names.append(Weather.get_display_name(weather))
-	var text := "%s · %s" % [spot.get_display_name(), "/".join(names)]
-	return "%s → %s" % [text, spot.note] if spot.note else text
-
-
-func _refresh_spot_rows() -> void:
-	for spot: WeatherSpot in _spot_buttons:
-		var row: Button = _spot_buttons[spot]
-		# 用 modulate 压暗整行（连描边一起），只改字色时深色描边反而显得更醒目
-		var is_selected := spot == _target
-		row.modulate.a = 1.0 if is_selected else 0.45
-		row.add_theme_color_override("font_color", Color.WHITE if is_selected else Color(0.85, 0.85, 0.85))
 
 
 func _refresh_target() -> void:
+	if _lookout_hint:
+		_target_label.text = _lookout_hint
+		return
 	if not is_instance_valid(_target):
 		_target_label.text = "附近没有可以施放天气的地方"
 		return
 	var status := _target.get_status_text()
 	_target_label.text = "%s：%s" % [_target.get_display_name(), status] if status else _target.get_display_name()
-	_refresh_spot_rows()
 
 
 func _build() -> void:
@@ -159,12 +135,6 @@ func _build() -> void:
 	status_box.add_child(_objective_label)
 	_gauge_label = _make_label(32, HORIZONTAL_ALIGNMENT_RIGHT)
 	status_box.add_child(_gauge_label)
-	# 远程天气目标各一行，点击预览真实地点；选中时高亮
-	for node in get_tree().get_nodes_in_group(WeatherSpot.SPOTS_GROUP):
-		var spot := node as WeatherSpot
-		var row := _make_spot_row(spot)
-		status_box.add_child(row)
-		_spot_buttons[spot] = row
 
 	_target_label = _make_label(28, HORIZONTAL_ALIGNMENT_CENTER)
 	_target_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)

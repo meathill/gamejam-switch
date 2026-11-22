@@ -103,6 +103,7 @@ const TYPES: Dictionary[String, Dictionary] = {
 	},
 	"weather_spot": { "required": ["pos", "size", "name", "accepts", "view"], "layer": "props", "events": ["rain", "wind", "snow", "sun"] },
 	"gauge": { "required": ["pos", "weir"], "refs": { "weir": ["weir"] }, "layer": "props" },
+	"telescope": { "required": ["pos", "spot"], "refs": { "spot": ["weather_spot"] }, "layer": "props" },
 	"weir": {
 		"required": ["pos", "boards", "safe_points"],
 		"layer": "props",

@@ -48,6 +48,8 @@ func _ready() -> void:
 	GameState.level_completed.connect(_on_level_completed)
 	GameState.dialogue_requested.connect(_on_dialogue_requested)
 	GameState.focus_requested.connect(_on_focus_requested)
+	GameState.lookout_started.connect(_on_lookout_started)
+	GameState.lookout_ended.connect(_on_lookout_ended)
 	if GameState.seen_intros.get(data.id, false):
 		return
 	GameState.seen_intros[data.id] = true
@@ -103,6 +105,20 @@ func _play_queued_focus() -> void:
 	await _pan_camera(Vector2.ZERO)
 	_is_focusing = false
 	_set_gameplay_active(true)
+
+
+## 望远镜：不走定时 focus 队列，镜头锁在目标世界坐标直到 lookout_ended；触屏控件保持激活以便按互动键退出
+func _on_lookout_started(focus_position: Vector2, _hint: String) -> void:
+	_player.is_input_locked = true
+	_focus_world = focus_position
+	await _pan_camera(focus_position - _player.global_position)
+	_focus_held = true
+
+
+func _on_lookout_ended() -> void:
+	_focus_held = false
+	await _pan_camera(Vector2.ZERO)
+	_player.is_input_locked = false
 
 
 func _pan_camera(offset: Vector2) -> void:

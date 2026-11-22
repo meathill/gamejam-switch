@@ -738,8 +738,7 @@
         -450,
         1200,
         1
-      ],
-      "note": "水尺 +1"
+      ]
     },
     {
       "type": "weather_spot",
@@ -762,8 +761,23 @@
         -1520,
         1500,
         300
+      ]
+    },
+    {
+      "type": "telescope",
+      "pos": [
+        -60,
+        -700
       ],
-      "note": "水尺 +1"
+      "spot": "lake_mouth"
+    },
+    {
+      "type": "telescope",
+      "pos": [
+        480,
+        -700
+      ],
+      "spot": "snowline"
     },
     {
       "type": "gondola",

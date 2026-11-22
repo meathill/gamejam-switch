@@ -378,7 +378,7 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 241, "do": "log", "name": "after_pause" },
 			]
 		"spots":
-			# 远程天气目标：A 区无可见框、HUD 行高亮；施放后镜头切到真实地点看特效再回来；点 HUD 行预览
+			# 远程天气目标：A 区无可见框；施放后镜头切到真实地点看特效再回来
 			# 只施放一次（水尺 3→4），避免第二次施放触发溃泄抢走镜头焦点
 			return [
 				{ "frame": 40, "do": "teleport", "to": Vector2(0, -700) },
@@ -387,9 +387,33 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 105, "do": "cast" },
 				{ "frame": 170, "do": "shot", "name": "lake_rain" },
 				{ "frame": 400, "do": "shot", "name": "spots_back" },
-				{ "frame": 740, "do": "touch", "at": Vector2(1700, 226) },
-				{ "frame": 742, "do": "touch", "at": Vector2(1700, 226), "pressed": false },
-				{ "frame": 800, "do": "shot", "name": "snowline_preview" },
+			]
+		"telescope":
+			# A 起点两个望远镜：真实按键走过去按 E 看真实地点（锁住不能动不能施放），再按 E 返回
+			return [
+				{ "frame": 40, "do": "press", "action": "move_left" },
+				{ "frame": 70, "do": "release", "action": "move_left" },
+				{ "frame": 110, "do": "shot", "name": "scope_lake_prompt" },
+				{ "frame": 120, "do": "press", "action": "interact" },
+				{ "frame": 122, "do": "release", "action": "interact" },
+				{ "frame": 170, "do": "shot", "name": "scope_lake_view" },
+				{ "frame": 190, "do": "press", "action": "move_left" },
+				{ "frame": 200, "do": "release", "action": "move_left" },
+				{ "frame": 205, "do": "press", "action": "cast" },
+				{ "frame": 207, "do": "release", "action": "cast" },
+				{ "frame": 230, "do": "shot", "name": "scope_lake_locked" },
+				{ "frame": 250, "do": "press", "action": "interact" },
+				{ "frame": 252, "do": "release", "action": "interact" },
+				{ "frame": 320, "do": "shot", "name": "scope_back" },
+				{ "frame": 330, "do": "press", "action": "move_right" },
+				{ "frame": 405, "do": "release", "action": "move_right" },
+				{ "frame": 440, "do": "shot", "name": "scope_snow_prompt" },
+				{ "frame": 450, "do": "press", "action": "interact" },
+				{ "frame": 452, "do": "release", "action": "interact" },
+				{ "frame": 500, "do": "shot", "name": "scope_snow_view" },
+				{ "frame": 520, "do": "press", "action": "interact" },
+				{ "frame": 522, "do": "release", "action": "interact" },
+				{ "frame": 590, "do": "shot", "name": "scope_snow_back" },
 			]
 		"spots_sun":
 			# 雪线日照单独一轮：水尺 3→4 不触发溃泄，镜头能停在雪坡看日照粒子

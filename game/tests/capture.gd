@@ -222,6 +222,32 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 580, "do": "log", "name": "on_ledge" },
 				{ "frame": 581, "do": "shot", "name": "on_ledge" },
 			]
+		"gondola":
+			# 吊斗：走向吊斗被斗壁挡住 → 跳进斗里 → 风推滑行 → 到 C 端跳出
+			return [
+				{ "frame": 50, "do": "teleport", "to": Vector2(1350, -600) },
+				{ "frame": 60, "do": "press", "action": "move_right" },
+				{ "frame": 110, "do": "release", "action": "move_right" },
+				{ "frame": 115, "do": "shot", "name": "gondola_blocked" },
+				{ "frame": 116, "do": "log", "name": "blocked" },
+				{ "frame": 130, "do": "press", "action": "move_right" },
+				{ "frame": 135, "do": "press", "action": "jump" },
+				{ "frame": 155, "do": "release", "action": "move_right" },
+				{ "frame": 180, "do": "release", "action": "jump" },
+				{ "frame": 245, "do": "log", "name": "in_bucket" },
+				{ "frame": 250, "do": "shot", "name": "gondola_in" },
+				{ "frame": 270, "do": "weather", "weather": Weather.Type.WIND },
+				{ "frame": 275, "do": "cast" },
+				{ "frame": 380, "do": "shot", "name": "gondola_mid" },
+				{ "frame": 500, "do": "log", "name": "arrived" },
+				{ "frame": 505, "do": "shot", "name": "gondola_arrived" },
+				{ "frame": 540, "do": "press", "action": "move_left" },
+				{ "frame": 545, "do": "press", "action": "jump" },
+				{ "frame": 565, "do": "release", "action": "move_left" },
+				{ "frame": 590, "do": "release", "action": "jump" },
+				{ "frame": 640, "do": "log", "name": "out" },
+				{ "frame": 645, "do": "shot", "name": "gondola_out" },
+			]
 		"valley":
 			var steps: Array[Dictionary] = []
 			var stops: Array[Dictionary] = [
@@ -240,7 +266,7 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				steps.append({ "frame": 60 + index * 40, "do": "teleport", "to": stops[index]["at"] })
 				steps.append({ "frame": 95 + index * 40, "do": "shot", "name": "valley_%s" % stops[index]["name"] })
 			# 吊斗滑行中途
-			steps.append({ "frame": 470, "do": "teleport", "to": Vector2(1500, -600) })
+			steps.append({ "frame": 470, "do": "teleport", "to": Vector2(1500, -640) })
 			steps.append({ "frame": 475, "do": "weather", "weather": Weather.Type.WIND })
 			steps.append({ "frame": 480, "do": "cast" })
 			steps.append({ "frame": 560, "do": "shot", "name": "valley_gondola_mid" })

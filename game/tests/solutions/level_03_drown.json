@@ -1,7 +1,7 @@
 {
   "complete": false,
   "steps": [
-    { "teleport": [1500, -600] },
+    { "teleport": [1500, -640] },
     { "cast": "wind", "wait": 3.5 },
 
     { "teleport": [3100, -350] },

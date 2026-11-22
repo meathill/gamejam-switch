@@ -1,6 +1,6 @@
 {
   "steps": [
-    { "teleport": [1500, -600] },
+    { "teleport": [1500, -640] },
     { "cast": "wind", "wait": 3.5 },
     { "expect_player": [2500, -250] },
 

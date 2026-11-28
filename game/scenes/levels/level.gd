@@ -70,7 +70,7 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if _focus_held:
-		_camera.offset = _focus_world - _player.global_position
+		_camera.offset = _focus_world - _camera_base()
 	_rain.visible = _player.global_position.y < data.underground_y
 
 
@@ -98,7 +98,7 @@ func _play_queued_focus() -> void:
 		var request: Array = _focus_queue.pop_front()
 		var focus_position: Vector2 = request[0]
 		_focus_world = focus_position
-		await _pan_camera(focus_position - _player.global_position)
+		await _pan_camera(focus_position - _camera_base())
 		_focus_held = true
 		await get_tree().create_timer(request[1]).timeout
 		_focus_held = false
@@ -111,7 +111,7 @@ func _play_queued_focus() -> void:
 func _on_lookout_started(focus_position: Vector2, _hint: String) -> void:
 	_player.is_input_locked = true
 	_focus_world = focus_position
-	await _pan_camera(focus_position - _player.global_position)
+	await _pan_camera(focus_position - _camera_base())
 	_focus_held = true
 
 
@@ -119,6 +119,11 @@ func _on_lookout_ended() -> void:
 	_focus_held = false
 	await _pan_camera(Vector2.ZERO)
 	_player.is_input_locked = false
+
+
+## 不含 offset 的镜头中心：被关卡边界限住时（如 A 靠左边界）和小猫位置不同，focus 的 offset 要按它算
+func _camera_base() -> Vector2:
+	return _camera.get_screen_center_position() - _camera.offset
 
 
 func _pan_camera(offset: Vector2) -> void:

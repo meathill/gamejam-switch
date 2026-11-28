@@ -246,9 +246,11 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 - `add_pressure`（联动下雨、融雪、深水事件）：+1；到 4 格 WARNING，到 5 格 COLLAPSE；溃泄中或 stage 3 后 IGNORED。
 - 溃泄后按小猫**到过的最大 x** 选最远的安全点（`safe_points[].from_x`），把小猫送过去、设为检查点并启用对应应急便道（`passage`，单向去下游 F）。
 - 恢复：F 河湾变浅（`shallow`）联动 `recover`，压力回到 `stable_pressure`、已放倒的保留，便道关闭并把小猫送回起点。冰堰的实现是 collapse 时 block 河湾日照、冻住小坝后 unblock，逼玩家先筑冰堰再退水。
-- 放倒演出：`confirm` 先 `request_focus(堰板中心, BOARD_FOCUS_SECONDS=3.0)` 再发 `stage_k`，联动的「后果」镜头排在看板镜头之后；板角度 0→−80° 补间 0.8s（镜头补间 `Level.FOCUS_PAN_SECONDS`=0.4 到位后开始），水帘随后 0.5s 淡入；三块板的标签用 Label 子节点（Web 上 `draw_string` 没有中文字形）。stage 3 后湖口到上段再接一段水帘，连成整条阶梯瀑布。`LOWER_SECONDS`=7.0 的忙碌期覆盖整段演出。
-- stage 联动 delay 的算法：后果 focus 的 `delay` = 0.4（看板补间）+ 3.0（看板停留）= 3.4；水位 `set` 的 `delay` = 3.4 + 0.4（后果镜头补间）= 3.8，使水位变化在镜头到位后才开始；`seconds` 控制补间时长（stage_1 河湾 2s、stage_3 湖 2.5s）；`message` 的 `delay` 对齐后果画面（3.9）；stage_2 的 `foam_g` reveal 对齐中段水帘出现（≈0.4+0.8+0.5→2.0），`ledge_h` reveal 对齐其短镜头到位（3.8）。
-- stage 3 后对 river/sandbar/rapids/bay/dam/pool/lake 屏蔽雨、对 lake_mouth/snowline 屏蔽雨/日照（reason 统一「三段堰板都放倒了，水存不住……」），下游不再蓄水。`block`/`unblock` 实现在 `WeatherTarget` 基类，所有天气目标通用。
+- 堰区地形（G–J）：三块板立在各自台阶的下游边缘——下段在 step_g1 西缘、中段在 step_g2 西缘、上段在 step_g3 东缘；第 1、2 级台阶顶上各有 60 深浅池 `basin_1`/`basin_2`（level 1，被板挡住）；堰塞湖西缘（x6620）直接顶到上段板，`bank_j` 降为湖床暗坎（顶面 −50），湖底台阶 step_i1..i3 是护送路线，stage 3 泄洪后露出。跌水潭 `pool` 只占台阶下游真正的潭（6000–6200），不画在台阶上。
+- 放倒演出：`confirm` 先 `request_focus(堰板中心, BOARD_FOCUS_SECONDS=3.0)` 再发 `stage_k`，联动的「后果」镜头排在看板镜头之后；板角度 0→−80° 补间 0.8s（镜头补间 `Level.FOCUS_PAN_SECONDS`=0.4 到位后开始），水帘随后 0.5s 淡入；三块板的标签用 Label 子节点（Web 上 `draw_string` 没有中文字形）。每块放倒的板持续一道水帘：湖→basin_2→basin_1→跌水潭，上段放倒后连成整条阶梯瀑布。`LOWER_SECONDS`=7.0 的忙碌期覆盖整段演出。
+- stage 联动 delay 的算法：后果 focus 的 `delay` = 0.4（看板补间）+ 3.0（看板停留）= 3.4；水位 `set` 的 `delay` = 3.4 + 0.4（后果镜头补间）= 3.8，使水位变化在镜头到位后才开始；`seconds` 控制补间时长（stage_1 河湾/basin_1 各 2s、stage_3 湖 2.5s）；`message` 的 `delay` 对齐后果画面（3.9）；stage_2 的 `foam_g` reveal 对齐中段水帘出现（≈0.4+0.8+0.5→2.0），`ledge_h` reveal 对齐其短镜头到位（3.8）。
+- 每放倒一块板泄掉它挡的池：stage_1 `basin_1`→0（河湾同步退到 1）、stage_2 `basin_2`→0、stage_3 **堰塞湖 2→1**（不放干，湖床台阶露出），basin 在溃泄/恢复时都不变。
+- stage 3 后对 river/sandbar/rapids/bay/dam/pool/lake/basin_1/basin_2 屏蔽雨、对 lake_mouth/snowline 屏蔽雨/日照（reason 统一「三段堰板都放倒了，水存不住……」），下游不再蓄水。`block`/`unblock` 实现在 `WeatherTarget` 基类，所有天气目标通用。
 - 教学：E 检查点（`checkpoint_e`）首次激活发 `reached` → 镜头看堰板 3s → 播 `level_03_weir.json` 对白；对白 delay 4.0 等镜头播完。HUD 在选中绞盘时显示 `WeirPanel` 阶梯示意图（下/中/上 由低到高、湖右上河湾左下、选中板白框、溃泄红闪）。
 
 ### 5.7 存档（`scripts/save_game.gd`）
@@ -316,7 +318,7 @@ scenes/effects/ Backdrop（按关卡配置的远景）、RainOverlay、WeatherEf
 godot --path game --always-on-top --resolution 1280x720 -s res://tests/capture.gd -- res://scenes/levels/level.tscn /tmp/cap level [level_id]
 ```
 
-场景：`level`（第一关主流程）、`finale`（救援与通关）、`stairs` / `garden`（第一关台阶与支路的真实跳跃）、`farm`（第二关各区域）、`farm_moves`（第二关关键跳跃）、`valley`（第三关各区域）、`valley_moves`（第三关关键跳跃）、`prologue`（序章）。
+场景：`level`（第一关主流程）、`finale`（救援与通关）、`stairs` / `garden`（第一关台阶与支路的真实跳跃）、`farm`（第二关各区域）、`farm_moves`（第二关关键跳跃）、`valley`（第三关各区域）、`valley_moves`（第三关关键跳跃）、`weir` / `weir_stages` / `weir_walk`（第三关活动堰演出、四态对比、stage_3 后 E→水文站真实移动）、`prologue`（序章）。
 
 ## 9. 代码规范补充（GDScript）
 

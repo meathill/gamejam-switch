@@ -436,6 +436,70 @@ func _build_steps(scenario: String) -> Array[Dictionary]:
 				{ "frame": 92, "do": "call", "id": "weir", "method": "confirm" },
 				{ "frame": 140, "do": "shot", "name": "weir_collapse" },
 			]
+		"weir_stages":
+			# 同一视角看 G-J 堰区四态：小猫站上段台阶顶，镜头定住；每段演出播完再截图
+			return [
+				{ "frame": 40, "do": "teleport", "to": Vector2(6550, -350) },
+				{ "frame": 60, "do": "shot", "name": "stage_0_dammed" },
+				{ "frame": 80, "do": "prop", "id": "weir", "prop": "selection", "value": 0 },
+				{ "frame": 82, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 680, "do": "shot", "name": "stage_1_low" },
+				{ "frame": 700, "do": "prop", "id": "weir", "prop": "selection", "value": 1 },
+				{ "frame": 702, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 1280, "do": "shot", "name": "stage_2_mid" },
+				{ "frame": 1300, "do": "prop", "id": "weir", "prop": "selection", "value": 2 },
+				{ "frame": 1302, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 1900, "do": "shot", "name": "stage_3_top" },
+				{ "frame": 1901, "do": "log", "name": "stage_3_done" },
+			]
+		"weir_walk":
+			# stage_3 后真实移动 E→水文站：step_h → H 岩架 → 上段台阶 → 浅湖涉水 → I 台阶 → 平台
+			# 三次 confirm 走真实联动（basin 放干、湖降到 1、岩架 reveal），等镜头队列播完再走
+			return [
+				{ "frame": 30, "do": "teleport", "to": Vector2(4620, -620) },
+				{ "frame": 60, "do": "prop", "id": "weir", "prop": "selection", "value": 0 },
+				{ "frame": 62, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 120, "do": "prop", "id": "weir", "prop": "selection", "value": 1 },
+				{ "frame": 122, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 180, "do": "prop", "id": "weir", "prop": "selection", "value": 2 },
+				{ "frame": 182, "do": "call", "id": "weir", "method": "confirm" },
+				{ "frame": 1400, "do": "log", "name": "pre_walk" },
+				# step_h 顶 → 跳过 100px 空隙上 ledge_h（顶 -800，落差 180）
+				{ "frame": 1410, "do": "press", "action": "move_right" },
+				{ "frame": 1420, "do": "press", "action": "jump" },
+				{ "frame": 1455, "do": "release", "action": "jump" },
+				# 沿岩架向东 ~1700px；到东端前松开，直落上段台阶顶（-350）
+				{ "frame": 1635, "do": "release", "action": "move_right" },
+				{ "frame": 1670, "do": "log", "name": "ledge_end" },
+				{ "frame": 1675, "do": "shot", "name": "walk_crest" },
+				# 走下台阶东缘，跌进浅湖（床 -50，60 深），涉水到 step_i1 西壁跳上去
+				{ "frame": 1690, "do": "press", "action": "move_right" },
+				{ "frame": 1720, "do": "log", "name": "in_lake" },
+				{ "frame": 1722, "do": "shot", "name": "walk_wade" },
+				{ "frame": 1795, "do": "press", "action": "jump" },
+				{ "frame": 1830, "do": "release", "action": "jump" },
+				{ "frame": 1840, "do": "log", "name": "on_step_i1" },
+				# 逐级跳 i2(-370)、i3(-540)、platform_i(-700)，每级落差 ~170；
+				# 实测一个 300px 的跳能跨过整级 130px 台阶，间隔放宽到 ~60f
+				{ "frame": 1855, "do": "press", "action": "jump" },
+				{ "frame": 1890, "do": "release", "action": "jump" },
+				{ "frame": 1915, "do": "press", "action": "jump" },
+				{ "frame": 1950, "do": "release", "action": "jump" },
+				{ "frame": 1965, "do": "log", "name": "mid_i_steps" },
+				# 一跳 ~450px：从 i3 顶起跳空中松右减速，落在 platform_i 上再按左刹停
+				{ "frame": 1970, "do": "release", "action": "move_right" },
+				{ "frame": 1995, "do": "press", "action": "move_left" },
+				{ "frame": 2025, "do": "release", "action": "move_left" },
+				{ "frame": 2045, "do": "log", "name": "on_platform_i" },
+				{ "frame": 2050, "do": "shot", "name": "walk_platform" },
+				# 落点 ~7470 就在守河人（7450）旁边，按 E 护送起步后跟着他向右走
+				{ "frame": 2065, "do": "press", "action": "interact" },
+				{ "frame": 2067, "do": "release", "action": "interact" },
+				{ "frame": 2095, "do": "press", "action": "move_right" },
+				{ "frame": 2420, "do": "shot", "name": "walk_escort" },
+				{ "frame": 2421, "do": "log", "name": "escort" },
+				{ "frame": 2440, "do": "release", "action": "move_right" },
+			]
 		"spots":
 			# 远程天气目标：A 区无可见框；施放后镜头切到真实地点看特效再回来
 			# 只施放一次（水尺 3→4），避免第二次施放触发溃泄抢走镜头焦点

@@ -57,7 +57,6 @@ var _active_route: Passage = null
 var _board_angles: Array[float] = [0.0, 0.0, 0.0]
 ## 每块板水帘的透明度；湖口水帘单独一个
 var _cascade_alphas: Array[float] = [0.0, 0.0, 0.0]
-var _lake_cascade_alpha: float = 0.0
 var _cascade_time: float = 0.0
 var _winch_angle: float = 0.0:
 	set(value):
@@ -99,7 +98,7 @@ func _get_player() -> Player:
 
 
 func _has_flow() -> bool:
-	return _lake_cascade_alpha > 0.0 or _cascade_alphas.any(func(alpha: float) -> bool: return alpha > 0.0)
+	return _cascade_alphas.any(func(alpha: float) -> bool: return alpha > 0.0)
 
 
 func is_busy() -> bool:
@@ -204,8 +203,6 @@ func _lower_board(index: int) -> void:
 	var tween := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.tween_method(_set_board_angle.bind(index), 0.0, WeirDrawing.LOWERED_ANGLE, BOARD_LOWER_SECONDS)
 	tween.tween_method(_set_cascade_alpha.bind(index), 0.0, 1.0, CASCADE_FADE_SECONDS)
-	if index == WeirRules.BOARD_COUNT - 1:
-		tween.parallel().tween_method(_set_lake_cascade_alpha, 0.0, 1.0, CASCADE_FADE_SECONDS)
 
 
 func _set_board_angle(angle: float, index: int) -> void:
@@ -215,10 +212,6 @@ func _set_board_angle(angle: float, index: int) -> void:
 
 func _set_cascade_alpha(alpha: float, index: int) -> void:
 	_cascade_alphas[index] = alpha
-
-
-func _set_lake_cascade_alpha(alpha: float) -> void:
-	_lake_cascade_alpha = alpha
 
 
 ## 放倒堰板后的忙碌期覆盖整段演出：期间风和确认都忙，涨压先记下再补结算
@@ -337,9 +330,6 @@ func _draw() -> void:
 		if index < state.stage and index != _blown_board and _cascade_alphas[index] > 0.0:
 			var path := WeirDrawing.cascade_path(boards, index, global_position)
 			WeirDrawing.draw_cascade(self, path[0], path[1], path[2], _cascade_alphas[index], _cascade_time)
-	if _lake_cascade_alpha > 0.0:
-		var path := WeirDrawing.lake_cascade_path(boards, global_position)
-		WeirDrawing.draw_cascade(self, path[0], path[1], path[2], _lake_cascade_alpha, _cascade_time)
 	# 绞盘风车，按选中角度旋转
 	var winch_size := WINCH_TEXTURE.get_size() * WINCH_DIAMETER / WINCH_TEXTURE.get_width()
 	draw_set_transform(Vector2(0, -WINCH_HEIGHT), _winch_angle)

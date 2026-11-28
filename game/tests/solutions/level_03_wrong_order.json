@@ -45,6 +45,6 @@
     { "interact": true },
     { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 3 },
-    { "expect_water": "lake", "level": 0 }
+    { "expect_water": "lake", "level": 1 }
   ]
 }

@@ -18,29 +18,21 @@ const FOAM_COUNT := 5
 const WATER_COLOR := Color(0.35, 0.62, 0.9, 0.5)
 const STRIPE_COLOR := Color(0.8, 0.92, 1.0, 0.85)
 const FOAM_COLOR := Color(0.95, 0.98, 1.0, 0.9)
-## 跌水潭（pool）深水水面和湖岸西沿的世界坐标，画水帘落点用
-const POOL_SURFACE := Vector2(6040.0, 100.0)
-const LAKE_LIP := Vector2(6560.0, -454.0)
+## 跌水潭（pool）深水水面的世界坐标，下段水帘的落点
+const POOL_SURFACE := Vector2(6100.0, 100.0)
+## 各板水帘的沿口（相对板底）：下/中段是板后浅池的水面（台阶顶上方 60），上段是堰塞湖面（板底上 104）
+const CASCADE_LIPS := [Vector2(60.0, -64.0), Vector2(60.0, -64.0), Vector2(55.0, -104.0)]
+## 各板水帘翻过放倒的板、越过下一级台阶边缘的控制点（相对板底）
+const CASCADE_OVERS := [Vector2(-30.0, -90.0), Vector2(-20.0, -105.0), Vector2(-105.0, -140.0)]
 
 
-## 一块板的水帘路径（origin 为 Weir 原点，返回本地坐标）：从板上游沿口翻过板顶，
-## 落到下一级；下段落进跌水潭水面
+## 一块板的水帘路径（origin 为 Weir 原点，返回本地坐标）：水从板挡的上游水面
+## （湖、basin_2 或 basin_1）翻过放倒的板，落进下一级水面（basin_2、basin_1 或跌水潭）
 static func cascade_path(boards: PackedVector2Array, index: int, origin: Vector2) -> PackedVector2Array:
-	var top := boards[index] - origin
-	var from := top + Vector2(50.0, -BOARD_SIZE.y - 2.0)
-	var over := top + Vector2(-5.0, -BOARD_SIZE.y - 12.0)
+	var base := boards[index] - origin
 	var landing := (
-		POOL_SURFACE - origin if index == 0 else boards[index - 1] - origin + Vector2(60.0, 0.0))
-	return PackedVector2Array([from, over, landing])
-
-
-## stage 3 后湖口到上段台阶的一段（本地坐标），把整条阶梯水帘接到湖上
-static func lake_cascade_path(boards: PackedVector2Array, origin: Vector2) -> PackedVector2Array:
-	return PackedVector2Array([
-		LAKE_LIP - origin,
-		LAKE_LIP - origin + Vector2(-75.0, -10.0),
-		boards[boards.size() - 1] - origin + Vector2(60.0, 0.0),
-	])
+		POOL_SURFACE - origin if index == 0 else boards[index - 1] - origin + Vector2(85.0, -60.0))
+	return PackedVector2Array([base + CASCADE_LIPS[index], base + CASCADE_OVERS[index], landing])
 
 
 ## 画一块堰板：base 是板底边中点。is_blown 时固定 -60° 半透明（溃泄画法不变）；

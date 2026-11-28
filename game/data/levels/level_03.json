@@ -16,8 +16,8 @@
   ],
   "intro_focus": [
     [
-      7600,
-      -450,
+      6600,
+      -300,
       2.0
     ],
     [
@@ -104,18 +104,23 @@
           600
         ]
       ],
-      "color": [0.78, 0.79, 0.95, 0.5],
+      "color": [
+        0.78,
+        0.79,
+        0.95,
+        0.5
+      ],
       "snow_y": -1300
     },
     {
       "type": "decor",
       "id": "foam_g",
       "pos": [
-        6060,
-        55
+        6040,
+        95
       ],
       "size": [
-        280,
+        150,
         55
       ],
       "color": "#eef5f5",
@@ -270,7 +275,7 @@
         -800
       ],
       "size": [
-        1600,
+        1760,
         240
       ],
       "texture": "res://assets/textures/valley/earth.png",
@@ -338,11 +343,11 @@
       "id": "bank_g",
       "pos": [
         5840,
-        150
+        90
       ],
       "size": [
         160,
-        2350
+        2410
       ],
       "texture": "res://assets/textures/valley/earth.png",
       "top_color": "#f1b891"
@@ -351,7 +356,7 @@
       "type": "block",
       "id": "step_g1",
       "pos": [
-        6060,
+        6200,
         -50
       ],
       "size": [
@@ -365,7 +370,7 @@
       "type": "block",
       "id": "step_g2",
       "pos": [
-        6200,
+        6340,
         -200
       ],
       "size": [
@@ -379,7 +384,7 @@
       "type": "block",
       "id": "step_g3",
       "pos": [
-        6340,
+        6480,
         -350
       ],
       "size": [
@@ -393,12 +398,12 @@
       "type": "block",
       "id": "bank_j",
       "pos": [
-        6480,
-        -450
+        6620,
+        -50
       ],
       "size": [
-        420,
-        2950
+        360,
+        2550
       ],
       "texture": "res://assets/textures/valley/earth.png",
       "top_color": "#f1b891"
@@ -643,7 +648,7 @@
         100
       ],
       "size": [
-        400,
+        200,
         350
       ],
       "level": 2,
@@ -651,14 +656,44 @@
     },
     {
       "type": "water",
+      "id": "basin_1",
+      "pos": [
+        6250,
+        -110
+      ],
+      "size": [
+        90,
+        60
+      ],
+      "name": "下段池",
+      "level": 1,
+      "basin": false
+    },
+    {
+      "type": "water",
+      "id": "basin_2",
+      "pos": [
+        6390,
+        -260
+      ],
+      "size": [
+        90,
+        60
+      ],
+      "name": "中段池",
+      "level": 1,
+      "basin": false
+    },
+    {
+      "type": "water",
       "id": "lake",
       "name": "堰塞湖",
       "pos": [
-        6900,
+        6620,
         -450
       ],
       "size": [
-        1400,
+        1680,
         400
       ],
       "level": 2,
@@ -682,9 +717,9 @@
       ],
       "status": "下雨会让上游涨水，水尺 +1",
       "view": [
-        7000,
-        -450,
-        1200,
+        7460,
+        -330,
+        1500,
         1
       ]
     },
@@ -1226,15 +1261,15 @@
       ],
       "boards": [
         [
-          6130,
+          6220,
           -50
         ],
         [
-          6270,
+          6365,
           -200
         ],
         [
-          6410,
+          6595,
           -350
         ]
       ],
@@ -1687,6 +1722,15 @@
     {
       "when": "weir",
       "event": "stage_1",
+      "do": "set",
+      "target": "basin_1",
+      "level": 0,
+      "seconds": 2,
+      "delay": 3.8
+    },
+    {
+      "when": "weir",
+      "event": "stage_1",
       "do": "focus",
       "pos": [
         5530,
@@ -1719,6 +1763,15 @@
     {
       "when": "weir",
       "event": "stage_2",
+      "do": "set",
+      "target": "basin_2",
+      "level": 0,
+      "seconds": 2,
+      "delay": 3.8
+    },
+    {
+      "when": "weir",
+      "event": "stage_2",
       "do": "focus",
       "pos": [
         5600,
@@ -1739,7 +1792,7 @@
       "event": "stage_3",
       "do": "set",
       "target": "lake",
-      "level": 0,
+      "level": 1,
       "seconds": 2.5,
       "delay": 3.8
     },
@@ -1748,8 +1801,8 @@
       "event": "stage_3",
       "do": "focus",
       "pos": [
-        7600,
-        -450
+        7200,
+        -350
       ],
       "seconds": 3.0,
       "delay": 3.4
@@ -1758,7 +1811,7 @@
       "when": "weir",
       "event": "stage_3",
       "do": "message",
-      "text": "三级阶梯过水，堰塞湖退下去了，通往水文站的台阶露出来了",
+      "text": "三级阶梯过水，堰塞湖泄下去一截，通往水文站的台阶露出来了",
       "delay": 3.9
     },
     {
@@ -1865,8 +1918,8 @@
       "event": "reached",
       "do": "focus",
       "pos": [
-        6270,
-        -200
+        6410,
+        -250
       ],
       "seconds": 3.0
     },
@@ -1942,6 +1995,22 @@
       "do": "set",
       "target": "dam",
       "frozen": false
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "basin_1",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
+    },
+    {
+      "when": "weir",
+      "event": "stage_3",
+      "do": "block",
+      "target": "basin_2",
+      "weather": "rain",
+      "reason": "三段堰板都放倒了，水存不住，顺着河道流走了"
     }
   ]
 }

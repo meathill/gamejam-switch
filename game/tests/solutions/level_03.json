@@ -26,23 +26,25 @@
     { "expect_prop": "weir", "stage": 1 },
     { "expect_prop": "weir", "pressure": 2 },
     { "expect_water": "bay", "level": 1 },
+    { "expect_water": "basin_1", "level": 0 },
 
     { "cast": "wind", "wait": 0.8 },
     { "interact": true },
     { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 2 },
     { "expect_prop": "weir", "pressure": 1 },
+    { "expect_water": "basin_2", "level": 0 },
 
     { "cast": "wind", "wait": 0.8 },
     { "interact": true },
     { "wait": 8.0 },
     { "expect_prop": "weir", "stage": 3 },
     { "expect_prop": "weir", "pressure": 0 },
-    { "expect_water": "lake", "level": 0 },
+    { "expect_water": "lake", "level": 1 },
 
     { "teleport": [7050, -200] },
     { "cast": "rain", "wait": 1.0 },
-    { "expect_water": "lake", "level": 0 },
+    { "expect_water": "lake", "level": 1 },
 
     { "teleport": [7450, -700] },
     { "interact": true },
